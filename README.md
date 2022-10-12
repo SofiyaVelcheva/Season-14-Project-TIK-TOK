@@ -1,4 +1,5 @@
-## Season-14-TIK-TOK-FINAL-PROJECT by Sofiya Velcheva and Miroslava Kirlova
+### Season-14-TIK-TOK-FINAL-PROJECT by Sofiya Velcheva and Miroslava Kirlova
+---
 
 1. Логин и регистрация на потребител. 
 2. Качване на пост с видео. 
