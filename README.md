@@ -11,7 +11,7 @@
 8. Възможност за лайкване на коментар. 
 9. Възможност за завършване на регистрацията чрез изпращане на мейл с код или линк
 ---
-This is our final project done during the level 4 at the IT TALENTS Training Camp.
+This is our final project done during the level **4** at the **IT TALENTS** *Training Camp*.
 
 Implementation of the **TIK TOK**
 
