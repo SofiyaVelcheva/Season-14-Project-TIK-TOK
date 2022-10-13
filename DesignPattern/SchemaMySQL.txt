@@ -1,0 +1,262 @@
+-- MySQL Workbench Forward Engineering
+
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+-- -----------------------------------------------------
+-- Schema Tik-Tok
+-- -----------------------------------------------------
+
+-- -----------------------------------------------------
+-- Schema Tik-Tok
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `Tik-Tok` DEFAULT CHARACTER SET utf8 ;
+USE `Tik-Tok` ;
+
+-- -----------------------------------------------------
+-- Table `Tik-Tok`.`users`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Tik-Tok`.`users` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `username` VARCHAR(45) NOT NULL,
+  `password` VARCHAR(100) NOT NULL,
+  `first_name` VARCHAR(50) NOT NULL,
+  `last_name` VARCHAR(50) NOT NULL,
+  `email` VARCHAR(50) NOT NULL,
+  `phone_number` VARCHAR(20) NOT NULL,
+  `date_of_birth` DATE NOT NULL,
+  `verified_email` TINYINT NOT NULL,
+  `profile_photo_URL` VARCHAR(100) NULL,
+  `last_login` DATETIME NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `username_UNIQUE` (`username` ASC) VISIBLE,
+  UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE,
+  UNIQUE INDEX `phone_number_UNIQUE` (`phone_number` ASC) VISIBLE)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `Tik-Tok`.`subscribers`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Tik-Tok`.`subscribers` (
+  `publisher_id` INT NOT NULL,
+  `subscriber_id` INT NOT NULL,
+  INDEX `subscribers_users_fk_idx` (`publisher_id` ASC) VISIBLE,
+  INDEX `subscribers_users_subscriber_fk_idx` (`subscriber_id` ASC) VISIBLE,
+  PRIMARY KEY (`publisher_id`, `subscriber_id`),
+  CONSTRAINT `subscribers_users_publisher_fk`
+    FOREIGN KEY (`publisher_id`)
+    REFERENCES `Tik-Tok`.`users` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `subscribers_users_subscriber_fk`
+    FOREIGN KEY (`subscriber_id`)
+    REFERENCES `Tik-Tok`.`users` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `Tik-Tok`.`sounds`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Tik-Tok`.`sounds` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `owner_id` INT NOT NULL,
+  `title` VARCHAR(50) NOT NULL,
+  `sound_URL` VARCHAR(200) NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `sounds_users_fk_idx` (`owner_id` ASC) VISIBLE,
+  CONSTRAINT `sounds_users_fk`
+    FOREIGN KEY (`owner_id`)
+    REFERENCES `Tik-Tok`.`users` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `Tik-Tok`.`videos`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Tik-Tok`.`videos` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `owner_id` INT NOT NULL,
+  `video _URL` VARCHAR(200) NOT NULL,
+  `upload_at` DATETIME NOT NULL,
+  `is_live` TINYINT NOT NULL,
+  `is_private` TINYBLOB NOT NULL,
+  `sound_id` INT NULL,
+  `description` VARCHAR(200) NULL,
+  PRIMARY KEY (`id`),
+  INDEX `videos_users_fk_idx` (`owner_id` ASC) VISIBLE,
+  INDEX `videos_sounds_fk_idx` (`sound_id` ASC) VISIBLE,
+  CONSTRAINT `videos_users_fk`
+    FOREIGN KEY (`owner_id`)
+    REFERENCES `Tik-Tok`.`users` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `videos_sounds_fk`
+    FOREIGN KEY (`sound_id`)
+    REFERENCES `Tik-Tok`.`sounds` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `Tik-Tok`.`messages`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Tik-Tok`.`messages` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `sender_id` INT NOT NULL,
+  `receiver_id` INT NOT NULL,
+  `text` VARCHAR(500) NOT NULL,
+  `send_at` DATETIME NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `messages_users_receiverr_fk_idx` (`receiver_id` ASC) VISIBLE,
+  INDEX `messages_users_sender_fk_idx` (`sender_id` ASC) VISIBLE,
+  CONSTRAINT `messages_users_receiverr_fk`
+    FOREIGN KEY (`receiver_id`)
+    REFERENCES `Tik-Tok`.`users` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `messages_users_sender_fk`
+    FOREIGN KEY (`sender_id`)
+    REFERENCES `Tik-Tok`.`users` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `Tik-Tok`.`comments`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Tik-Tok`.`comments` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `owner_id` INT NOT NULL,
+  `video_id` INT NOT NULL,
+  `text` VARCHAR(200) NOT NULL,
+  `upload_at` DATETIME NOT NULL,
+  `parent_id` INT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `comments_with_comments_fk_idx` (`parent_id` ASC) VISIBLE,
+  INDEX `comments_videos_fk_idx` (`video_id` ASC) VISIBLE,
+  INDEX `comments_users_fk_idx` (`owner_id` ASC) VISIBLE,
+  CONSTRAINT `comments_with_comments_fk`
+    FOREIGN KEY (`parent_id`)
+    REFERENCES `Tik-Tok`.`comments` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `comments_videos_fk`
+    FOREIGN KEY (`video_id`)
+    REFERENCES `Tik-Tok`.`videos` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `comments_users_fk`
+    FOREIGN KEY (`owner_id`)
+    REFERENCES `Tik-Tok`.`users` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `Tik-Tok`.`video_likes`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Tik-Tok`.`video_likes` (
+  `video_id` INT NOT NULL,
+  `user_id` INT NOT NULL,
+  INDEX `video_likes_videos_fk_idx` (`video_id` ASC) VISIBLE,
+  INDEX `vidos_likes_users_fk_idx` (`user_id` ASC) VISIBLE,
+  PRIMARY KEY (`video_id`, `user_id`),
+  CONSTRAINT `video_likes_videos_fk`
+    FOREIGN KEY (`video_id`)
+    REFERENCES `Tik-Tok`.`videos` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `vidos_likes_users_fk`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `Tik-Tok`.`users` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `Tik-Tok`.`comment_likes`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Tik-Tok`.`comment_likes` (
+  `comment_id` INT NOT NULL,
+  `user_id` INT NOT NULL,
+  INDEX `comment_likes_comments_fl_idx` (`comment_id` ASC) VISIBLE,
+  INDEX `comment_likes_users_idx` (`user_id` ASC) VISIBLE,
+  PRIMARY KEY (`user_id`, `comment_id`),
+  CONSTRAINT `comment_likes_comments_fl`
+    FOREIGN KEY (`comment_id`)
+    REFERENCES `Tik-Tok`.`comments` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `comment_likes_users`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `Tik-Tok`.`users` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `Tik-Tok`.`hashtags`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Tik-Tok`.`hashtags` (
+  `id` INT NOT NULL,
+  `text` VARCHAR(50) NOT NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `Tik-Tok`.`videos_with_hashtags`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Tik-Tok`.`videos_with_hashtags` (
+  `hashtag_id` INT NOT NULL,
+  `video_id` INT NOT NULL,
+  PRIMARY KEY (`hashtag_id`, `video_id`),
+  INDEX `videos_with_hashtags_videos_fk_idx` (`video_id` ASC) VISIBLE,
+  CONSTRAINT `videos_with_hashtags_hashtags_fk`
+    FOREIGN KEY (`hashtag_id`)
+    REFERENCES `Tik-Tok`.`hashtags` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `videos_with_hashtags_videos_fk`
+    FOREIGN KEY (`video_id`)
+    REFERENCES `Tik-Tok`.`videos` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `Tik-Tok`.`user_tags`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Tik-Tok`.`user_tags` (
+  `user_id` INT NOT NULL,
+  `video_id` INT NOT NULL,
+  PRIMARY KEY (`user_id`, `video_id`),
+  INDEX `user_tags_videos_fk_idx` (`video_id` ASC) VISIBLE,
+  CONSTRAINT `user_tags_users_fk`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `Tik-Tok`.`users` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `user_tags_videos_fk`
+    FOREIGN KEY (`video_id`)
+    REFERENCES `Tik-Tok`.`videos` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
