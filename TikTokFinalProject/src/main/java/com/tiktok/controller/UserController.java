@@ -1,4 +1,4 @@
-package com.example.tiktok.controller;
+package com.tiktok.controller;
 
 import org.springframework.web.bind.annotation.*;
 

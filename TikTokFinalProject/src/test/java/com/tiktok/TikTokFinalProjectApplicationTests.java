@@ -1,4 +1,4 @@
-package com.example.tiktok;
+package com.tiktok;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
