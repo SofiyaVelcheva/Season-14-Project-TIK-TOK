@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "spring.jra.open-in-view",
+      "type": "java.lang.String",
+      "description": "Description for spring.jra.open-in-view."
+  }
+] }

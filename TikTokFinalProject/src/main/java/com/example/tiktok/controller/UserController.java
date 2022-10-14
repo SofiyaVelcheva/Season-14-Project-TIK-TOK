@@ -7,6 +7,8 @@ public class UserController {
 
     @GetMapping("/users")
     public String getAll() {
-        return "blya blya";
+        return "hi";
     }
+
+
 }
