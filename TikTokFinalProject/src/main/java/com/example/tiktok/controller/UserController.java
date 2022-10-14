@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     @GetMapping("/users")
     public String getAll() {
-        return "hi";
+        return "MIraaaa poginahme";
     }
 
 
