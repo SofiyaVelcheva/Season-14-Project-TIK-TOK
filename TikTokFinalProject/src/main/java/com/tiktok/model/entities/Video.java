@@ -13,18 +13,27 @@ public class Video {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    @Column
-    private User user;
-    @Column
+
+    @ManyToOne
+    @JoinColumn(name = "owner_id")
+    private User owner;
+
+    @Column (name = "video_URL")
     private String videoURL;
+
     @Column
     private LocalDateTime uploadAt;
+
     @Column
     private boolean isLive;
+
     @Column
     private boolean isPrivate;
-    @Column
+
+    @OneToOne
+    @JoinColumn(name = "sound_id")
     private Sound sound;
+
     @Column
     private String description;
 
