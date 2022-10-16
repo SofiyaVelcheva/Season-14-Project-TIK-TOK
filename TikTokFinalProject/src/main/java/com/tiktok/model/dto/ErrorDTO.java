@@ -1,4 +1,4 @@
-package com.tiktok.model.dto.errorDTO;
+package com.tiktok.model.dto;
 
 import lombok.Data;
 

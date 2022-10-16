@@ -1,6 +1,6 @@
 package com.tiktok.controller;
 
-import com.tiktok.model.dto.errorDTO.ErrorDTO;
+import com.tiktok.model.dto.ErrorDTO;
 import com.tiktok.model.exceptions.NotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +15,8 @@ public abstract class GlobalController {
 
     @Autowired
     private ModelMapper modelMapper;
+
+
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(code = HttpStatus.NOT_FOUND)

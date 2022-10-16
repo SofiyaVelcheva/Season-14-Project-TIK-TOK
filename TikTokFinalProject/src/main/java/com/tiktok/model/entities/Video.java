@@ -1,6 +1,7 @@
 package com.tiktok.model.entities;
 
 import lombok.Data;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -8,6 +9,7 @@ import java.time.LocalDateTime;
 @Data
 @Entity
 @Table(name = "videos")
+@ToString
 public class Video {
 
     @Id
