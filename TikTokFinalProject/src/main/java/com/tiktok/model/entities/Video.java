@@ -15,11 +15,11 @@ public class Video {
     private long id;
 
     @ManyToOne
-    @JoinColumn(name = "owner_id")
+    @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
-    @Column (name = "video_URL")
-    private String videoURL;
+    @Column (name = "video_url")
+    private String videoUrl;
 
     @Column
     private LocalDateTime uploadAt;
