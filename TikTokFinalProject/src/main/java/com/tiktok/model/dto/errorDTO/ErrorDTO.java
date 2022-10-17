@@ -1,15 +1,14 @@
-package com.tiktok.model.dto;
+package com.tiktok.model.dto.errorDTO;
 
 import lombok.Data;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 public class ErrorDTO {
 
     private int status;
-    private LocalDate localDate;
+    private LocalDateTime time;
     private String msg;
-
 
 }

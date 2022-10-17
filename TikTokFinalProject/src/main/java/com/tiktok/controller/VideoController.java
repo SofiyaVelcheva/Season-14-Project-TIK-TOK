@@ -1,10 +1,9 @@
 package com.tiktok.controller;
 
-import com.tiktok.model.dto.VideoDTO;
+import com.tiktok.model.dto.videoDTO.VideoDTO;
 import com.tiktok.model.entities.Sound;
 import com.tiktok.model.entities.User;
 import com.tiktok.model.entities.Video;
-import com.tiktok.model.exceptions.BadRequestException;
 import com.tiktok.model.exceptions.NotFoundException;
 import com.tiktok.model.repository.SoundRepository;
 import com.tiktok.model.repository.UserRepository;

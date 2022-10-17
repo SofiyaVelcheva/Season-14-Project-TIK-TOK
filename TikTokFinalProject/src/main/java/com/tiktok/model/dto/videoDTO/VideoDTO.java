@@ -1,4 +1,4 @@
-package com.tiktok.model.dto;
+package com.tiktok.model.dto.videoDTO;
 
 import com.tiktok.model.entities.Sound;
 import com.tiktok.model.entities.User;
