@@ -7,8 +7,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Data
-@Entity
-@Table(name = "sounds")
+@Entity(name = "sounds")
 public class Sound {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

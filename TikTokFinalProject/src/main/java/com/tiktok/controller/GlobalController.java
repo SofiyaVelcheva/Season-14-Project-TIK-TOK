@@ -4,15 +4,22 @@ import com.tiktok.model.dto.errorDTO.ErrorDTO;
 import com.tiktok.model.exceptions.BadRequestException;
 import com.tiktok.model.exceptions.NotFoundException;
 import com.tiktok.model.exceptions.UnauthorizedException;
+import com.tiktok.model.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import javax.servlet.http.HttpSession;
 import java.time.LocalDateTime;
 
 public abstract class GlobalController {
+
+    public static final String LOGGED = "logged";
+    public static final String USER_ID = "userId";
+    @Autowired
+    public UserRepository userRepository;
 
     @Autowired
     public ModelMapper modelMapper;
@@ -54,6 +61,16 @@ public abstract class GlobalController {
         dto.setTime(LocalDateTime.now());
         dto.setStatus(status.value());
         return dto;
+    }
+
+    public int getUserIdFromSession(HttpSession session) {
+
+        if (!Boolean.TRUE.equals(session.getAttribute(LOGGED))
+                || session.getAttribute(USER_ID) == null) {
+            throw new UnauthorizedException("You have to log in!");
+        }
+
+        return (int) session.getAttribute(USER_ID);
     }
 
 

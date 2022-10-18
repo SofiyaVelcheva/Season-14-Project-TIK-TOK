@@ -1,2 +1,86 @@
 
+### get user all
+
+GET http://localhost:6969/users
+
+### get user id
+
+GET http://localhost:6969/users/1
+
+### register
+
+POST http://localhost:6969/users
+# save id session
+Content-Type: application/json
+
+{
+  "username": "sofi",
+  "password": "@wetok345",
+  "confirm_password": "@wetok345",
+  "first_name": "Sofia",
+  "last_name": "velcheva",
+  "email": "sof@gmail.com",
+  "phone_number": "4555555",
+  "date_of_birth": "2020-12-11",
+  "profile_photo_url": "kkkklllll"
+}
+
+### login
+# save id session
+
+POST http://localhost:6969/auth
+Content-Type: application/json
+
+{
+  "username": "krasi",
+  "password": "krasi123"
+}
+
+### logout
+
+POST http://localhost:6969/logout
+
+### change password
+# user is login / get id - session
+
+PUT http://localhost:6969/users/pass
+Content-Type: application/json
+
+{
+  "current_password": "@wetok345",
+  "new_password": "Haideopa123?",
+  "confirm_new_password": "Haideopa123?"
+}
+
+### edit profile
+# user is login / get id - session
+# check for not null variable
+
+PUT http://localhost:6969/users
+Content-Type: application/json
+
+{
+  "username": null,
+  "first_name": null,
+  "last_name": null,
+  "email": null,
+  "phone_number": "4555555",
+  "date_of_birth": null,
+  "profile_photo_url": null
+}
+
+### start session
+# test URL
+
+POST http://localhost:6969/start
+
+###
+POST http://localhost:6969/check
+
+
+
+
+
+
+
 
