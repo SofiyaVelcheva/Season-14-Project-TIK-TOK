@@ -1,6 +1,10 @@
 package com.tiktok.controller;
 
 import com.tiktok.model.dto.userDTO.*;
+import com.tiktok.model.dto.userDTO.LoginRequestUserDTO;
+import com.tiktok.model.dto.userDTO.LoginResponseUserDTO;
+import com.tiktok.model.dto.userDTO.RegisterRequestUserDTO;
+import com.tiktok.model.dto.userDTO.RegisterResponseUserDTO;
 import com.tiktok.model.entities.User;
 import com.tiktok.model.exceptions.BadRequestException;
 import com.tiktok.model.exceptions.NotFoundException;
@@ -9,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import javax.servlet.http.HttpSession;
 import java.util.Optional;
 
@@ -100,11 +103,6 @@ public class UserController extends GlobalController {
     @PatchMapping("/update/{1}")
     public void edit(@PathVariable int id, EditProfileRequestDTO dto){
 
-
-
     }
-
-
-
 
 }

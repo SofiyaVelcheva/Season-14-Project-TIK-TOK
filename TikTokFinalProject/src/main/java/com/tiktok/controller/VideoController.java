@@ -42,7 +42,7 @@ public class VideoController extends GlobalController {
                 sound.setUploadAt(LocalDateTime.now());
                 sound.setSoundUrl("222"); //TODO need to be changed
                 sound.setTitle("Original sound - " + video.getOwner().getUsername());
-                soundRepository.save(sound); //TODO need to be with service
+              //  soundRepository.save(sound); //TODO need to be with service
             }
             VideoDTO dto = new VideoDTO();  // TODO is it necessary to be in videoDTO??
             dto.setDescription(video.getDescription());
