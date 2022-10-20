@@ -32,7 +32,7 @@ public class User {
     @Column(name = "profile_photo_url")
     private String photoURL;
     @Column(name = "last_login")
-    private LocalDateTime localDateTime;
+    private LocalDateTime lastLogin;
 
 
 

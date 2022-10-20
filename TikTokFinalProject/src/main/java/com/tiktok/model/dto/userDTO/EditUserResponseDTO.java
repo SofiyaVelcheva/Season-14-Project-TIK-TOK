@@ -2,19 +2,13 @@ package com.tiktok.model.dto.userDTO;
 
 import lombok.Data;
 
-import javax.persistence.Column;
-import java.time.LocalDate;
-
 @Data
-public class RegisterRequestUserDTO {
+public class EditUserResponseDTO {
 
     private String username;
-    private String password;
-    private String confirmPassword;
     private String firstName;
     private String lastName;
     private String email;
     private String phoneNumber;
-    private LocalDate dateOfBirth;
 
 }

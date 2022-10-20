@@ -14,10 +14,10 @@ POST http://localhost:6969/users
 Content-Type: application/json
 
 {
-  "username": "Sofiya",
-  "password": "@wetok345",
-  "confirm_password": "@wetoK345",
-  "first_name": "Sofia",
+  "username": "Margarita",
+  "password": "Plovdiv!123",
+  "confirm_password": "Plovdiv!123",
+  "first_name": "Margarita",
   "last_name": "Velcheva",
   "email": "sofeto@gmail.com",
   "phone_number": "+359884532481",
@@ -31,8 +31,8 @@ POST http://localhost:6969/auth
 Content-Type: application/json
 
 {
-  "username": "krasi",
-  "password": "krasi123"
+  "username": "Margarita",
+  "password": "Plovdiv!123"
 }
 
 ### logout
@@ -42,7 +42,7 @@ POST http://localhost:6969/logout
 ### change password
 # user is login / get id - session
 
-PUT http://localhost:6969/users/pass
+PUT http://localhost:6969/user/pass
 Content-Type: application/json
 
 {
@@ -55,16 +55,14 @@ Content-Type: application/json
 # user is login / get id - session
 # check for not null variable
 
-PUT http://localhost:6969/users
+PUT http://localhost:6969/user
 Content-Type: application/json
 
 {
-  "username": null,
   "first_name": null,
   "last_name": null,
-  "email": null,
-  "phone_number": "4555555",
-  "date_of_birth": null
+  "email": "vodka@abv.bg",
+  "phone_number": null
 }
 
 ### start session
@@ -79,15 +77,10 @@ POST http://localhost:6969/check
 
 GET http://localhost:6969/bum
 
-###
+### delete
+## отвън информация
 
-PATCH http://localhost:6969/update/1
-Content-Type: application/json
-
-{
-  "last_name": "Blyablya"
-}
-
+PUT localhost:6969/users/{id}
 
 
 

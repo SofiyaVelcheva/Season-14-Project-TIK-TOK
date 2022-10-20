@@ -1,20 +1,16 @@
 package com.tiktok.controller;
 
 import com.tiktok.model.dto.userDTO.*;
-import com.tiktok.model.dto.userDTO.LoginRequestUserDTO;
-import com.tiktok.model.dto.userDTO.LoginResponseUserDTO;
-import com.tiktok.model.dto.userDTO.RegisterRequestUserDTO;
-import com.tiktok.model.dto.userDTO.RegisterResponseUserDTO;
-import com.tiktok.model.entities.User;
 import com.tiktok.model.exceptions.BadRequestException;
-import com.tiktok.model.exceptions.NotFoundException;
 import com.tiktok.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.util.Optional;
 
 
 @RestController
@@ -25,56 +21,59 @@ public class UserController extends GlobalController {
     @PostMapping("/auth")
     public ResponseEntity<LoginResponseUserDTO> login
             (@RequestBody LoginRequestUserDTO user,
-             HttpSession session) {
+             HttpServletRequest req) {
+
+        HttpSession session = req.getSession();
+        if (!session.isNew()) {
+            session.invalidate();
+            throw new BadRequestException("You are already logged");
+        }
 
         LoginResponseUserDTO result = userService.login(user);
         if (result != null) {
-            session.setAttribute(LOGGED, true);
-            session.setAttribute(USER_ID, result.getId());
+            setSession(req, result.getId());
             return new ResponseEntity<>(result, HttpStatus.OK);
         } else {
             throw new BadRequestException("Wrong Credentials");
         }
-
     }
 
-//    public void edit() {
-//
-//        //check login - method check login
-//        //service give request body and  id from session
-//    }
-
+    @PutMapping("/user")
+    public ResponseEntity<EditUserResponseDTO> edit(
+            @RequestBody EditUserRequestDTO dto,
+            HttpServletRequest req) {
+        validateLogin(req);
+        EditUserResponseDTO user = userService.edit(getUserIdFromSession(req),dto);
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
 
     @PostMapping("/users")
-    public ResponseEntity<RegisterResponseUserDTO> register(@RequestBody RegisterRequestUserDTO u) {
+    public ResponseEntity<RegisterResponseUserDTO> register(
+            @RequestBody RegisterRequestUserDTO u) {
 
         RegisterResponseUserDTO user = userService.register(u);
-
 
         return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
 
+    @PutMapping("/users/{id}")
+    public ResponseEntity<String> delete(@PathVariable int id) {
 
-
-
-    @DeleteMapping(name = "/users/{id}")
-    public ResponseEntity<String> delete(@PathVariable long id, HttpSession session) {
-
-        Optional<User> optional = userRepository.findById(id);
-
-        if (!optional.isPresent()) {
-            System.out.println("is present");
-            throw new NotFoundException("The user not found!");
-        }
-
-        User u = modelMapper.map(optional.get(), User.class);
-        userRepository.deleteById(id);
-
+        userService.deleteUserAccount(id);
         return new ResponseEntity<>("The user has been deleted successfully!",
                 HttpStatus.OK);
-
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpSession session) {
+        session.invalidate();
+        return new ResponseEntity<>("Log out!", HttpStatus.OK);
+    }
+
+//    @GetMapping("/bum")
+//    public void proba(){
+//        System.out.println(userRepository.findByUsername("Krasi").isPresent());
+//    }
 //    @PostMapping("/start")
 //    // todo delete test method
 //    public String start(HttpSession session) {
@@ -88,21 +87,5 @@ public class UserController extends GlobalController {
 //
 //        return "print check" + session.getAttribute(USER_ID);
 //    }
-
-    @PostMapping("/logout")
-    public ResponseEntity<String> logout(HttpSession session) {
-        session.invalidate();
-        return new ResponseEntity<>("Log out!", HttpStatus.OK);
-    }
-
-//    @GetMapping("/bum")
-//    public void proba(){
-//        System.out.println(userRepository.findByUsername("Krasi").isPresent());
-//    }
-
-    @PatchMapping("/update/{1}")
-    public void edit(@PathVariable int id, EditProfileRequestDTO dto){
-
-    }
 
 }
