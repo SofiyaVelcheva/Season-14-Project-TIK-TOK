@@ -14,10 +14,10 @@ public class Video {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private int id;
 
     @ManyToOne
-    @JoinColumn(name = "owner_id", nullable = false)
+    @JoinColumn(name = "owner_id")
     private User owner;
 
     @Column (name = "video_url")

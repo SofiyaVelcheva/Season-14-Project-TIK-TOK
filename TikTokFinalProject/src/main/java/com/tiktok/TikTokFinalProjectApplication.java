@@ -1,8 +1,9 @@
 package com.tiktok;
 
-import com.tiktok.model.repository.UserRepository;
+
+import com.cloudmersive.client.invoker.ApiClient;
+import com.cloudmersive.client.invoker.Configuration;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +19,12 @@ public class TikTokFinalProjectApplication {
     @Bean
     public ModelMapper modelMapper() {
         return new ModelMapper();
+    }
+
+    @Bean
+    public ApiClient defaultClient() {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        return defaultClient;
     }
 
 }

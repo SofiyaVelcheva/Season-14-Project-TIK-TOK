@@ -1,59 +1,49 @@
 package com.tiktok.controller;
 
-import com.tiktok.model.dto.videoDTO.VideoDTO;
-import com.tiktok.model.entities.Sound;
-import com.tiktok.model.entities.User;
-import com.tiktok.model.entities.Video;
+import com.tiktok.model.dto.videoDTO.EditRequestVideoDTO;
+import com.tiktok.model.dto.videoDTO.EditResponseVideoDTO;
+import com.tiktok.model.exceptions.BadRequestException;
 import com.tiktok.model.exceptions.NotFoundException;
-import com.tiktok.model.repository.SoundRepository;
-import com.tiktok.model.repository.UserRepository;
-import com.tiktok.model.repository.VideoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
 @RestController
 public class VideoController extends GlobalController {
 
-    @Autowired
-    VideoRepository videoRepository;
-    @Autowired
-    UserRepository userRepository;
+    @PostMapping("users/{userId}/uploadVideo") // todo is the URL ok?
+    public String uploadVideo(@PathVariable int userId, @RequestParam(value = "file") MultipartFile file, @RequestParam(value = "isLive") Boolean isLve,
+                              @RequestParam(value = "isPrivate") Boolean isPrivate, @RequestParam(value = "description") String description) {
+        return videoService.uploadVideo(userId, file, isLve, isPrivate, description);
+    }
 
-    @Autowired
-    SoundRepository soundRepository;
+    @PutMapping("videos/{videoId}")
+    public EditResponseVideoDTO editVideo(@PathVariable int videoId, @RequestBody EditRequestVideoDTO dto) {
+        return videoService.editVideo(videoId, dto);
+    }
+
+    @DeleteMapping("videos/{videoId}")
+    public String deleteVideo(@PathVariable int videoId) {
+        return videoService.deleteVideo(videoId);
+    }
 
 
-    @PostMapping("/videos/{id}") // TODO added user id
-    public VideoDTO uploadVideo(@RequestBody Video video, @PathVariable long id) {
-        System.out.println(video.isPrivate());
-        System.out.println(video.isLive());
-        Optional<User> optUser = userRepository.findById(id);//TODO need to be get from the session probably
-        if (optUser.isPresent()) {
-            User user = optUser.get();
-            video.setOwner(user);
-            video.setUploadAt(LocalDateTime.now());
-            videoRepository.save(video); // TODO need to be added URL to video
-            if (!video.isPrivate()) {
-                Sound sound = new Sound();
-                sound.setOwner(video.getOwner());
-                sound.setUploadAt(LocalDateTime.now());
-                sound.setSoundUrl("222"); //TODO need to be changed
-                sound.setTitle("Original sound - " + video.getOwner().getUsername());
-              //  soundRepository.save(sound); //TODO need to be with service
-            }
-            VideoDTO dto = new VideoDTO();  // TODO is it necessary to be in videoDTO??
-            dto.setDescription(video.getDescription());
-            dto.setUploadAt(video.getUploadAt());
-            dto.setLive(video.isLive());
-            dto.setPrivate(video.isPrivate());
-            dto.setOwner(video.getOwner());
-            dto.setVideoUrl(video.getVideoUrl());
-            return dto;
-        } else {
-            throw new NotFoundException("The user is invalid");
+    @GetMapping("videos/{path}")
+    public void showVideo(@PathVariable String path, HttpServletResponse resp) {
+        File f = new File("videos" + File.separator + path);
+        if (!f.exists()) {
+            throw new NotFoundException("Video does not exist!");
+        }
+        try {
+            resp.setContentType(Files.probeContentType(f.toPath()));
+            Files.copy(f.toPath(), resp.getOutputStream());
+        } catch (IOException e) {
+            throw new BadRequestException(e.getMessage(), e);
         }
     }
+
 }

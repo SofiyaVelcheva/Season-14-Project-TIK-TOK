@@ -58,7 +58,7 @@ public class UserController extends GlobalController {
 
 
     @DeleteMapping(name = "/users/{id}")
-    public ResponseEntity<String> delete(@PathVariable long id, HttpSession session) {
+    public ResponseEntity<String> delete(@PathVariable int id, HttpSession session) {
 
         Optional<User> optional = userRepository.findById(id);
 
@@ -99,10 +99,10 @@ public class UserController extends GlobalController {
 //    public void proba(){
 //        System.out.println(userRepository.findByUsername("Krasi").isPresent());
 //    }
-
-    @PatchMapping("/update/{1}")
-    public void edit(@PathVariable int id, EditProfileRequestDTO dto){
-
-    }
+//
+//    @PatchMapping("/update/{1}")
+//    public void edit(@PathVariable int id, EditProfileRequestDTO dto){
+//
+//    }
 
 }

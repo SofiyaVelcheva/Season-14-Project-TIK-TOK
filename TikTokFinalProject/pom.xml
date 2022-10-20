@@ -51,7 +51,29 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.11.0</version>
+        </dependency>
+
+
+        <!-- https://mvnrepository.com/artifact/com.github.Cloudmersive/Cloudmersive.APIClient.Java -->
+        <dependency>
+            <groupId>com.github.Cloudmersive</groupId>
+            <artifactId>Cloudmersive.APIClient.Java</artifactId>
+            <version>v4.20</version>
+        </dependency>
+
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
 
     <build>
         <plugins>

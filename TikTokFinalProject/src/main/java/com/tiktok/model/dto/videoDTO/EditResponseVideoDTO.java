@@ -1,12 +1,13 @@
 package com.tiktok.model.dto.videoDTO;
 
+import com.tiktok.model.entities.Sound;
 import lombok.Data;
 
 @Data
-public class EditRequestDTO {
+public class EditResponseVideoDTO {
 
-    private int id;
     private boolean isPrivate;
+    private Sound sound;
     private String description;
 
 }

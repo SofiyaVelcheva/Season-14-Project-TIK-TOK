@@ -11,10 +11,10 @@ import java.time.LocalDateTime;
 public class Sound {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private int id;
 
     @ManyToOne
-    @JoinColumn(name = "owner_id", nullable = false)
+    @JoinColumn(name = "owner_id")
     private User owner;
 
     @Column
@@ -24,5 +24,5 @@ public class Sound {
     private String soundUrl;
 
     @Column
-    private LocalDateTime uploadAt; // TODO add new column in SQL table sounds
+    private LocalDateTime uploadAt; // TODO Sofi add new column in SQL table sounds
 }
