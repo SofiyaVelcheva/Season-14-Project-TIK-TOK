@@ -1,25 +1,23 @@
 package com.tiktok.model.entities;
 
-import lombok.*;
+import lombok.Data;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-
+@Data
 @Entity
 @Table(name = "videos")
 @ToString
-@Setter
-@Getter
-@NoArgsConstructor
 public class Video {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private long id;
 
     @ManyToOne
-    @JoinColumn(name = "owner_id")
+    @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
     @Column (name = "video_url")

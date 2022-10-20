@@ -3,7 +3,7 @@ package com.tiktok.model.dto.userDTO;
 import lombok.Data;
 
 @Data
-public class LoginRequestDTO {
+public class LoginRequestUserDTO {
 
     private String username;
     private String password;

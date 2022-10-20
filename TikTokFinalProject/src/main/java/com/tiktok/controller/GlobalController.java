@@ -18,6 +18,9 @@ public abstract class GlobalController {
 
     public static final String LOGGED = "logged";
     public static final String USER_ID = "userId";
+
+    public static final String REMOTE_IP = "REMOTE_IP";
+
     @Autowired
     public UserRepository userRepository;
 
@@ -26,36 +29,26 @@ public abstract class GlobalController {
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorDTO handleNotFound(Exception e) {
-
-        return getErrorDTO(e, HttpStatus.NOT_FOUND);
-
+    public ErrorDTO handleNotFound(Exception e) {return getErrorDTO(e, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(BadRequestException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorDTO handleBadRequest(Exception e) {
-
-        return getErrorDTO(e, HttpStatus.BAD_REQUEST);
-
+    public ErrorDTO handleBadRequest(Exception e) {return getErrorDTO(e, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(UnauthorizedException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ErrorDTO handleUnauthorized(Exception e) {
-
-        return getErrorDTO(e, HttpStatus.UNAUTHORIZED);
+    public ErrorDTO handleUnauthorized(Exception e) {return getErrorDTO(e, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorDTO handleAllOthers(Exception e) {
-
-        return getErrorDTO(e, HttpStatus.INTERNAL_SERVER_ERROR);
+    public ErrorDTO handleAllOthers(Exception e) {return getErrorDTO(e, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private ErrorDTO getErrorDTO(Exception e, HttpStatus status) {
-        e.printStackTrace(); // todo save to file
+        e.printStackTrace();
         ErrorDTO dto = new ErrorDTO();
         dto.setMsg(e.getMessage());
         dto.setTime(LocalDateTime.now());
@@ -74,4 +67,7 @@ public abstract class GlobalController {
     }
 
 
+
+
 }
+
