@@ -1,7 +1,6 @@
 package com.tiktok.model.entities;
 
 import lombok.Data;
-import lombok.Generated;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -34,6 +33,7 @@ public class User {
     private String photoURL;
     @Column(name = "last_login")
     private LocalDateTime localDateTime;
+
 
 
 }

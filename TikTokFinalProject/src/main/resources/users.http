@@ -14,15 +14,14 @@ POST http://localhost:6969/users
 Content-Type: application/json
 
 {
-  "username": "sofi",
+  "username": "Sofiya",
   "password": "@wetok345",
-  "confirm_password": "@wetok345",
+  "confirm_password": "@wetoK345",
   "first_name": "Sofia",
-  "last_name": "velcheva",
-  "email": "sof@gmail.com",
-  "phone_number": "4555555",
-  "date_of_birth": "2020-12-11",
-  "profile_photo_url": "kkkklllll"
+  "last_name": "Velcheva",
+  "email": "sofeto@gmail.com",
+  "phone_number": "+359884532481",
+  "date_of_birth": "1988-12-11"
 }
 
 ### login
@@ -65,19 +64,29 @@ Content-Type: application/json
   "last_name": null,
   "email": null,
   "phone_number": "4555555",
-  "date_of_birth": null,
-  "profile_photo_url": null
+  "date_of_birth": null
 }
 
 ### start session
-# test URL
+# test URLs
 
 POST http://localhost:6969/start
 
 ###
 POST http://localhost:6969/check
 
+###
 
+GET http://localhost:6969/bum
+
+###
+
+PATCH http://localhost:6969/update/1
+Content-Type: application/json
+
+{
+  "last_name": "Blyablya"
+}
 
 
 

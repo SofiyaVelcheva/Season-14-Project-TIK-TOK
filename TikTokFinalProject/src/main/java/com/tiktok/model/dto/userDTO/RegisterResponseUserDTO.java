@@ -3,9 +3,8 @@ package com.tiktok.model.dto.userDTO;
 import lombok.Data;
 
 @Data
-public class UserRegisterDTO {
+public class RegisterResponseUserDTO {
 
-    private long id;
     private String username;
     private String email;
 
