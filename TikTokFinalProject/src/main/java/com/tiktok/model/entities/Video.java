@@ -1,15 +1,17 @@
 package com.tiktok.model.entities;
 
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@Data
+
 @Entity
 @Table(name = "videos")
 @ToString
+@Setter
+@Getter
+@NoArgsConstructor
 public class Video {
 
     @Id
@@ -17,7 +19,7 @@ public class Video {
     private long id;
 
     @ManyToOne
-    @JoinColumn(name = "owner_id", nullable = false)
+    @JoinColumn(name = "owner_id")
     private User owner;
 
     @Column (name = "video_url")

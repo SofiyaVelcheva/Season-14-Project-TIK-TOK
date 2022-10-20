@@ -1,4 +1,4 @@
 package com.tiktok.service;
 
-public class UserService {
+public class UserService extends GlobalService{
 }

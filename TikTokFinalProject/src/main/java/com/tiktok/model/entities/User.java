@@ -1,14 +1,17 @@
 package com.tiktok.model.entities;
 
-import lombok.Data;
-import lombok.Generated;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
-@Data
+
 @Entity(name = "users")
+@Setter
+@Getter
+@NoArgsConstructor
 public class User {
 
     @Id
@@ -34,6 +37,9 @@ public class User {
     private String photoURL;
     @Column(name = "last_login")
     private LocalDateTime localDateTime;
+
+    @OneToMany (mappedBy = "owner")
+    private List<Video> videos;
 
 
 }

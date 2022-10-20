@@ -48,7 +48,7 @@ public abstract class GlobalController {
     }
 
     private ErrorDTO getErrorDTO(Exception e, HttpStatus status) {
-        e.printStackTrace();
+        e.printStackTrace(); // todo save to file
         ErrorDTO dto = new ErrorDTO();
         dto.setMsg(e.getMessage());
         dto.setTime(LocalDateTime.now());
