@@ -5,6 +5,5 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public class VideoService extends GlobalService{
 
-    @Autowired
-    private VideoRepository videoRepository;
+
 }
