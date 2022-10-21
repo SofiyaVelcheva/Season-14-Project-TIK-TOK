@@ -24,5 +24,5 @@ public class Sound {
     private String soundUrl;
 
     @Column
-    private LocalDateTime uploadAt; // TODO Sofi add new column in SQL table sounds
+    private LocalDateTime uploadAt;
 }

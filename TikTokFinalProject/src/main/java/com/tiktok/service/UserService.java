@@ -3,6 +3,7 @@ package com.tiktok.service;
 import com.tiktok.model.dto.userDTO.*;
 import com.tiktok.model.entities.User;
 import com.tiktok.model.exceptions.BadRequestException;
+import com.tiktok.model.exceptions.NotFoundException;
 import com.tiktok.model.exceptions.UnauthorizedException;
 import com.tiktok.model.repository.UserRepository;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -20,6 +21,7 @@ import java.util.regex.Pattern;
 
 @Service
 public class UserService extends GlobalService{
+
 
     @Autowired
     private UserRepository userRepository;

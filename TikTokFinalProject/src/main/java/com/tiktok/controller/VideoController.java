@@ -7,6 +7,7 @@ import com.tiktok.model.exceptions.NotFoundException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
@@ -15,10 +16,18 @@ import java.nio.file.Files;
 @RestController
 public class VideoController extends GlobalController {
 
+//    @PostMapping("users/{userId}/uploadVideo") // todo is the URL ok?
+//    public String uploadVideo(@PathVariable int userId, @RequestParam(value = "file") MultipartFile file, @RequestParam(value = "isLive") Boolean isLve,
+//                              @RequestParam(value = "isPrivate") Boolean isPrivate, @RequestParam(value = "description") String description) {
+//        return videoService.uploadVideo(userId, file, isLve, isPrivate, description);
+//    }
+
     @PostMapping("users/{userId}/uploadVideo") // todo is the URL ok?
     public String uploadVideo(@PathVariable int userId, @RequestParam(value = "file") MultipartFile file, @RequestParam(value = "isLive") Boolean isLve,
-                              @RequestParam(value = "isPrivate") Boolean isPrivate, @RequestParam(value = "description") String description) {
-        return videoService.uploadVideo(userId, file, isLve, isPrivate, description);
+                              @RequestParam(value = "isPrivate") Boolean isPrivate, @RequestParam(value = "description") String description,
+                              HttpServletRequest request) {
+        int uid = getUserIdFromSession(request);
+        return videoService.uploadVideo(uid, file, isLve, isPrivate, description);
     }
 
     @PutMapping("videos/{videoId}")
