@@ -15,7 +15,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class VideoService extends GlobalService {
@@ -24,8 +25,12 @@ public class VideoService extends GlobalService {
 
     public VideoWithoutOwnerDTO uploadVideo(int userId, MultipartFile file, Boolean isLive, Boolean isPrivate, String description) {
         try {
+            String ext = FilenameUtils.getExtension(file.getOriginalFilename());
+            System.out.println(ext);
+            if (!validateFileType(ext)) {
+                throw new BadRequestException("The format of the video is not allowed.");
+            }
             User user = getUserById(userId);
-            String ext = FilenameUtils.getExtension(file.getOriginalFilename()); //todo only videos not photos
             String path = "videos" + File.separator + System.nanoTime() + "." + ext;
             File newFile = new File(path);
             if (!newFile.exists()) {
@@ -81,13 +86,34 @@ public class VideoService extends GlobalService {
     public String likeVideo(int videoId, int userId) {
         User user = getUserById(userId);
         Video video = getVideoById(videoId);
-        if(user.getLikedVideos().contains(video)){
+        if (user.getLikedVideos().contains(video)) {
             user.getLikedVideos().remove(video);
-        }
-        else{
+        } else {
             user.getLikedVideos().add(video);
         }
         userRepository.save(user);
-        return "Video has " + video.getLikers().size()+ " likes.";
+        return "Video has " + video.getLikers().size() + " likes.";
     }
+
+    public List<VideoWithoutOwnerDTO> showMyVideos(int userId) {
+        User user = getUserById(userId);
+        List<Video> videos = videoRepository.findAllByOwner(user);
+        List<VideoWithoutOwnerDTO> myVideos = new ArrayList<>();
+        for (Video v : videos){
+            VideoWithoutOwnerDTO dto = modelMapper.map(v,VideoWithoutOwnerDTO.class);
+            myVideos.add(dto);
+        }
+        return myVideos;
+    }
+
+    private boolean validateFileType(String ext) {
+        //TikTok supports the following video file types: .mp4, .mov, .mpeg, .3gp, .avi
+        if (ext.equals("mp4") || ext.equals("mov") || ext.equals("mpeg")
+                || ext.equals("3gp") || ext.equals("avi")){
+            return true;
+        }
+        return false;
+    }
+
+
 }

@@ -5,6 +5,7 @@ import com.tiktok.model.dto.videoDTO.EditResponseVideoDTO;
 import com.tiktok.model.dto.videoDTO.VideoWithoutOwnerDTO;
 import com.tiktok.model.exceptions.BadRequestException;
 import com.tiktok.model.exceptions.NotFoundException;
+import com.tiktok.model.exceptions.UnauthorizedException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.List;
 
 @RestController
 public class VideoController extends GlobalController {
@@ -53,6 +55,15 @@ public class VideoController extends GlobalController {
     public String likeVideo (@PathVariable int videoId, HttpServletRequest request){
         int userId = getUserIdFromSession(request);
         return videoService.likeVideo(videoId, userId);
+    }
+
+    @GetMapping("/users/{userId}/videos")
+    public List<VideoWithoutOwnerDTO> showMyVideos(@PathVariable int userId, HttpServletRequest request){
+        int validatedId = getUserIdFromSession(request);
+        if (validatedId != userId){
+            throw new UnauthorizedException("You should be logged in!");
+        }
+        return videoService.showMyVideos(userId);
     }
 
 }
