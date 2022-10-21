@@ -21,7 +21,7 @@ public abstract class GlobalController {
     public static final String LOGGED = "logged";
     public static final String USER_ID = "userId";
 
-    public static final String REMOTE_IP = "REMOTE_IP";
+    public static final String REMOTE_IP = "remoteIp";
 
     @Autowired
     public UserRepository userRepository;
@@ -77,16 +77,6 @@ public abstract class GlobalController {
         session.setAttribute(LOGGED, Boolean.TRUE);
         session.setAttribute(USER_ID, id);
         session.setAttribute(REMOTE_IP, req.getRemoteAddr());
-    }
-    public void validateLogin(HttpServletRequest req){
-        HttpSession session = req.getSession();
-        boolean isLogged = Boolean.TRUE.equals(session.getAttribute(LOGGED));
-        boolean missingId = session.getAttribute(USER_ID) == null;
-        boolean checkIP = session.getAttribute(REMOTE_IP).equals(req.getRemoteAddr());
-
-        if (!isLogged || missingId || !checkIP){
-            throw new UnauthorizedException("You have to log in");
-        }
     }
 
 }

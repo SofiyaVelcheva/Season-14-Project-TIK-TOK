@@ -11,9 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-
 
 @RestController
 public class UserController extends GlobalController {
@@ -42,8 +42,7 @@ public class UserController extends GlobalController {
     public ResponseEntity<EditUserResponseDTO> edit(
             @RequestBody EditUserRequestDTO dto,
             HttpServletRequest req) {
-        validateLogin(req);
-        EditUserResponseDTO user = userService.edit(getUserIdFromSession(req),dto);
+        EditUserResponseDTO user = userService.edit(getUserIdFromSession(req), dto);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
@@ -67,7 +66,13 @@ public class UserController extends GlobalController {
         return new ResponseEntity<>("Log out!", HttpStatus.OK);
     }
 
-
+    @PutMapping("/user/pass")
+    public ResponseEntity<ChangePassResponseUserDTO> changePass(
+            HttpServletRequest req,
+            @RequestBody ChangePassRequestUserDTO dto) {
+        ChangePassResponseUserDTO userDTO = userService.editPass(getUserIdFromSession(req), dto);
+    return new ResponseEntity<>(userDTO, HttpStatus.OK);
+    }
 
 
 
