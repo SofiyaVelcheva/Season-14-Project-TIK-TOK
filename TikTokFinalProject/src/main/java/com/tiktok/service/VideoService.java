@@ -18,15 +18,15 @@ import java.util.Optional;
 
 @Service
 public class VideoService extends GlobalService {
-@Autowired
+    @Autowired
     protected SoundService soundService;
+
     public String uploadVideo(int userId, MultipartFile file, Boolean isLive, Boolean isPrivate, String description) {
         try {
-            User user = getUserById(userId); //todo need to be check if user is logged in
-
+            User user = getUserById(userId);
             String ext = FilenameUtils.getExtension(file.getOriginalFilename());
             String path = "videos" + File.separator + System.nanoTime() + "." + ext;
-            String filename= path.substring(7);
+            String filename = path.substring(7);
             File newFile = new File(path);
             if (!newFile.exists()) {
                 Files.copy(file.getInputStream(), newFile.toPath());
@@ -38,7 +38,7 @@ public class VideoService extends GlobalService {
                 File old = new File(video.getVideoUrl());
                 old.delete();
             }
-            video.setUploadAt(LocalDateTime.now()); // todo how we can fill the data easier
+            video.setUploadAt(LocalDateTime.now()); // todo can be done by modelMapper?
             video.setOwner(user);
             video.setVideoUrl(path);
             video.setLive(isLive);
@@ -48,7 +48,7 @@ public class VideoService extends GlobalService {
 
             if (!video.isPrivate()) {
                 //todo create a sound
-               // soundService.newSound(video, path); //todo fix .ApiException: java.net.SocketTimeoutException: timeout
+                //soundService.newSound(video, path); //todo fix .ApiException: java.net.SocketTimeoutException: timeout
                 //todo set the sound id in video
             }
             return "The video is upload! - " + filename; //todo should we return the id of the video to the client instead?
@@ -61,7 +61,6 @@ public class VideoService extends GlobalService {
         Video video = getVideoById(videoId);
         video.setPrivate(dto.isPrivate()); // todo can be done by modelMapper?
         video.setDescription(dto.getDescription());
-
         if (!video.isPrivate()) {
             //todo create a sound
             //todo set the sound id in video
@@ -70,9 +69,17 @@ public class VideoService extends GlobalService {
         return modelMapper.map(video, EditResponseVideoDTO.class);
     }
 
-    public String deleteVideo(int videoId) {
+    public String deleteVideo(int videoId) { //todo should be deleted all row?
         Video video = getVideoById(videoId);
-        videoRepository.delete(video);
+        video.setVideoUrl("Delete on " + LocalDateTime.now());
+        video.setDescription("Delete on " + LocalDateTime.now());
+        //todo
+        //video.setUploadAt();
+        //video.setLive(false);
+        //video.setPrivate(false);
+
+        //videoRepository.delete(video);
+        videoRepository.save(video);
         return "The video is deleted";
     }
 }

@@ -18,6 +18,7 @@ public class VideoController extends GlobalController {
     @PostMapping("users/{userId}/uploadVideo") // todo is the URL ok?
     public String uploadVideo(@PathVariable int userId, @RequestParam(value = "file") MultipartFile file, @RequestParam(value = "isLive") Boolean isLve,
                               @RequestParam(value = "isPrivate") Boolean isPrivate, @RequestParam(value = "description") String description) {
+        //todo need to be check if user is logged in
         return videoService.uploadVideo(userId, file, isLve, isPrivate, description);
     }
 
