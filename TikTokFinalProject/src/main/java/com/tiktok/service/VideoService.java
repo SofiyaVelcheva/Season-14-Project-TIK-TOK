@@ -71,8 +71,13 @@ public class VideoService extends GlobalService {
 
     public String deleteVideo(int videoId) { //todo should be deleted all row?
         Video video = getVideoById(videoId);
+        if (video.getVideoUrl() != null) {
+            File old = new File(video.getVideoUrl());
+            old.delete();
+        }
         video.setVideoUrl("Delete on " + LocalDateTime.now());
         video.setDescription("Delete on " + LocalDateTime.now());
+
         //todo
         //video.setUploadAt();
         //video.setLive(false);

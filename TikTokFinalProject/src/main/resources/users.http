@@ -51,6 +51,13 @@ Content-Type: application/json
   "confirm_new_password": "Haideopa123?"
 }
 
+### change photo
+PUT http://localhost:6969/user/photo
+Content-Type: application/json
+{
+  # todo
+}
+
 ### edit profile
 # user is login / get id - session
 # check for not null variable
@@ -78,7 +85,7 @@ POST http://localhost:6969/check
 GET http://localhost:6969/bum
 
 ### delete
-## отвън информация
+## delete user
 
 PUT localhost:6969/users/{id}
 

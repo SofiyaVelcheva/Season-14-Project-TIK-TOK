@@ -20,12 +20,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
-public class UserService {
-//
-    //
-    //
-    //
-    //
+public class UserService extends GlobalService{
+
 
     @Autowired
     private UserRepository userRepository;
@@ -73,7 +69,7 @@ public class UserService {
     }
 
     private void checkForEmptyField(String field) {
-        if (field.isBlank()) {
+        if (field == null || field.isBlank()) {
             throw new BadRequestException("Empty row");
         }
     }
@@ -221,11 +217,6 @@ public class UserService {
 
     }
 
-     private User getUserById(int id){
-        return userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("User not found"));
-    }
-
     public EditUserResponseDTO edit(int id, EditUserRequestDTO dto) {
         User u = getUserById(id);
 
@@ -252,5 +243,23 @@ public class UserService {
         userRepository.save(u);
 
         return modelMapper.map(u, EditUserResponseDTO.class);
+    }
+
+
+    public ChangePassResponseUserDTO editPass(int userIdFromSession,
+                                              ChangePassRequestUserDTO dto) {
+        if (dto.getCurrentPassword().equals(dto.getNewPassword())){
+            throw new BadRequestException("Current pass and new pass are the same.");
+        }
+        User u = getUserById(userIdFromSession);
+        // encode password
+        dto.setCurrentPassword(DigestUtils.sha256Hex(dto.getCurrentPassword()));
+        if (!dto.getCurrentPassword().equals(u.getPassword())){
+            throw new BadRequestException("Invalid password!");
+        }
+        validationPassword(dto.getNewPassword(), dto.getConfirmNewPassword());
+        u.setPassword(DigestUtils.sha256Hex(dto.getNewPassword()));
+        userRepository.save(u);
+        return modelMapper.map(u, ChangePassResponseUserDTO.class);
     }
 }
