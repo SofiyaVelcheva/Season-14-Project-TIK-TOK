@@ -23,10 +23,8 @@ public class UserService extends GlobalService{
 
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private ModelMapper modelMapper;
-
     public LoginResponseUserDTO login(LoginRequestUserDTO user) {
 
         // hash password
@@ -45,7 +43,6 @@ public class UserService extends GlobalService{
         return modelMapper.map(u.get(), LoginResponseUserDTO.class);
 
     }
-
     public RegisterResponseUserDTO register(RegisterRequestUserDTO u) {
 
         validationUsername(u.getUsername());
@@ -65,13 +62,11 @@ public class UserService extends GlobalService{
 
         return modelMapper.map(u, RegisterResponseUserDTO.class);
     }
-
     private void checkForEmptyField(String field) {
         if (field == null || field.isBlank()) {
             throw new BadRequestException("Empty row");
         }
     }
-
     private void validationUsername(String username) {
         // What characters can I use in my TikTok username?
         // Your username can only contain letters, numbers, underscores, and periods.
@@ -91,8 +86,9 @@ public class UserService extends GlobalService{
         Matcher m = p.matcher(username);
 
         if (!m.find()) {
-            throw new BadRequestException("Invalid username, should be start with capital letter" +
-                    "should be contain letters, numbers, underscores, and periods");
+            throw new BadRequestException("Invalid username, should be start with " +
+                    "capital letter should be contain letters, numbers, " +
+                    "underscores, and periods");
         }
 
         if (userRepository.findByUsername(username).isPresent()) {
@@ -242,8 +238,6 @@ public class UserService extends GlobalService{
 
         return modelMapper.map(u, EditUserResponseDTO.class);
     }
-
-
     public ChangePassResponseUserDTO editPass(int userIdFromSession,
                                               ChangePassRequestUserDTO dto) {
         if (dto.getCurrentPassword().equals(dto.getNewPassword())){

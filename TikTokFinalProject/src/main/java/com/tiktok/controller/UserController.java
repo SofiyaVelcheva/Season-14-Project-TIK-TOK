@@ -25,16 +25,14 @@ public class UserController extends GlobalController {
             (@RequestBody LoginRequestUserDTO user,
              HttpServletRequest req) {
         HttpSession session = req.getSession();
-        if (!session.isNew()) {
-            session.invalidate();
-            throw new BadRequestException("You are already logged");
-        }
+
         LoginResponseUserDTO result = userService.login(user);
-        if (result != null) {
+        if (result != null && session.isNew()) {
             setSession(req, result.getId());
             return new ResponseEntity<>(result, HttpStatus.OK);
         } else {
-            throw new BadRequestException("Wrong Credentials");
+            session.invalidate();
+            throw new BadRequestException("You are already logged.");
         }
     }
 
