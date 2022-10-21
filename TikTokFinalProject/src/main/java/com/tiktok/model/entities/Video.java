@@ -5,6 +5,7 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Entity
@@ -38,5 +39,12 @@ public class Video {
 
     @Column
     private String description;
+
+    @ManyToMany(mappedBy = "likedVideos")
+    List<User> likers;
+
+    @OneToMany
+    List<Comment> comments;
+
 
 }

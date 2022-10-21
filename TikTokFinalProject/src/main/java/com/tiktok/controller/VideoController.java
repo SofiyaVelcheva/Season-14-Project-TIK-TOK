@@ -2,6 +2,7 @@ package com.tiktok.controller;
 
 import com.tiktok.model.dto.videoDTO.EditRequestVideoDTO;
 import com.tiktok.model.dto.videoDTO.EditResponseVideoDTO;
+import com.tiktok.model.dto.videoDTO.VideoWithoutOwnerDTO;
 import com.tiktok.model.exceptions.BadRequestException;
 import com.tiktok.model.exceptions.NotFoundException;
 import org.springframework.web.bind.annotation.*;
@@ -16,16 +17,10 @@ import java.nio.file.Files;
 @RestController
 public class VideoController extends GlobalController {
 
-//    @PostMapping("users/{userId}/uploadVideo") // todo is the URL ok?
-//    public String uploadVideo(@PathVariable int userId, @RequestParam(value = "file") MultipartFile file, @RequestParam(value = "isLive") Boolean isLve,
-//                              @RequestParam(value = "isPrivate") Boolean isPrivate, @RequestParam(value = "description") String description) {
-//        return videoService.uploadVideo(userId, file, isLve, isPrivate, description);
-//    }
-
     @PostMapping("users/{userId}/uploadVideo") // todo is the URL ok?
-    public String uploadVideo(@PathVariable int userId, @RequestParam(value = "file") MultipartFile file, @RequestParam(value = "isLive") Boolean isLve,
-                              @RequestParam(value = "isPrivate") Boolean isPrivate, @RequestParam(value = "description") String description,
-                              HttpServletRequest request) {
+    public VideoWithoutOwnerDTO uploadVideo(@PathVariable int userId, @RequestParam(value = "file") MultipartFile file, @RequestParam(value = "isLive") Boolean isLve,
+                                            @RequestParam(value = "isPrivate") Boolean isPrivate, @RequestParam(value = "description") String description,
+                                            HttpServletRequest request) {
         int uid = getUserIdFromSession(request);
         return videoService.uploadVideo(uid, file, isLve, isPrivate, description);
     }
@@ -53,6 +48,11 @@ public class VideoController extends GlobalController {
         } catch (IOException e) {
             throw new BadRequestException(e.getMessage(), e);
         }
+    }
+    @PutMapping("videos/{videoId}/likes")
+    public String likeVideo (@PathVariable int videoId, HttpServletRequest request){
+        int userId = getUserIdFromSession(request);
+        return videoService.likeVideo(videoId, userId);
     }
 
 }

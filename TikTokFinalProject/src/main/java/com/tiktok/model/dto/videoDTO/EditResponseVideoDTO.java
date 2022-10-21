@@ -7,7 +7,7 @@ import lombok.Data;
 public class EditResponseVideoDTO {
 
     private boolean isPrivate;
-    private Sound sound;
     private String description;
+    private Sound sound;
 
 }

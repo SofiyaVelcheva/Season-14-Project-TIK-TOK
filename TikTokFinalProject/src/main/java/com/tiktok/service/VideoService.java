@@ -2,6 +2,7 @@ package com.tiktok.service;
 
 import com.tiktok.model.dto.videoDTO.EditRequestVideoDTO;
 import com.tiktok.model.dto.videoDTO.EditResponseVideoDTO;
+import com.tiktok.model.dto.videoDTO.VideoWithoutOwnerDTO;
 import com.tiktok.model.entities.User;
 import com.tiktok.model.entities.Video;
 import com.tiktok.model.exceptions.BadRequestException;
@@ -21,12 +22,11 @@ public class VideoService extends GlobalService {
     @Autowired
     protected SoundService soundService;
 
-    public String uploadVideo(int userId, MultipartFile file, Boolean isLive, Boolean isPrivate, String description) {
+    public VideoWithoutOwnerDTO uploadVideo(int userId, MultipartFile file, Boolean isLive, Boolean isPrivate, String description) {
         try {
             User user = getUserById(userId);
             String ext = FilenameUtils.getExtension(file.getOriginalFilename());
             String path = "videos" + File.separator + System.nanoTime() + "." + ext;
-            String filename = path.substring(7);
             File newFile = new File(path);
             if (!newFile.exists()) {
                 Files.copy(file.getInputStream(), newFile.toPath());
@@ -38,20 +38,19 @@ public class VideoService extends GlobalService {
                 File old = new File(video.getVideoUrl());
                 old.delete();
             }
-            video.setUploadAt(LocalDateTime.now()); // todo can be done by modelMapper?
+            video.setUploadAt(LocalDateTime.now());
             video.setOwner(user);
             video.setVideoUrl(path);
             video.setLive(isLive);
             video.setPrivate(isPrivate);
             video.setDescription(description);
             videoRepository.save(video);
-
             if (!video.isPrivate()) {
                 //todo create a sound
                 //soundService.newSound(video, path); //todo fix .ApiException: java.net.SocketTimeoutException: timeout
                 //todo set the sound id in video
             }
-            return "The video is upload! - " + filename; //todo should we return the id of the video to the client instead?
+            return modelMapper.map(video, VideoWithoutOwnerDTO.class);
         } catch (IOException e) {
             throw new BadRequestException(e.getMessage(), e);
         }
@@ -69,22 +68,26 @@ public class VideoService extends GlobalService {
         return modelMapper.map(video, EditResponseVideoDTO.class);
     }
 
-    public String deleteVideo(int videoId) { //todo should be deleted all row?
+    public String deleteVideo(int videoId) {
         Video video = getVideoById(videoId);
         if (video.getVideoUrl() != null) {
             File old = new File(video.getVideoUrl());
             old.delete();
         }
-        video.setVideoUrl("Delete on " + LocalDateTime.now());
-        video.setDescription("Delete on " + LocalDateTime.now());
-
-        //todo
-        //video.setUploadAt();
-        //video.setLive(false);
-        //video.setPrivate(false);
-
-        //videoRepository.delete(video);
-        videoRepository.save(video);
+        videoRepository.delete(video);
         return "The video is deleted";
+    }
+
+    public String likeVideo(int videoId, int userId) {
+        User user = getUserById(userId);
+        Video video = getVideoById(videoId);
+        if(user.getLikedVideos().contains(video)){
+            user.getLikedVideos().remove(video);
+        }
+        else{
+            user.getLikedVideos().add(video);
+        }
+        userRepository.save(user);
+        return "Video has - " + video.getLikers().size()+ " likes.";
     }
 }

@@ -5,6 +5,9 @@ import lombok.Data;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 @Data
 @Entity(name = "users")
@@ -33,6 +36,16 @@ public class User {
     private String photoURL;
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
+
+    @OneToMany (mappedBy = "owner")
+    private List<Video> videos;
+
+    @ManyToMany
+    @JoinTable(
+            name = "video_likes",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "video_id"))
+    private List<Video> likedVideos;
 
 
 
