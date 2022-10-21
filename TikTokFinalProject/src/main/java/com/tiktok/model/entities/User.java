@@ -50,4 +50,12 @@ public class User {
     @OneToMany (mappedBy = "owner")
     private List<Comment> comments;
 
+    @ManyToMany
+    @JoinTable(
+            name = "comment_likes",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "comment_id"))
+    private List<Comment> likedComments;
+
+
 }

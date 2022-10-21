@@ -1,5 +1,6 @@
 package com.tiktok.controller;
 
+import com.tiktok.model.dto.comments.CommentWithoutVideoDTO;
 import com.tiktok.model.dto.videoDTO.EditRequestVideoDTO;
 import com.tiktok.model.dto.videoDTO.EditResponseVideoDTO;
 import com.tiktok.model.dto.videoDTO.VideoWithoutOwnerDTO;
@@ -66,4 +67,9 @@ public class VideoController extends GlobalController {
         return videoService.showMyVideos(userId);
     }
 
+    @GetMapping("/videos/{videoId}/comments")
+    public List<CommentWithoutVideoDTO> showAllComments(@PathVariable int videoId, HttpServletRequest request){
+        int userId = getUserIdFromSession(request);
+        return videoService.showAllComments(videoId);
+    }
 }

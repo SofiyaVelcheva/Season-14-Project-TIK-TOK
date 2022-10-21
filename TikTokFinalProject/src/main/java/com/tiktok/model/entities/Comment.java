@@ -4,6 +4,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Entity (name = "comments")
@@ -18,13 +19,15 @@ public class Comment {
     @ManyToOne
     @JoinColumn(name = "owner_id")
     private User owner;
-
     @ManyToOne
     @JoinColumn(name = "video_id")
     private Video video;
 
-
     @ManyToOne
     @JoinColumn(name = "parent_id")
     private Comment parentId; //comment with comments
+
+    @ManyToMany (mappedBy = "likedComments")
+    private List<User> likers;
+
 }

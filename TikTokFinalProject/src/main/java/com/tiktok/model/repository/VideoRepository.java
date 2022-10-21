@@ -11,4 +11,5 @@ import java.util.List;
 public interface VideoRepository extends JpaRepository<Video, Integer> {
 
     List<Video> findAllByOwner(User owner);
+
 }

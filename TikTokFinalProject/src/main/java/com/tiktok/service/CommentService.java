@@ -9,7 +9,6 @@ import com.tiktok.model.entities.Video;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.concurrent.CompletionException;
 
 @Service
 public class CommentService extends GlobalService {
@@ -40,4 +39,19 @@ public class CommentService extends GlobalService {
         response.setParentId(modelMapper.map(child.getParentId(), CommentWithoutUserDTO.class));
         return response;
     }
+
+
+    public String likeComment(int commentId, int userID) {
+        User user = getUserById(userID);
+        Comment comment = getCommentById(commentId);
+        if (user.getLikedComments().contains(comment)){
+            user.getLikedComments().remove(comment);
+        }else {
+            user.getLikedComments().add(comment);
+        }
+        userRepository.save(user);
+        return "Comment has " + user.getLikedComments().size() + " likes.";
+    }
+
+
 }

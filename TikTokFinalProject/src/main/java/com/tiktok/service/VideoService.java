@@ -1,8 +1,10 @@
 package com.tiktok.service;
 
+import com.tiktok.model.dto.comments.CommentWithoutVideoDTO;
 import com.tiktok.model.dto.videoDTO.EditRequestVideoDTO;
 import com.tiktok.model.dto.videoDTO.EditResponseVideoDTO;
 import com.tiktok.model.dto.videoDTO.VideoWithoutOwnerDTO;
+import com.tiktok.model.entities.Comment;
 import com.tiktok.model.entities.User;
 import com.tiktok.model.entities.Video;
 import com.tiktok.model.exceptions.BadRequestException;
@@ -104,6 +106,17 @@ public class VideoService extends GlobalService {
             myVideos.add(dto);
         }
         return myVideos;
+    }
+
+    public List<CommentWithoutVideoDTO> showAllComments(int videoId) {
+        Video video = getVideoById(videoId);
+        List<Comment> comments = commentRepository.findAllByVideo(video);
+        List<CommentWithoutVideoDTO> videoWithComments = new ArrayList<>();
+        for (Comment comment : comments){
+            CommentWithoutVideoDTO dto = modelMapper.map(comment, CommentWithoutVideoDTO.class);
+            videoWithComments.add(dto);
+        }
+        return videoWithComments;
     }
 
     private boolean validateFileType(String ext) {
