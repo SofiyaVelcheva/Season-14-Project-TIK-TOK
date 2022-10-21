@@ -25,7 +25,7 @@ public class VideoService extends GlobalService {
     public VideoWithoutOwnerDTO uploadVideo(int userId, MultipartFile file, Boolean isLive, Boolean isPrivate, String description) {
         try {
             User user = getUserById(userId);
-            String ext = FilenameUtils.getExtension(file.getOriginalFilename());
+            String ext = FilenameUtils.getExtension(file.getOriginalFilename()); //todo only videos not photos
             String path = "videos" + File.separator + System.nanoTime() + "." + ext;
             File newFile = new File(path);
             if (!newFile.exists()) {
@@ -88,6 +88,6 @@ public class VideoService extends GlobalService {
             user.getLikedVideos().add(video);
         }
         userRepository.save(user);
-        return "Video has - " + video.getLikers().size()+ " likes.";
+        return "Video has " + video.getLikers().size()+ " likes.";
     }
 }

@@ -47,6 +47,7 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "video_id"))
     private List<Video> likedVideos;
 
-
+    @OneToMany (mappedBy = "owner")
+    private List<Comment> comments;
 
 }

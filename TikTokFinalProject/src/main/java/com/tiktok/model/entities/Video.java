@@ -43,7 +43,7 @@ public class Video {
     @ManyToMany(mappedBy = "likedVideos")
     List<User> likers;
 
-    @OneToMany
+    @OneToMany (mappedBy = "video")
     List<Comment> comments;
 
 

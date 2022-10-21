@@ -5,6 +5,7 @@ import com.tiktok.model.exceptions.BadRequestException;
 import com.tiktok.model.exceptions.NotFoundException;
 import com.tiktok.model.exceptions.UnauthorizedException;
 import com.tiktok.model.repository.UserRepository;
+import com.tiktok.service.CommentService;
 import com.tiktok.service.VideoService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,8 @@ public abstract class GlobalController {
     public UserRepository userRepository;
     @Autowired
     public VideoService videoService;
+    @Autowired
+    public CommentService commentService;
     @Autowired
     public ModelMapper modelMapper;
 
@@ -68,6 +71,7 @@ public abstract class GlobalController {
                 || !Boolean.TRUE.equals(session.getAttribute(LOGGED))
                 || session.getAttribute(USER_ID) == null
                 || !session.getAttribute(REMOTE_IP).equals(req.getRemoteAddr())) {
+            session.invalidate();
             throw new UnauthorizedException("You have to log in!");
         }
         return (int) session.getAttribute(USER_ID);

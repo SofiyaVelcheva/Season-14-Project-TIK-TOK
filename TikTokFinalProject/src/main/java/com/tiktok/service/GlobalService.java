@@ -1,8 +1,10 @@
 package com.tiktok.service;
 
+import com.tiktok.model.entities.Comment;
 import com.tiktok.model.entities.User;
 import com.tiktok.model.entities.Video;
 import com.tiktok.model.exceptions.NotFoundException;
+import com.tiktok.model.repository.CommentRepository;
 import com.tiktok.model.repository.SoundRepository;
 import com.tiktok.model.repository.UserRepository;
 import com.tiktok.model.repository.VideoRepository;
@@ -21,6 +23,8 @@ public abstract class GlobalService {
 
     @Autowired
     protected SoundRepository soundRepository;
+    @Autowired
+    protected CommentRepository commentRepository;
 
 
     protected Video getVideoById(int videoId){
@@ -28,5 +32,9 @@ public abstract class GlobalService {
     }
     protected User getUserById(int userId){
         return userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+    }
+
+    protected Comment getCommentById(int commentId){
+        return commentRepository.findById(commentId).orElseThrow(() -> new NotFoundException("Comment not found"));
     }
 }
