@@ -54,9 +54,7 @@ Content-Type: application/json
 ### change photo
 PUT http://localhost:6969/user/photo
 Content-Type: application/json
-{
-  # todo
-}
+
 
 ### edit profile
 # user is login / get id - session
