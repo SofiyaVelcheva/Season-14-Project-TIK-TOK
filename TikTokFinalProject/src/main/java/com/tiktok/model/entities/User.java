@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import java.util.Set;
+
+
 @Data
 @Entity(name = "users")
 public class User {
@@ -37,6 +40,7 @@ public class User {
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
 
+
     @OneToMany (mappedBy = "owner")
     private List<Video> videos;
 
@@ -56,6 +60,22 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "comment_id"))
     private List<Comment> likedComments;
+
+//    @OneToMany(mappedBy = "student")
+//    Set<User> ratings;
+//
+//    @OneToMany(mappedBy = "course")
+//    Set<CourseRating> ratings;
+//
+//    public void addFollower(User follower) {
+//        this.followers.add(follower);
+//    }
+//
+//    public void removeFollower(User userWhoWantToUnfollow) {
+//        this.followers.remove(userWhoWantToUnfollow);
+//    }
+
+
 
 
 }

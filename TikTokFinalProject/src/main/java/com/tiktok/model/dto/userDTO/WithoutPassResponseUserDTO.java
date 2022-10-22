@@ -15,5 +15,6 @@ public class WithoutPassResponseUserDTO {
     private String phoneNumber;
     private LocalDateTime dateOfBirth;
     private String profilPhotoURL;
+    private LocalDateTime lastLogin;
 
 }

@@ -10,10 +10,13 @@ import com.tiktok.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
 
 @RestController
 public class UserController extends GlobalController {
@@ -22,10 +25,9 @@ public class UserController extends GlobalController {
 
     @PostMapping("/auth")
     public ResponseEntity<LoginResponseUserDTO> login
-            (@RequestBody LoginRequestUserDTO user,
+            (@Valid @RequestBody LoginRequestUserDTO user,
              HttpServletRequest req) {
         HttpSession session = req.getSession();
-
         LoginResponseUserDTO result = userService.login(user);
         if (result != null && session.isNew()) {
             setSession(req, result.getId());
@@ -36,6 +38,13 @@ public class UserController extends GlobalController {
         }
     }
 
+    @PostMapping("/users")
+    public ResponseEntity<RegisterResponseUserDTO> register(
+            @RequestBody RegisterRequestUserDTO u) {
+        RegisterResponseUserDTO user = userService.register(u);
+        return new ResponseEntity<>(user, HttpStatus.CREATED);
+    }
+
     @PutMapping("/user")
     public ResponseEntity<EditUserResponseDTO> edit(
             @RequestBody EditUserRequestDTO dto,
@@ -44,18 +53,21 @@ public class UserController extends GlobalController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    @PostMapping("/users")
-    public ResponseEntity<RegisterResponseUserDTO> register(
-            @RequestBody RegisterRequestUserDTO u) {
-        RegisterResponseUserDTO user = userService.register(u);
-        return new ResponseEntity<>(user, HttpStatus.CREATED);
+    @PutMapping("/user/pass")
+    public ResponseEntity<ChangePassResponseUserDTO> changePass(
+            HttpServletRequest req,
+            @Valid @RequestBody ChangePassRequestUserDTO dto) {
+        ChangePassResponseUserDTO userDTO = userService.changePass(getUserIdFromSession(req), dto);
+        return new ResponseEntity<>(userDTO, HttpStatus.OK);
     }
 
-    @PutMapping("/users/{id}")
-    public ResponseEntity<String> delete(@PathVariable int id) {
-        userService.deleteUserAccount(id);
-        return new ResponseEntity<>("The user has been deleted successfully!",
-                HttpStatus.OK);
+    @PutMapping("/user/photo")
+    public ResponseEntity<EditProfilePhotoResponseDTO> uploadProfilePhoto(
+            HttpServletRequest req,
+            @RequestParam MultipartFile file){
+        EditProfilePhotoResponseDTO user = userService.
+                uploadProfilePhoto(getUserIdFromSession(req), file);
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @PostMapping("/logout")
@@ -63,14 +75,14 @@ public class UserController extends GlobalController {
         session.invalidate();
         return new ResponseEntity<>("Log out!", HttpStatus.OK);
     }
-
-    @PutMapping("/user/pass")
-    public ResponseEntity<ChangePassResponseUserDTO> changePass(
-            HttpServletRequest req,
-            @RequestBody ChangePassRequestUserDTO dto) {
-        ChangePassResponseUserDTO userDTO = userService.editPass(getUserIdFromSession(req), dto);
-    return new ResponseEntity<>(userDTO, HttpStatus.OK);
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<String> deleteUser(@PathVariable int id) {
+        userService.deleteUser(id);
+        return new ResponseEntity<>("The user has been deleted successfully!",
+                HttpStatus.OK);
     }
+
+
 
 
 
