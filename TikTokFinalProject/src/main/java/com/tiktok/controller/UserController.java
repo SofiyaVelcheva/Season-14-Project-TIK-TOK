@@ -93,6 +93,4 @@ public class UserController extends GlobalController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-
-
 }

@@ -150,15 +150,16 @@ public class UserService extends GlobalService {
             checkContentType(file);
             checkSizePhoto(file.getInputStream());
             String ext = FilenameUtils.getExtension(file.getOriginalFilename());
-            String name = "photo" + File.separator + System.nanoTime() + "." + ext;
-            File f = new File(name);
+            String name = System.nanoTime() + "." + ext;
+            String filePath = "photo" + File.separator + name;
+            File f = new File(filePath);
             if (!f.exists()) {
                 Files.copy(file.getInputStream(), f.toPath());
             } else {
                 throw new BadRequestException("The file already exists.");
             }
             if (user.getPhotoURL() != null) {
-                File old = new File(user.getPhotoURL());
+                File old = new File("photo" + File.separator + user.getPhotoURL());
                 old.delete();
             }
             user.setPhotoURL(name);
