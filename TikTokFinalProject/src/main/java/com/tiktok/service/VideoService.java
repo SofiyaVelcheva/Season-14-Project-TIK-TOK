@@ -1,6 +1,7 @@
 package com.tiktok.service;
 
 import com.tiktok.model.dto.comments.CommentWithoutVideoDTO;
+import com.tiktok.model.dto.userDTO.EditUserResponseDTO;
 import com.tiktok.model.dto.videoDTO.EditRequestVideoDTO;
 import com.tiktok.model.dto.videoDTO.EditResponseVideoDTO;
 import com.tiktok.model.dto.videoDTO.VideoWithoutOwnerDTO;
@@ -9,6 +10,7 @@ import com.tiktok.model.entities.User;
 import com.tiktok.model.entities.Video;
 import com.tiktok.model.exceptions.BadRequestException;
 import org.apache.commons.io.FilenameUtils;
+import org.hibernate.mapping.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,6 +20,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -141,15 +144,14 @@ public class VideoService extends GlobalService {
     }
 
 
-//    public List<VideoWithoutOwnerDTO> showAllByLikes() {
-//        List <Video> videos = videoRepository.findAll();
-//        List <Video> videByLikers = videoRepository.queryAllByLikers(videos); //todo
-//
-//        List<VideoWithoutOwnerDTO> allVideosByLikers = new ArrayList<>();
-//        for(Video video : videByLikers){
-//            VideoWithoutOwnerDTO dto = modelMapper.map(video, VideoWithoutOwnerDTO.class);
-//            allVideosByLikers.add(dto);
-//        }
-//        return allVideosByLikers;
-//    }
+    public List<VideoWithoutOwnerDTO> showAllByLikes() {
+        List <Video> videos = videoRepository.findAll();
+        Collections.sort(videos, (o1, o2) -> o2.getLikers().size() - o1.getLikers().size());
+        List<VideoWithoutOwnerDTO> allVideosByLikers = new ArrayList<>();
+        for(Video video : videos){
+            VideoWithoutOwnerDTO dto = modelMapper.map(video, VideoWithoutOwnerDTO.class);
+            allVideosByLikers.add(dto);
+        }
+        return allVideosByLikers;
+    }
 }

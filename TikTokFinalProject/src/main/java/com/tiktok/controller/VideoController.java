@@ -80,9 +80,9 @@ public class VideoController extends GlobalController {
         return videoService.showAllCommentsOrderByLastAdd(videoId);
     }
 
-//    @GetMapping("/videos/showByLikes")
-//    public List<VideoWithoutOwnerDTO> showAllByLikes(HttpServletRequest request){
-//        int userId = getUserIdFromSession(request);
-//        return videoService.showAllByLikes();
-//    }
+    @GetMapping("/videos/showByLikes")
+    public List<VideoWithoutOwnerDTO> showAllByLikes(HttpServletRequest request){
+        int userId = getUserIdFromSession(request);
+        return videoService.showAllByLikes();
+    }
 }
