@@ -101,8 +101,8 @@ public class VideoService extends GlobalService {
         User user = getUserById(userId);
         List<Video> videos = videoRepository.findAllByOwner(user);
         List<VideoWithoutOwnerDTO> myVideos = new ArrayList<>();
-        for (Video v : videos){
-            VideoWithoutOwnerDTO dto = modelMapper.map(v,VideoWithoutOwnerDTO.class);
+        for (Video v : videos) {
+            VideoWithoutOwnerDTO dto = modelMapper.map(v, VideoWithoutOwnerDTO.class);
             myVideos.add(dto);
         }
         return myVideos;
@@ -112,7 +112,7 @@ public class VideoService extends GlobalService {
         Video video = getVideoById(videoId);
         List<Comment> comments = commentRepository.findAllByVideo(video);
         List<CommentWithoutVideoDTO> videoWithComments = new ArrayList<>();
-        for (Comment comment : comments){
+        for (Comment comment : comments) {
             CommentWithoutVideoDTO dto = modelMapper.map(comment, CommentWithoutVideoDTO.class);
             videoWithComments.add(dto);
         }
@@ -122,11 +122,34 @@ public class VideoService extends GlobalService {
     private boolean validateFileType(String ext) {
         //TikTok supports the following video file types: .mp4, .mov, .mpeg, .3gp, .avi
         if (ext.equals("mp4") || ext.equals("mov") || ext.equals("mpeg")
-                || ext.equals("3gp") || ext.equals("avi")){
+                || ext.equals("3gp") || ext.equals("avi")) {
             return true;
         }
         return false;
     }
 
+    public List<CommentWithoutVideoDTO> showAllCommentsOrderByLastAdd(int videoId) {
+        Video video = getVideoById(videoId);
+        List<Comment> comments = commentRepository.findParentCommentsOrderByDate(videoId);
+        System.out.println(comments.size());
+        List<CommentWithoutVideoDTO> allComments = new ArrayList<>();
+        for (Comment comment : comments){
+            CommentWithoutVideoDTO dto = modelMapper.map(comment, CommentWithoutVideoDTO.class);
+            allComments.add(dto);
+        }
+        return allComments;
+    }
 
+
+//    public List<VideoWithoutOwnerDTO> showAllByLikes() {
+//        List <Video> videos = videoRepository.findAll();
+//        List <Video> videByLikers = videoRepository.queryAllByLikers(videos); //todo
+//
+//        List<VideoWithoutOwnerDTO> allVideosByLikers = new ArrayList<>();
+//        for(Video video : videByLikers){
+//            VideoWithoutOwnerDTO dto = modelMapper.map(video, VideoWithoutOwnerDTO.class);
+//            allVideosByLikers.add(dto);
+//        }
+//        return allVideosByLikers;
+//    }
 }

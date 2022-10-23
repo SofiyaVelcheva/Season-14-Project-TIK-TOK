@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.swing.plaf.LabelUI;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -72,4 +73,16 @@ public class VideoController extends GlobalController {
         int userId = getUserIdFromSession(request);
         return videoService.showAllComments(videoId);
     }
+
+    @GetMapping("/videos/{videoId}/commentsOrderdByLastAdd")
+    public List<CommentWithoutVideoDTO> showAllCommentsOrderByLastAdd (@PathVariable int videoId, HttpServletRequest request){
+        int userId = getUserIdFromSession(request);
+        return videoService.showAllCommentsOrderByLastAdd(videoId);
+    }
+
+//    @GetMapping("/videos/showByLikes")
+//    public List<VideoWithoutOwnerDTO> showAllByLikes(HttpServletRequest request){
+//        int userId = getUserIdFromSession(request);
+//        return videoService.showAllByLikes();
+//    }
 }

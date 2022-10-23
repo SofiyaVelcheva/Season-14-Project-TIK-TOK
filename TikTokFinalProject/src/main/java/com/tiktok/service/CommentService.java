@@ -6,9 +6,11 @@ import com.tiktok.model.dto.comments.CommentWithoutUserDTO;
 import com.tiktok.model.entities.Comment;
 import com.tiktok.model.entities.User;
 import com.tiktok.model.entities.Video;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class CommentService extends GlobalService {
@@ -40,7 +42,6 @@ public class CommentService extends GlobalService {
         return response;
     }
 
-
     public String likeComment(int commentId, int userID) {
         User user = getUserById(userID);
         Comment comment = getCommentById(commentId);
@@ -52,6 +53,7 @@ public class CommentService extends GlobalService {
         userRepository.save(user);
         return "Comment has " + user.getLikedComments().size() + " likes.";
     }
+
 
 
 }
