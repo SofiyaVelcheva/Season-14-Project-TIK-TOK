@@ -21,7 +21,7 @@ import java.util.List;
 @RestController
 public class VideoController extends GlobalController {
 
-    @PostMapping("users/{userId}/uploadVideo") // todo is the URL ok?
+    @PostMapping("users/{userId}/uploadVideo")
     public VideoWithoutOwnerDTO uploadVideo(@PathVariable int userId, @RequestParam(value = "file") MultipartFile file, @RequestParam(value = "isLive") Boolean isLve,
                                             @RequestParam(value = "isPrivate") Boolean isPrivate, @RequestParam(value = "description") String description,
                                             HttpServletRequest request) {
@@ -30,25 +30,26 @@ public class VideoController extends GlobalController {
     }
 
     @PutMapping("videos/{videoId}")
-    public EditResponseVideoDTO editVideo(@PathVariable int videoId, @RequestBody EditRequestVideoDTO dto) {
-        return videoService.editVideo(videoId, dto);
+    public EditResponseVideoDTO editVideo(@PathVariable int videoId, @RequestBody EditRequestVideoDTO dto, HttpServletRequest request) {
+        int userId = getUserIdFromSession(request);
+        return videoService.editVideo(videoId, dto, userId);
     }
 
     @DeleteMapping("videos/{videoId}")
-    public String deleteVideo(@PathVariable int videoId) {
-        return videoService.deleteVideo(videoId);
+    public String deleteVideo(@PathVariable int videoId, HttpServletRequest request){
+        int userId = getUserIdFromSession(request);
+        return videoService.deleteVideo(videoId, userId);
     }
 
-
     @GetMapping("videos/{path}")
-    public void showVideo(@PathVariable String path, HttpServletResponse resp) {
+    public void showVideo(@PathVariable String path, HttpServletResponse response) {
         File f = new File("videos" + File.separator + path);
         if (!f.exists()) {
             throw new NotFoundException("Video does not exist!");
         }
         try {
-            resp.setContentType(Files.probeContentType(f.toPath()));
-            Files.copy(f.toPath(), resp.getOutputStream());
+            response.setContentType(Files.probeContentType(f.toPath()));
+            Files.copy(f.toPath(), response.getOutputStream());
         } catch (IOException e) {
             throw new BadRequestException(e.getMessage(), e);
         }

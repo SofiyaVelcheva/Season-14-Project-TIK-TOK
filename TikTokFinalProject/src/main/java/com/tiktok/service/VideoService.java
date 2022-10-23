@@ -66,9 +66,10 @@ public class VideoService extends GlobalService {
         }
     }
 
-    public EditResponseVideoDTO editVideo(int videoId, EditRequestVideoDTO dto) {
+    public EditResponseVideoDTO editVideo(int videoId, EditRequestVideoDTO dto, int userID) {
         Video video = getVideoById(videoId);
-        video.setPrivate(dto.isPrivate()); // todo can be done by modelMapper?
+        findVideo(userID, video);
+        video.setPrivate(dto.isPrivate());
         video.setDescription(dto.getDescription());
         if (!video.isPrivate()) {
             //todo create a sound
@@ -78,8 +79,9 @@ public class VideoService extends GlobalService {
         return modelMapper.map(video, EditResponseVideoDTO.class);
     }
 
-    public String deleteVideo(int videoId) {
+    public String deleteVideo(int videoId, int userId) {
         Video video = getVideoById(videoId);
+        findVideo(userId, video);
         if (video.getVideoUrl() != null) {
             File old = new File(video.getVideoUrl());
             old.delete();
@@ -136,7 +138,7 @@ public class VideoService extends GlobalService {
         List<Comment> comments = commentRepository.findParentCommentsOrderByDate(videoId);
         System.out.println(comments.size());
         List<CommentWithoutVideoDTO> allComments = new ArrayList<>();
-        for (Comment comment : comments){
+        for (Comment comment : comments) {
             CommentWithoutVideoDTO dto = modelMapper.map(comment, CommentWithoutVideoDTO.class);
             allComments.add(dto);
         }
@@ -145,10 +147,10 @@ public class VideoService extends GlobalService {
 
 
     public List<VideoWithoutOwnerDTO> showAllByLikes() {
-        List <Video> videos = videoRepository.findAll();
+        List<Video> videos = videoRepository.findAll();
         Collections.sort(videos, (o1, o2) -> o2.getLikers().size() - o1.getLikers().size());
         List<VideoWithoutOwnerDTO> allVideosByLikers = new ArrayList<>();
-        for(Video video : videos){
+        for (Video video : videos) {
             VideoWithoutOwnerDTO dto = modelMapper.map(video, VideoWithoutOwnerDTO.class);
             allVideosByLikers.add(dto);
         }
@@ -156,10 +158,10 @@ public class VideoService extends GlobalService {
     }
 
     public List<VideoWithoutOwnerDTO> showAllByComments() {
-        List <Video> videos = videoRepository.findAll();
+        List<Video> videos = videoRepository.findAll();
         Collections.sort(videos, (o1, o2) -> o2.getComments().size() - o1.getComments().size());
         List<VideoWithoutOwnerDTO> allVideosByComments = new ArrayList<>();
-        for(Video video : videos){
+        for (Video video : videos) {
             VideoWithoutOwnerDTO dto = modelMapper.map(video, VideoWithoutOwnerDTO.class);
             allVideosByComments.add(dto);
         }
@@ -167,13 +169,27 @@ public class VideoService extends GlobalService {
     }
 
     public List<VideoWithoutOwnerDTO> showAllByDate() {
-        List <Video> videos = videoRepository.findAll();
+        List<Video> videos = videoRepository.findAll();
         Collections.sort(videos, (o1, o2) -> o2.getUploadAt().compareTo(o1.getUploadAt()));
         List<VideoWithoutOwnerDTO> allVideosByDate = new ArrayList<>();
-        for(Video video : videos){
+        for (Video video : videos) {
             VideoWithoutOwnerDTO dto = modelMapper.map(video, VideoWithoutOwnerDTO.class);
             allVideosByDate.add(dto);
         }
         return allVideosByDate;
+    }
+
+    private void findVideo(int userId, Video video){
+        List<Video> myVideos = videoRepository.findAllByOwner(getUserById(userId));
+        boolean isMineVideo = false;
+        for (Video v : myVideos) {
+            if (v.getId() == video.getId()) {
+                isMineVideo = true;
+                break;
+            }
+        }
+        if (!isMineVideo) {
+            throw new BadRequestException("The video you tried to deleted is not yours");
+        }
     }
 }
