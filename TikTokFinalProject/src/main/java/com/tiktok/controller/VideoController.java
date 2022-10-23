@@ -85,4 +85,15 @@ public class VideoController extends GlobalController {
         int userId = getUserIdFromSession(request);
         return videoService.showAllByLikes();
     }
+
+    @GetMapping("/videos/showByComments")
+    public List<VideoWithoutOwnerDTO> showAllByComments (HttpServletRequest request){
+        int userId = getUserIdFromSession(request);
+        return videoService.showAllByComments();
+    }
+    @GetMapping("/videos/showByDate")
+    public List<VideoWithoutOwnerDTO> showAllByDate (HttpServletRequest request){
+        int userId = getUserIdFromSession(request);
+        return videoService.showAllByDate();
+    }
 }

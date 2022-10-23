@@ -154,4 +154,26 @@ public class VideoService extends GlobalService {
         }
         return allVideosByLikers;
     }
+
+    public List<VideoWithoutOwnerDTO> showAllByComments() {
+        List <Video> videos = videoRepository.findAll();
+        Collections.sort(videos, (o1, o2) -> o2.getComments().size() - o1.getComments().size());
+        List<VideoWithoutOwnerDTO> allVideosByComments = new ArrayList<>();
+        for(Video video : videos){
+            VideoWithoutOwnerDTO dto = modelMapper.map(video, VideoWithoutOwnerDTO.class);
+            allVideosByComments.add(dto);
+        }
+        return allVideosByComments;
+    }
+
+    public List<VideoWithoutOwnerDTO> showAllByDate() {
+        List <Video> videos = videoRepository.findAll();
+        Collections.sort(videos, (o1, o2) -> o2.getUploadAt().compareTo(o1.getUploadAt()));
+        List<VideoWithoutOwnerDTO> allVideosByDate = new ArrayList<>();
+        for(Video video : videos){
+            VideoWithoutOwnerDTO dto = modelMapper.map(video, VideoWithoutOwnerDTO.class);
+            allVideosByDate.add(dto);
+        }
+        return allVideosByDate;
+    }
 }

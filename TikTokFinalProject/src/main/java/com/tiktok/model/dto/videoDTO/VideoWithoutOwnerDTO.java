@@ -1,5 +1,7 @@
 package com.tiktok.model.dto.videoDTO;
 
+import com.tiktok.model.dto.comments.CommentWithoutVideoDTO;
+import com.tiktok.model.dto.userDTO.ChangePassResponseUserDTO;
 import com.tiktok.model.dto.userDTO.EditUserResponseDTO;
 import com.tiktok.model.entities.User;
 import lombok.Data;
@@ -16,5 +18,6 @@ public class VideoWithoutOwnerDTO {
     private boolean isLive;
     private boolean isPrivate;
     private String description;
-    private List<EditUserResponseDTO> likers;
+    private List<ChangePassResponseUserDTO> likers;
+    private List<CommentWithoutVideoDTO> comments;
 }
