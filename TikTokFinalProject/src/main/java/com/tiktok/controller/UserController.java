@@ -44,7 +44,7 @@ public class UserController extends GlobalController {
         return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
 
-    @PutMapping("/user")
+    @PutMapping("/users")
     public ResponseEntity<EditUserResponseDTO> edit(
             @Valid @RequestBody EditUserRequestDTO dto,
             HttpServletRequest req) {
@@ -52,7 +52,7 @@ public class UserController extends GlobalController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    @PutMapping("/user/pass")
+    @PutMapping("/users/pass")
     public ResponseEntity<ChangePassResponseUserDTO> changePass(
             HttpServletRequest req,
             @Valid @RequestBody ChangePassRequestUserDTO dto) {
@@ -60,10 +60,10 @@ public class UserController extends GlobalController {
         return new ResponseEntity<>(userDTO, HttpStatus.OK);
     }
 
-    @PutMapping("/user/photo")
+    @PutMapping("/users/photo")
     public ResponseEntity<EditProfilePhotoResponseDTO> uploadProfilePhoto(
             HttpServletRequest req,
-            @Valid @RequestParam MultipartFile file){
+            @Valid @RequestParam MultipartFile file) {
         EditProfilePhotoResponseDTO user = userService.
                 uploadProfilePhoto(getUserIdFromSession(req), file);
         return new ResponseEntity<>(user, HttpStatus.OK);
@@ -74,9 +74,22 @@ public class UserController extends GlobalController {
         session.invalidate();
         return new ResponseEntity<>("Log out!", HttpStatus.OK);
     }
+
     @DeleteMapping("/users/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable int id) {
         userService.deleteUser(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("/users/{id}/subscribers")
+    public ResponseEntity<String> subscribe(@PathVariable(name = "id") int publisherId, HttpServletRequest req) {
+        userService.subscribe(publisherId, getUserIdFromSession(req));
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("/users/{id}/unsubscribers")
+    public ResponseEntity<String> unsubscribe(@PathVariable(name = "id") int publisherId, HttpServletRequest req) {
+        userService.unsubscribe(publisherId, getUserIdFromSession(req));
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
