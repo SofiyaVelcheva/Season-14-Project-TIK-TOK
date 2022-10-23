@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.swing.plaf.LabelUI;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -71,5 +72,28 @@ public class VideoController extends GlobalController {
     public List<CommentWithoutVideoDTO> showAllComments(@PathVariable int videoId, HttpServletRequest request){
         int userId = getUserIdFromSession(request);
         return videoService.showAllComments(videoId);
+    }
+
+    @GetMapping("/videos/{videoId}/commentsOrderdByLastAdd")
+    public List<CommentWithoutVideoDTO> showAllCommentsOrderByLastAdd (@PathVariable int videoId, HttpServletRequest request){
+        int userId = getUserIdFromSession(request);
+        return videoService.showAllCommentsOrderByLastAdd(videoId);
+    }
+
+    @GetMapping("/videos/showByLikes")
+    public List<VideoWithoutOwnerDTO> showAllByLikes(HttpServletRequest request){
+        int userId = getUserIdFromSession(request);
+        return videoService.showAllByLikes();
+    }
+
+    @GetMapping("/videos/showByComments")
+    public List<VideoWithoutOwnerDTO> showAllByComments (HttpServletRequest request){
+        int userId = getUserIdFromSession(request);
+        return videoService.showAllByComments();
+    }
+    @GetMapping("/videos/showByDate")
+    public List<VideoWithoutOwnerDTO> showAllByDate (HttpServletRequest request){
+        int userId = getUserIdFromSession(request);
+        return videoService.showAllByDate();
     }
 }
