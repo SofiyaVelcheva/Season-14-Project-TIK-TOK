@@ -1,7 +1,6 @@
 package com.tiktok.service;
 
 import com.tiktok.model.dto.comments.CommentWithoutVideoDTO;
-import com.tiktok.model.dto.userDTO.EditUserResponseDTO;
 import com.tiktok.model.dto.videoDTO.EditRequestVideoDTO;
 import com.tiktok.model.dto.videoDTO.EditResponseVideoDTO;
 import com.tiktok.model.dto.videoDTO.VideoWithoutOwnerDTO;
@@ -9,8 +8,8 @@ import com.tiktok.model.entities.Comment;
 import com.tiktok.model.entities.User;
 import com.tiktok.model.entities.Video;
 import com.tiktok.model.exceptions.BadRequestException;
+import com.tiktok.model.exceptions.UnauthorizedException;
 import org.apache.commons.io.FilenameUtils;
-import org.hibernate.mapping.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,7 +30,6 @@ public class VideoService extends GlobalService {
     public VideoWithoutOwnerDTO uploadVideo(int userId, MultipartFile file, Boolean isLive, Boolean isPrivate, String description) {
         try {
             String ext = FilenameUtils.getExtension(file.getOriginalFilename());
-            System.out.println(ext);
             if (!validateFileType(ext)) {
                 throw new BadRequestException("The format of the video is not allowed.");
             }
@@ -68,7 +66,7 @@ public class VideoService extends GlobalService {
 
     public EditResponseVideoDTO editVideo(int videoId, EditRequestVideoDTO dto, int userID) {
         Video video = getVideoById(videoId);
-        findVideo(userID, video);
+        confirmOwner(userID, video);
         video.setPrivate(dto.isPrivate());
         video.setDescription(dto.getDescription());
         if (!video.isPrivate()) {
@@ -81,7 +79,7 @@ public class VideoService extends GlobalService {
 
     public String deleteVideo(int videoId, int userId) {
         Video video = getVideoById(videoId);
-        findVideo(userId, video);
+        confirmOwner(userId, video);
         if (video.getVideoUrl() != null) {
             File old = new File(video.getVideoUrl());
             old.delete();
@@ -93,6 +91,9 @@ public class VideoService extends GlobalService {
     public String likeVideo(int videoId, int userId) {
         User user = getUserById(userId);
         Video video = getVideoById(videoId);
+        if (video.isPrivate()){ //even the owner can't like the video
+            throw new UnauthorizedException("The video is locked by owner");
+        }
         if (user.getLikedVideos().contains(video)) {
             user.getLikedVideos().remove(video);
         } else {
@@ -134,7 +135,7 @@ public class VideoService extends GlobalService {
     }
 
     public List<CommentWithoutVideoDTO> showAllCommentsOrderByLastAdd(int videoId) {
-        Video video = getVideoById(videoId);
+        Video video = getVideoById(videoId); // if video exists
         List<Comment> comments = commentRepository.findParentCommentsOrderByDate(videoId);
         System.out.println(comments.size());
         List<CommentWithoutVideoDTO> allComments = new ArrayList<>();
@@ -144,7 +145,6 @@ public class VideoService extends GlobalService {
         }
         return allComments;
     }
-
 
     public List<VideoWithoutOwnerDTO> showAllByLikes() {
         List<Video> videos = videoRepository.findAll();
@@ -179,7 +179,7 @@ public class VideoService extends GlobalService {
         return allVideosByDate;
     }
 
-    private void findVideo(int userId, Video video){
+    private void confirmOwner(int userId, Video video){
         List<Video> myVideos = videoRepository.findAllByOwner(getUserById(userId));
         boolean isMineVideo = false;
         for (Video v : myVideos) {

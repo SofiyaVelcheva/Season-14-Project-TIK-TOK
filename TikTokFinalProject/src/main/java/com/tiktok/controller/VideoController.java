@@ -60,41 +60,33 @@ public class VideoController extends GlobalController {
         return videoService.likeVideo(videoId, userId);
     }
 
-    @GetMapping("/users/{userId}/videos")
-    public List<VideoWithoutOwnerDTO> showMyVideos(@PathVariable int userId, HttpServletRequest request){
-        int validatedId = getUserIdFromSession(request);
-        if (validatedId != userId){
-            throw new UnauthorizedException("You should be logged in!");
-        }
+    @GetMapping("/users/myVideos")
+    public List<VideoWithoutOwnerDTO> showMyVideos(HttpServletRequest request){
+        int userId = getUserIdFromSession(request);
         return videoService.showMyVideos(userId);
     }
 
     @GetMapping("/videos/{videoId}/comments")
-    public List<CommentWithoutVideoDTO> showAllComments(@PathVariable int videoId, HttpServletRequest request){
-        int userId = getUserIdFromSession(request);
+    public List<CommentWithoutVideoDTO> showAllComments(@PathVariable int videoId){
         return videoService.showAllComments(videoId);
     }
 
-    @GetMapping("/videos/{videoId}/commentsOrderdByLastAdd")
-    public List<CommentWithoutVideoDTO> showAllCommentsOrderByLastAdd (@PathVariable int videoId, HttpServletRequest request){
-        int userId = getUserIdFromSession(request);
+    @GetMapping("/videos/{videoId}/commentsOrderByLastAdd")
+    public List<CommentWithoutVideoDTO> showAllCommentsOrderByLastAdd (@PathVariable int videoId){
         return videoService.showAllCommentsOrderByLastAdd(videoId);
     }
 
     @GetMapping("/videos/showByLikes")
-    public List<VideoWithoutOwnerDTO> showAllByLikes(HttpServletRequest request){
-        int userId = getUserIdFromSession(request);
+    public List<VideoWithoutOwnerDTO> showAllByLikes(){
         return videoService.showAllByLikes();
     }
 
     @GetMapping("/videos/showByComments")
-    public List<VideoWithoutOwnerDTO> showAllByComments (HttpServletRequest request){
-        int userId = getUserIdFromSession(request);
+    public List<VideoWithoutOwnerDTO> showAllByComments (){
         return videoService.showAllByComments();
     }
     @GetMapping("/videos/showByDate")
-    public List<VideoWithoutOwnerDTO> showAllByDate (HttpServletRequest request){
-        int userId = getUserIdFromSession(request);
+    public List<VideoWithoutOwnerDTO> showAllByDate (){
         return videoService.showAllByDate();
     }
 }
