@@ -62,9 +62,11 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "comment_id"))
     private List<Comment> likedComments;
 
-
-
-
-
+    @ManyToMany
+    @JoinTable(
+            name = "subscribers",
+            joinColumns = @JoinColumn(name = "publisher_id"),
+            inverseJoinColumns = @JoinColumn(name = "subscriber_id"))
+    private List<User> subscribers = new ArrayList<>();
 
 }

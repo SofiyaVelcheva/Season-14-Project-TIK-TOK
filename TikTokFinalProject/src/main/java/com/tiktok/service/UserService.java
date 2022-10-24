@@ -27,8 +27,6 @@ import java.util.Optional;
 
 @Service
 public class UserService extends GlobalService {
-
-
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -95,7 +93,7 @@ public class UserService extends GlobalService {
 
     public void deleteUser(int userId) {
         User u = getUserById(userId);
-        if (u.getUsername().contains("delete")) {
+        if (u.getUsername().contains("Delete")) {
             throw new NotFoundException("User not found");
         }
         u.setUsername("Delete on " + LocalDateTime.now());
@@ -103,7 +101,7 @@ public class UserService extends GlobalService {
         u.setFirstName("Delete on " + LocalDateTime.now());
         u.setLastName("Delete on " + LocalDateTime.now());
         u.setEmail("Delete on " + LocalDateTime.now());
-        u.setPhoneNumber("Delete on" + u.getId());
+        u.setPhoneNumber("Delete on " + u.getId());
         u.setPhotoURL("Delete on  " + LocalDateTime.now());
         userRepository.save(u);
     }
@@ -152,15 +150,16 @@ public class UserService extends GlobalService {
             checkContentType(file);
             checkSizePhoto(file.getInputStream());
             String ext = FilenameUtils.getExtension(file.getOriginalFilename());
-            String name = "photo" + File.separator + System.nanoTime() + "." + ext;
-            File f = new File(name);
+            String name = System.nanoTime() + "." + ext;
+            String filePath = "photo" + File.separator + name;
+            File f = new File(filePath);
             if (!f.exists()) {
                 Files.copy(file.getInputStream(), f.toPath());
             } else {
                 throw new BadRequestException("The file already exists.");
             }
             if (user.getPhotoURL() != null) {
-                File old = new File(user.getPhotoURL());
+                File old = new File("photo" + File.separator + user.getPhotoURL());
                 old.delete();
             }
             user.setPhotoURL(name);
@@ -186,6 +185,30 @@ public class UserService extends GlobalService {
         if (width < 20 || height < 20) {
             throw new BadRequestException("Photos must be at least 20x20 pixels to upload");
         }
+    }
+    public void subscribe(int publisherId, int subscriberId) {
+        if (publisherId == subscriberId){
+            throw  new BadRequestException("You can not subscribed yourself.");
+        }
+       User publisher = getUserById(publisherId);
+       User subscriber = getUserById(subscriberId);
+       if (publisher.getSubscribers().contains(subscriber)){
+           throw new BadRequestException("You are already subscribed that person.");
+       }
+       publisher.getSubscribers().add(subscriber);
+       userRepository.save(publisher);
+    }
+    public void unsubscribe(int publisherId, int subscriberId) {
+        if (publisherId == subscriberId){
+         throw  new BadRequestException("You can not unsubscribed yourself.");
+        }
+        User publisher = getUserById(publisherId);
+        User subscriber = getUserById(subscriberId);
+        if (!publisher.getSubscribers().contains(subscriber)){
+            throw new BadRequestException("You are not subscribed that user.");
+        }
+        publisher.getSubscribers().remove(subscriber);
+        userRepository.save(publisher);
     }
 }
 

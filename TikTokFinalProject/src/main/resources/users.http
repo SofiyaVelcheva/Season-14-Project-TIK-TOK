@@ -18,9 +18,9 @@ Content-Type: application/json
   "password": "Plovdiv!123",
   "confirm_password": "Plovdiv!123",
   "first_name": "Margarita",
-  "last_name": "Velcheva",
+  "last_name": "Georgieva",
   "email": "sofeto@gmail.com",
-  "phone_number": "+359884532481",
+  "phone_number": "+359884532111",
   "date_of_birth": "1988-12-11"
 }
 
@@ -64,10 +64,7 @@ PUT http://localhost:6969/user
 Content-Type: application/json
 
 {
-  "first_name": null,
-  "last_name": null,
-  "email": "vodka@abv.bg",
-  "phone_number": null
+  "email": "alabala@abv.bg"
 }
 
 ### start session
