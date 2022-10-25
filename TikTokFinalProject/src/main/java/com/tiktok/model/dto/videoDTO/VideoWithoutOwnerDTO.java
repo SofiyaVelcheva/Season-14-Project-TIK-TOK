@@ -1,11 +1,8 @@
 package com.tiktok.model.dto.videoDTO;
 
 import com.tiktok.model.dto.comments.CommentWithoutVideoDTO;
-import com.tiktok.model.dto.userDTO.ChangePassResponseUserDTO;
-import com.tiktok.model.dto.userDTO.EditUserResponseDTO;
-import com.tiktok.model.entities.User;
+import com.tiktok.model.dto.userDTO.BasicUserResponseDTO;
 import lombok.Data;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -18,6 +15,6 @@ public class VideoWithoutOwnerDTO {
     private boolean isLive;
     private boolean isPrivate;
     private String description;
-    private List<ChangePassResponseUserDTO> likers;
+    private List<BasicUserResponseDTO> likers;
     private List<CommentWithoutVideoDTO> comments;
 }

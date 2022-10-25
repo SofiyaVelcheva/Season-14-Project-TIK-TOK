@@ -1,7 +1,6 @@
 package com.tiktok.service;
 
 import com.tiktok.model.dto.comments.CommentWithoutVideoDTO;
-import com.tiktok.model.dto.userDTO.EditUserResponseDTO;
 import com.tiktok.model.dto.videoDTO.EditRequestVideoDTO;
 import com.tiktok.model.dto.videoDTO.EditResponseVideoDTO;
 import com.tiktok.model.dto.videoDTO.VideoWithoutOwnerDTO;
@@ -10,7 +9,6 @@ import com.tiktok.model.entities.User;
 import com.tiktok.model.entities.Video;
 import com.tiktok.model.exceptions.BadRequestException;
 import org.apache.commons.io.FilenameUtils;
-import org.hibernate.mapping.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -107,6 +105,7 @@ public class VideoService extends GlobalService {
         for (Video v : videos) {
             VideoWithoutOwnerDTO dto = modelMapper.map(v, VideoWithoutOwnerDTO.class);
             myVideos.add(dto);
+            System.out.println(v.getLikers().size());
         }
         return myVideos;
     }
