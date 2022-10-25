@@ -4,8 +4,8 @@ import com.tiktok.model.dto.errorDTO.ErrorDTO;
 import com.tiktok.model.exceptions.BadRequestException;
 import com.tiktok.model.exceptions.NotFoundException;
 import com.tiktok.model.exceptions.UnauthorizedException;
-import com.tiktok.model.repository.UserRepository;
 import com.tiktok.service.CommentService;
+import com.tiktok.service.UserService;
 import com.tiktok.service.VideoService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ public abstract class GlobalController {
     public static final String REMOTE_IP = "remoteIp";
 
     @Autowired
-    public UserRepository userRepository;
+    public UserService userService;
     @Autowired
     public VideoService videoService;
     @Autowired

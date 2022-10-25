@@ -5,10 +5,7 @@ import com.tiktok.model.dto.userDTO.LoginRequestUserDTO;
 import com.tiktok.model.dto.userDTO.LoginResponseUserDTO;
 import com.tiktok.model.dto.userDTO.RegisterRequestUserDTO;
 import com.tiktok.model.dto.videoDTO.VideoUploadResponseDTO;
-import com.tiktok.model.entities.Video;
 import com.tiktok.model.exceptions.BadRequestException;
-import com.tiktok.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,8 +17,6 @@ import java.util.List;
 
 @RestController
 public class UserController extends GlobalController {
-    @Autowired
-    private UserService userService;
 
     @PostMapping("/auth")
     public ResponseEntity<LoginResponseUserDTO> login
@@ -97,21 +92,30 @@ public class UserController extends GlobalController {
     @GetMapping("users/{uid}")
     public ResponseEntity<WithoutPassResponseUserDTO> getUser(@PathVariable int uid){
         WithoutPassResponseUserDTO dto = userService.getUser(uid);
-        return new ResponseEntity<>(dto, HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
     @GetMapping("/search")
     public ResponseEntity<List<UsernameResponseDTO>> searchUserByUsername(@RequestParam(value = "username", defaultValue = "") String username,
                                                                           @RequestParam(value = "page", defaultValue = "0")int page,
                                                                           @RequestParam(value = "perPage", defaultValue = "10") int perPage ){
-        return new ResponseEntity<>(userService.getAllUserByUsername(username, page, perPage), HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(userService.getAllUsersByUsername(username, page, perPage), HttpStatus.OK);
     }
-    @GetMapping("/sub")
-    public ResponseEntity<List<VideoUploadResponseDTO>> searchUserByUsername(@RequestParam(value = "page", defaultValue = "0")int page,
+    @GetMapping("/videos/sub")
+    public ResponseEntity<List<VideoUploadResponseDTO>> getVideosPublishers(@RequestParam(value = "page", defaultValue = "0")int page,
                                                                              @RequestParam(value = "perPage", defaultValue = "10") int perPage,
                                                                              HttpServletRequest req ){
-        return new ResponseEntity<>(userService.getAllPublisher(getUserIdFromSession(req), page, perPage), HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(userService.getVideosPublishers(getUserIdFromSession(req), page, perPage), HttpStatus.OK);
     }
+
+    @GetMapping("/sub")
+    public ResponseEntity<List<PublisherUserDTO>> getAllMyPublishers(@RequestParam(value = "page", defaultValue = "0") int page,
+                                                                   @RequestParam(value = "perPage", defaultValue = "10") int perPage,
+                                                                   HttpServletRequest req){
+        return new ResponseEntity<>(userService.getAllMyPublishers(getUserIdFromSession(req), page, perPage), HttpStatus.OK);
+    }
+
+
 
 
 

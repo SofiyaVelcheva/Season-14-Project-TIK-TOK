@@ -2,8 +2,6 @@ package com.tiktok.model.dto.userDTO;
 
 import lombok.Data;
 
-import java.time.LocalDateTime;
-
 @Data
 public class BasicUserResponseDTO {
 
@@ -13,6 +11,6 @@ public class BasicUserResponseDTO {
     private String lastName;
     private String email;
     private String phoneNumber;
-    private String profilPhotoURL;
+    private String photoURL;
 
 }

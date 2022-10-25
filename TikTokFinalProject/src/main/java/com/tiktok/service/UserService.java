@@ -11,7 +11,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,8 +32,9 @@ import java.util.stream.Collectors;
 @Service
 public class UserService extends GlobalService {
 
+    private static Pageable pageable;
+
     public LoginResponseUserDTO login(LoginRequestUserDTO dto) {
-        // hash password
         dto.setPassword(DigestUtils.sha256Hex(dto.getPassword()));
         Optional<User> u = userRepository.
                 findByUsernameAndPassword(dto.getUsername(), dto.getPassword());
@@ -52,7 +52,6 @@ public class UserService extends GlobalService {
         validateEmail(dto.getEmail());
         validatePhone(dto.getPhoneNumber());
         validateBirthday(dto.getDateOfBirth());
-        // encode password
         dto.setPassword(DigestUtils.sha256Hex(dto.getPassword()));
         User user = modelMapper.map(dto, User.class);
         user.setVerifiedEmail(false);
@@ -134,7 +133,6 @@ public class UserService extends GlobalService {
         }
         validatePassword(dto.getNewPassword(), dto.getConfirmNewPassword());
         User u = getUserById(userIdFromSession);
-        // encode password
         dto.setCurrentPassword(DigestUtils.sha256Hex(dto.getCurrentPassword()));
         if (!dto.getCurrentPassword().equals(u.getPassword())) {
             throw new BadRequestException("Invalid password!");
@@ -222,12 +220,12 @@ public class UserService extends GlobalService {
         return dto;
     }
 
-    public List<UsernameResponseDTO> getAllUserByUsername(String username, int page, int perPage) {
+    public List<UsernameResponseDTO> getAllUsersByUsername(String username, int page, int perPage) {
         if (username.trim().isEmpty()) {
             throw new BadRequestException("Empty field with username.");
         }
         username = "%" + username + "%";
-        Pageable pageable = PageRequest.of(page, perPage);
+        pageable = PageRequest.of(page, perPage);
         List<User> users = userRepository.findAllByUsername(username, pageable);
         if (users.isEmpty()){
             throw new UnauthorizedException("Not found suggested");
@@ -242,12 +240,10 @@ public class UserService extends GlobalService {
         return responseUsers;
     }
 
-    public List<VideoUploadResponseDTO> getAllPublisher(int userId, int page, int perPage) {
-        Pageable pageable = PageRequest.of(page, perPage);
+    public List<VideoUploadResponseDTO> getVideosPublishers(int userId, int page, int perPage) {
+        pageable = PageRequest.of(page, perPage);
         List<Video> videos = videoRepository.getAllVideosPublishers(userId, pageable);;
-        if (videos.isEmpty()){
-            throw new UnauthorizedException("Not found suggested");
-        }
+        checkCollection(videos);
         List<VideoUploadResponseDTO> responseVideos = new ArrayList<>();
         for (Video video : videos) {
             VideoUploadResponseDTO dto = modelMapper.map(video, VideoUploadResponseDTO.class);
@@ -257,6 +253,20 @@ public class UserService extends GlobalService {
             responseVideos.add(dto);
         }
         return responseVideos;
+    }
+
+    private void checkCollection(List<?> collection) {
+        if (collection.isEmpty()){
+            throw new UnauthorizedException("Not found suggested");
+        }
+    }
+
+    public List<PublisherUserDTO> getAllMyPublishers(int userId, int page, int perPage) {
+        pageable = PageRequest.of(page, perPage);
+        List<User> users = userRepository.getAllSub(userId, pageable);
+        checkCollection(users);
+        List<PublisherUserDTO> publisherDTO = users.stream().map(u -> modelMapper.map(u, PublisherUserDTO.class)).collect(Collectors.toList());
+        return publisherDTO;
     }
 }
 
