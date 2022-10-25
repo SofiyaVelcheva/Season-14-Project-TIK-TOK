@@ -5,6 +5,7 @@ import com.tiktok.model.exceptions.BadRequestException;
 import com.tiktok.model.exceptions.NotFoundException;
 import com.tiktok.model.exceptions.UnauthorizedException;
 import com.tiktok.service.CommentService;
+import com.tiktok.service.MessageService;
 import com.tiktok.service.UserService;
 import com.tiktok.service.VideoService;
 import org.modelmapper.ModelMapper;
@@ -27,6 +28,8 @@ public abstract class GlobalController {
 
     public static final String REMOTE_IP = "remoteIp";
 
+    @Autowired
+    public MessageService messageService;
     @Autowired
     public UserService userService;
     @Autowired

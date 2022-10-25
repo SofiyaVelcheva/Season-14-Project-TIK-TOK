@@ -13,10 +13,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -253,12 +251,6 @@ public class UserService extends GlobalService {
             responseVideos.add(dto);
         }
         return responseVideos;
-    }
-
-    private void checkCollection(List<?> collection) {
-        if (collection.isEmpty()){
-            throw new UnauthorizedException("Not found suggested");
-        }
     }
 
     public List<PublisherUserDTO> getAllMyPublishers(int userId, int page, int perPage) {

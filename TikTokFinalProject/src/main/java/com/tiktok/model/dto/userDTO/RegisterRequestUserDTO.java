@@ -10,7 +10,7 @@ import java.time.LocalDate;
 public class RegisterRequestUserDTO {
 
     @NotBlank(message = "can not be blank")
-    @Pattern(regexp = "^[A-Za-z\\d._]{1,24}$", message = "Invalid username, only contain letters, numbers, underscores, and periods")
+    @Pattern(regexp = "^[A-Za-z\\d._]{2,24}$", message = "Invalid username, only contain letters, numbers, underscores, and periods")
     private String username;
     @NotBlank(message = "can not be blank")
     @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,20}$",

@@ -67,6 +67,14 @@ public class User {
     @ManyToMany(mappedBy = "subscribers")
     private List<User> subscribeTo = new ArrayList<>();
 
+    @OneToMany(mappedBy = "sender")
+    List<Message> sent;
+
+    @OneToMany(mappedBy = "receiver")
+    List<Message> received;
+
+
+
 
 
 
