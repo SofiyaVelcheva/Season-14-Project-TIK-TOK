@@ -10,7 +10,10 @@ import com.tiktok.model.repository.UserRepository;
 import com.tiktok.model.repository.VideoRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.web.bind.annotation.RestController;
 
+@RestController
 public abstract class GlobalService {
 
     @Autowired
@@ -18,13 +21,17 @@ public abstract class GlobalService {
 
     @Autowired
     protected VideoRepository videoRepository;
+
     @Autowired
     protected UserRepository userRepository;
 
     @Autowired
     protected SoundRepository soundRepository;
+
     @Autowired
     protected CommentRepository commentRepository;
+
+
 
 
     protected Video getVideoById(int videoId){
