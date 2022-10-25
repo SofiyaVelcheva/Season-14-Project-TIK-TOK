@@ -6,16 +6,18 @@ import com.tiktok.model.dto.comments.CommentWithoutUserDTO;
 import com.tiktok.model.entities.Comment;
 import com.tiktok.model.entities.User;
 import com.tiktok.model.entities.Video;
-import org.springframework.data.jpa.repository.Query;
+import com.tiktok.model.exceptions.UnauthorizedException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 public class CommentService extends GlobalService {
     public AddResponseCommentDTO addComment(int videoId, int userId, AddRequestCommentDTO dto) {
         Video video = getVideoById(videoId);
+        if (video.isPrivate()){ //even the owner can't add a comment
+            throw new UnauthorizedException("The video is locked by owner");
+        }
         User user = getUserById(userId);
         Comment comment = new Comment();
         comment.setVideo(video);
@@ -26,7 +28,7 @@ public class CommentService extends GlobalService {
         return modelMapper.map(comment, AddResponseCommentDTO.class);
     }
 
-    public AddResponseCommentDTO commentTheComment(int videoId, int userId, int commentId, AddRequestCommentDTO dto) {
+    public AddResponseCommentDTO replyToComment(int videoId, int userId, int commentId, AddRequestCommentDTO dto) {
         Video video = getVideoById(videoId);
         User user = getUserById(userId);
         Comment parent = getCommentById(commentId);
@@ -55,5 +57,19 @@ public class CommentService extends GlobalService {
     }
 
 
-
+    public String deleteComment(int videoId, int commentId, int userId) {
+        Video video = getVideoById(videoId);
+        Comment comment = getCommentById(commentId);
+        User user = getUserById(userId);
+        if (video.getId() != comment.getVideo().getId()){
+            throw new UnauthorizedException("The comment you try to delete isn't exists.");
+        }
+        if(user.getId() != video.getOwner().getId()) {
+            if (user.getId() != comment.getOwner().getId()) {
+                throw new UnauthorizedException("The comment you try to delete isn't yours.");
+            }
+        }
+        commentRepository.delete(comment);
+        return "The comment is deleted!";
+    }
 }

@@ -12,8 +12,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class GlobalService {
+
     @Autowired
     protected ModelMapper modelMapper;
+
     @Autowired
     protected VideoRepository videoRepository;
     @Autowired
@@ -24,16 +26,15 @@ public abstract class GlobalService {
     @Autowired
     protected CommentRepository commentRepository;
 
-    protected Video getVideoById(int videoId) {
+
+    protected Video getVideoById(int videoId){
         return videoRepository.findById(videoId).orElseThrow(() -> new NotFoundException("Video not found"));
     }
-
-    protected User getUserById(int userId) {
+    protected User getUserById(int userId){
         return userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
     }
 
-    protected Comment getCommentById(int commentId) {
+    protected Comment getCommentById(int commentId){
         return commentRepository.findById(commentId).orElseThrow(() -> new NotFoundException("Comment not found"));
     }
-
 }

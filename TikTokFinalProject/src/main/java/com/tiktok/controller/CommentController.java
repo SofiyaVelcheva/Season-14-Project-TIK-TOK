@@ -10,20 +10,26 @@ import javax.servlet.http.HttpServletRequest;
 public class CommentController extends GlobalController {
 
     @PostMapping("/videos/{videoId}")
-    public AddResponseCommentDTO addComment(@PathVariable int videoId, HttpServletRequest request, @RequestBody AddRequestCommentDTO dto){
+    public AddResponseCommentDTO addComment(@PathVariable int videoId,@RequestBody AddRequestCommentDTO dto, HttpServletRequest request){
         int userId = getUserIdFromSession(request);
         return commentService.addComment(videoId, userId, dto);
     }
-    @PostMapping("/videos/{videoId}/comments/{cid}")
-    public AddResponseCommentDTO commentTheComment(@PathVariable int videoId, @PathVariable int cid,
-                                                   HttpServletRequest request, @RequestBody AddRequestCommentDTO dto){
+    @PostMapping("/videos/{videoId}/comments/{commentId}")
+    public AddResponseCommentDTO replyToComment(@PathVariable int videoId, @PathVariable int commentId,
+                                                 @RequestBody AddRequestCommentDTO dto,  HttpServletRequest request){
         int userId = getUserIdFromSession(request);
-        return commentService.commentTheComment(videoId,userId,cid,dto);
+        return commentService.replyToComment(videoId,userId,commentId,dto);
     }
 
-    @PutMapping ("/commenrs/{commentId}/likes")
+    @PutMapping ("/comments/{commentId}/likes")
     public String likeComment(@PathVariable int commentId, HttpServletRequest request){
         int userID = getUserIdFromSession(request);
         return commentService.likeComment(commentId, userID);
+    }
+
+    @DeleteMapping ("/videos/{videoId}/comments/{commentId}")
+    public String deleteComment (@PathVariable int videoId, @PathVariable int commentId, HttpServletRequest request){
+        int userId = getUserIdFromSession(request);
+        return commentService.deleteComment(videoId, commentId, userId);
     }
 }
