@@ -1,25 +1,25 @@
 package com.tiktok.service;
 
 import com.tiktok.model.dto.messageDTO.MessageDTO;
-import com.tiktok.model.dto.messageDTO.MessageResponseDTO;
-import com.tiktok.model.dto.messageDTO.SendMessageRequestDTO;
 import com.tiktok.model.dto.messageDTO.SendMessageResponseDTO;
 import com.tiktok.model.dto.userDTO.PublisherUserDTO;
 import com.tiktok.model.entities.Message;
 import com.tiktok.model.entities.User;
 import com.tiktok.model.exceptions.BadRequestException;
 import com.tiktok.model.exceptions.UnauthorizedException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 @Service
 public class MessageService extends GlobalService {
     public SendMessageResponseDTO sendMessage(int rid, String text, int userId) {
+        if (rid == userId){
+            throw new BadRequestException("Message cannot be sent because sender and receiver are the same user.");
+        }
         User sender = getUserById(userId);
         User receiver = getUserById(rid);
         if (!sender.getSubscribeTo().contains(receiver)) {
@@ -69,18 +69,19 @@ public class MessageService extends GlobalService {
         }
     }
 
-    public MessageResponseDTO messagesWithUser(int rid, int userId) {
+    public List<MessageDTO> messagesWithUser(int rid, int userId, int page, int perPage) {
         if (!getUserById(userId).getSubscribers().contains(getUserById(rid)) ||
-                !getUserById(userId).getSubscribeTo().contains(getUserById(rid))){
+                !getUserById(userId).getSubscribeTo().contains(getUserById(rid))) {
             throw new BadRequestException("Unknown user.");
         }
-        List<Message> messages = messageRepository.correspondence(rid, userId);
+        Pageable pageable = PageRequest.of(page, perPage);
+        List<Message> messages = messageRepository.correspondence(rid, userId, pageable);
         checkCollection(messages);
-        List<MessageDTO> messageDTOS = messages.stream().map(m -> modelMapper.map(m, MessageDTO.class)).toList();
-        MessageResponseDTO responseDTO = new MessageResponseDTO();
-        responseDTO.setReceiver(modelMapper.map(getUserById(rid), PublisherUserDTO.class));
-        responseDTO.setMessages(messageDTOS);
-        return responseDTO;
+        return messages.stream().map(m -> {
+            MessageDTO messageDTO = modelMapper.map(m, MessageDTO.class);
+            messageDTO.setSender(modelMapper.map(m.getSender(), PublisherUserDTO.class));
+            return messageDTO;
+        }).toList();
     }
 
     private void checkOwner(int userId, Message message) {

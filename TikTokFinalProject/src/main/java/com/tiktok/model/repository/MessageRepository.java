@@ -1,6 +1,7 @@
 package com.tiktok.model.repository;
 
 import com.tiktok.model.entities.Message;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,6 +14,6 @@ public interface MessageRepository extends JpaRepository<Message, Integer> {
 
     @Query(value = "SELECT * FROM messages WHERE sender_id IN(:receiver,:sender) " +
             "AND receiver_id IN(:receiver,:sender) " +
-            "AND text  NOT LIKE '%delete%';", nativeQuery = true)
-    List<Message> correspondence (@Param("receiver") int rid, @Param("sender") int sid);
+            "AND text  NOT LIKE '%delete%'ORDER BY send_at desc ", nativeQuery = true)
+    List<Message> correspondence (@Param("receiver") int rid, @Param("sender") int sid ,Pageable pageable);
 }

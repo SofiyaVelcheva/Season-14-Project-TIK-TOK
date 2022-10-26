@@ -13,10 +13,14 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
 
-   Optional<User> findByUsernameAndPassword(String username, String password);
+    Optional<User> findByUsernameAndPassword(String username, String password);
+
     Optional<User> findByEmail(String email);
+
     Optional<User> findByUsername(String username);
+
     Optional<User> findByPhoneNumber(String phoneNumber);
+
     @Query(value = "SELECT * FROM users as u " +
             "LEFT JOIN subscribers as s ON(u.id = s.publisher_id) " +
             "WHERE u.username LIKE :username AND u.username NOT LIKE '%delete%'" +
@@ -25,8 +29,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     List<User> findAllByUsername(@Param("username") String username, Pageable pageable);
 
 
-
     @Query(value = "SELECT * FROM users as u LEFT JOIN subscribers as s ON u.id = s.publisher_id " +
             "WHERE subscriber_id = :uid AND username NOT LIKE '%delete%'", nativeQuery = true)
- List<User> getAllSub(@Param("uid") int uid, Pageable pageable);
+    List<User> getAllSub(@Param("uid") int uid, Pageable pageable);
+
 }

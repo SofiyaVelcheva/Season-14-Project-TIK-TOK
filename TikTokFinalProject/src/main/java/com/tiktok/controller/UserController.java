@@ -114,10 +114,4 @@ public class UserController extends GlobalController {
                                                                    HttpServletRequest req){
         return new ResponseEntity<>(userService.getAllMyPublishers(getUserIdFromSession(req), page, perPage), HttpStatus.OK);
     }
-
-
-
-
-
-
 }
