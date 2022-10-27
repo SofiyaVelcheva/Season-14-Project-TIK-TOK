@@ -6,6 +6,7 @@ import com.tiktok.model.exceptions.NotFoundException;
 import com.tiktok.model.exceptions.UnauthorizedException;
 import com.tiktok.model.repository.UserRepository;
 import com.tiktok.service.CommentService;
+import com.tiktok.service.UserService;
 import com.tiktok.service.VideoService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,9 +34,10 @@ public abstract class GlobalController {
     @Autowired
     public VideoService videoService;
     @Autowired
-    public CommentService commentService;
+    public UserService userService;
     @Autowired
-    public ModelMapper modelMapper;
+    public CommentService commentService;
+
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -70,7 +72,6 @@ public abstract class GlobalController {
     }
     public int getUserIdFromSession(HttpServletRequest req) {
         HttpSession session = req.getSession();
-
         if (session.isNew()
                 || !Boolean.TRUE.equals(session.getAttribute(LOGGED))
                 || session.getAttribute(USER_ID) == null

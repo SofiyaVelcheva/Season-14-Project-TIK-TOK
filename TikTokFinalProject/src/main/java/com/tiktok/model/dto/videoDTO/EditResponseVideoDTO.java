@@ -8,6 +8,5 @@ public class EditResponseVideoDTO {
 
     private boolean isPrivate;
     private String description;
-    private Sound sound;
 
 }

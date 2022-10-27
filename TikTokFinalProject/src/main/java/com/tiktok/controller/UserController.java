@@ -19,8 +19,7 @@ import javax.validation.Valid;
 
 @RestController
 public class UserController extends GlobalController {
-    @Autowired
-    private UserService userService;
+
 
     @PostMapping("/auth")
     public ResponseEntity<LoginResponseUserDTO> login
@@ -81,7 +80,7 @@ public class UserController extends GlobalController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping("/users/{id}/subscribers")
+    @PostMapping("/users/{id}/sub")
     public ResponseEntity<String> subscribe(@PathVariable(name = "id") int publisherId, HttpServletRequest req) {
         userService.subscribe(publisherId, getUserIdFromSession(req));
         return new ResponseEntity<>(HttpStatus.OK);

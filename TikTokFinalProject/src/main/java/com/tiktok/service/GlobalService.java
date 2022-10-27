@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.File;
+
 @RestController
 public abstract class GlobalService {
 
@@ -34,14 +36,15 @@ public abstract class GlobalService {
 
 
 
-    protected Video getVideoById(int videoId){
+    protected Video getVideoById(int videoId) {
         return videoRepository.findById(videoId).orElseThrow(() -> new NotFoundException("Video not found"));
     }
-    protected User getUserById(int userId){
+
+    protected User getUserById(int userId) {
         return userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
     }
 
-    protected Comment getCommentById(int commentId){
+    protected Comment getCommentById(int commentId) {
         return commentRepository.findById(commentId).orElseThrow(() -> new NotFoundException("Comment not found"));
     }
 }

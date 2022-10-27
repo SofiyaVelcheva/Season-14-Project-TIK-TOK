@@ -2,9 +2,11 @@ package com.tiktok.controller;
 
 import com.tiktok.model.dto.comments.AddRequestCommentDTO;
 import com.tiktok.model.dto.comments.AddResponseCommentDTO;
+import com.tiktok.model.dto.comments.CommentWithoutVideoDTO;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @RestController
 public class CommentController extends GlobalController {
@@ -27,9 +29,19 @@ public class CommentController extends GlobalController {
         return commentService.likeComment(commentId, userID);
     }
 
-    @DeleteMapping ("/videos/{videoId}/comments/{commentId}")
-    public String deleteComment (@PathVariable int videoId, @PathVariable int commentId, HttpServletRequest request){
+    @DeleteMapping ("/comments/{commentId}")
+    public String deleteComment (@PathVariable int commentId, HttpServletRequest request){
         int userId = getUserIdFromSession(request);
-        return commentService.deleteComment(videoId, commentId, userId);
+        return commentService.deleteComment(commentId, userId);
     }
+    @GetMapping("/videos/{videoId}/comments")
+    public List<CommentWithoutVideoDTO> showAllComments(@PathVariable int videoId){
+        return commentService.showAllComments(videoId);
+    }
+
+    @GetMapping("/videos/{videoId}/commentsOrderByLastAdd")
+    public List<CommentWithoutVideoDTO> showAllCommentsOrderByLastAdd (@PathVariable int videoId){
+        return commentService.showAllCommentsOrderByLastAdd(videoId);
+    }
+
 }

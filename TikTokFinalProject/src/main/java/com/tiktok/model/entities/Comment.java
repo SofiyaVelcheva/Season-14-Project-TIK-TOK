@@ -25,7 +25,11 @@ public class Comment {
 
     @ManyToOne
     @JoinColumn(name = "parent_id")
-    private Comment parentId; //comment with comments
+    private Comment parentId; //comment with parent
+
+    @OneToMany
+    @JoinColumn (name = "parent_id")
+    private List<Comment> childComments; // list with child comments
 
     @ManyToMany (mappedBy = "likedComments")
     private List<User> likers;

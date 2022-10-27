@@ -3,6 +3,7 @@ package com.tiktok.model.repository;
 import com.tiktok.model.entities.Comment;
 import com.tiktok.model.entities.User;
 import com.tiktok.model.entities.Video;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -16,6 +17,12 @@ import java.util.List;
 public interface VideoRepository extends JpaRepository<Video, Integer> {
 
     List<Video> findAllByOwner(User owner);
+
+    @Query(value = "SELECT * FROM videos AS v " +
+            "JOIN users AS u ON (v.owner_id = u.id) " +
+            "WHERE u.id =:id " +
+            "ORDER BY v.upload_at DESC", nativeQuery = true)
+    List<Video> findMyVideos (@Param("id") Integer id, Pageable page);
 
     @Query(value = "SELECT * FROM videos AS v JOIN users AS u ON (v.owner_id = u.id) " +
             "JOIN comments AS c ON (v.id = c.video_id) " +

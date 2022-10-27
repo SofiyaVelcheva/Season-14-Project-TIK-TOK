@@ -27,10 +27,7 @@ import java.util.Optional;
 
 @Service
 public class UserService extends GlobalService {
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private ModelMapper modelMapper;
+
 
     public LoginResponseUserDTO login(LoginRequestUserDTO dto) {
         // hash password
