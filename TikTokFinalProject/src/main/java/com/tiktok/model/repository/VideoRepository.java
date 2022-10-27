@@ -24,6 +24,15 @@ public interface VideoRepository extends JpaRepository<Video, Integer> {
             "ORDER BY v.upload_at DESC", nativeQuery = true)
     List<Video> findMyVideos (@Param("id") Integer id, Pageable page);
 
+    Video getVideoById(int id);
+
+
+    @Query(value = "SELECT * FROM videos WHERE owner_id IN " +
+            "(SELECT s.publisher_id FROM subscribers As s WHERE s.subscriber_id = :userId) " +
+            "AND is_private IS FALSE ORDER BY upload_at desc", nativeQuery = true)
+    List<Video> getAllVideosPublishers(@Param("userId") int userId, Pageable pageable);
+
+
     @Query(value = "SELECT * FROM videos AS v JOIN users AS u ON (v.owner_id = u.id) " +
             "JOIN comments AS c ON (v.id = c.video_id) " +
             "WHERE v.description Like \"%:=title%\" " +
@@ -34,4 +43,6 @@ public interface VideoRepository extends JpaRepository<Video, Integer> {
                              @Param("uploadAt") String uploadAt, @Param("uploadTo") String uploadTo);// trow an exp .QueryException: Space is not allowed after parameter prefix ':'
 
 
+
 }
+

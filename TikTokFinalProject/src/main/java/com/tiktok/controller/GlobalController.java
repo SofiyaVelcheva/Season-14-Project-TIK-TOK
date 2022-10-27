@@ -4,8 +4,9 @@ import com.tiktok.model.dto.errorDTO.ErrorDTO;
 import com.tiktok.model.exceptions.BadRequestException;
 import com.tiktok.model.exceptions.NotFoundException;
 import com.tiktok.model.exceptions.UnauthorizedException;
-import com.tiktok.model.repository.UserRepository;
 import com.tiktok.service.CommentService;
+import com.tiktok.service.UserService;
+import com.tiktok.service.MessageService;
 import com.tiktok.service.UserService;
 import com.tiktok.service.VideoService;
 import org.modelmapper.ModelMapper;
@@ -15,7 +16,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.time.LocalDateTime;
@@ -30,11 +30,11 @@ public abstract class GlobalController {
     public static final String REMOTE_IP = "remoteIp";
 
     @Autowired
-    public UserRepository userRepository;
-    @Autowired
-    public VideoService videoService;
+    public MessageService messageService;
     @Autowired
     public UserService userService;
+    @Autowired
+    public VideoService videoService;
     @Autowired
     public CommentService commentService;
 

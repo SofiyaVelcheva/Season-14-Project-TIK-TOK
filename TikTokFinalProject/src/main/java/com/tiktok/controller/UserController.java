@@ -4,18 +4,16 @@ import com.tiktok.model.dto.userDTO.*;
 import com.tiktok.model.dto.userDTO.LoginRequestUserDTO;
 import com.tiktok.model.dto.userDTO.LoginResponseUserDTO;
 import com.tiktok.model.dto.userDTO.RegisterRequestUserDTO;
-import com.tiktok.model.dto.userDTO.RegisterResponseUserDTO;
+import com.tiktok.model.dto.videoDTO.response.VideoResponseUploadDTO;
 import com.tiktok.model.exceptions.BadRequestException;
-import com.tiktok.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 public class UserController extends GlobalController {
@@ -37,33 +35,33 @@ public class UserController extends GlobalController {
     }
 
     @PostMapping("/users")
-    public ResponseEntity<RegisterResponseUserDTO> register(
+    public ResponseEntity<BasicUserResponseDTO> register(
             @Valid @RequestBody RegisterRequestUserDTO u) {
-        RegisterResponseUserDTO user = userService.register(u);
+        BasicUserResponseDTO user = userService.register(u);
         return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
 
     @PutMapping("/users")
-    public ResponseEntity<EditUserResponseDTO> edit(
+    public ResponseEntity<BasicUserResponseDTO> edit(
             @Valid @RequestBody EditUserRequestDTO dto,
             HttpServletRequest req) {
-        EditUserResponseDTO user = userService.edit(getUserIdFromSession(req), dto);
+        BasicUserResponseDTO user = userService.edit(getUserIdFromSession(req), dto);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @PutMapping("/users/pass")
-    public ResponseEntity<ChangePassResponseUserDTO> changePass(
+    public ResponseEntity<BasicUserResponseDTO> changePass(
             HttpServletRequest req,
             @Valid @RequestBody ChangePassRequestUserDTO dto) {
-        ChangePassResponseUserDTO userDTO = userService.changePass(getUserIdFromSession(req), dto);
+        BasicUserResponseDTO userDTO = userService.changePass(getUserIdFromSession(req), dto);
         return new ResponseEntity<>(userDTO, HttpStatus.OK);
     }
 
     @PutMapping("/users/photo")
-    public ResponseEntity<EditProfilePhotoResponseDTO> uploadProfilePhoto(
+    public ResponseEntity<BasicUserResponseDTO> uploadProfilePhoto(
             HttpServletRequest req,
             @Valid @RequestParam MultipartFile file) {
-        EditProfilePhotoResponseDTO user = userService.
+        BasicUserResponseDTO user = userService.
                 uploadProfilePhoto(getUserIdFromSession(req), file);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
@@ -86,10 +84,35 @@ public class UserController extends GlobalController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping("/users/{id}/unsubscribers")
+    @PostMapping("/users/{id}/unsub")
     public ResponseEntity<String> unsubscribe(@PathVariable(name = "id") int publisherId, HttpServletRequest req) {
         userService.unsubscribe(publisherId, getUserIdFromSession(req));
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @GetMapping("users/{uid}")
+    public ResponseEntity<WithoutPassResponseUserDTO> getUser(@PathVariable int uid){
+        WithoutPassResponseUserDTO dto = userService.getUser(uid);
+        return new ResponseEntity<>(dto, HttpStatus.OK);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<UsernameResponseDTO>> searchUserByUsername(@RequestParam(value = "username", defaultValue = "") String username,
+                                                                          @RequestParam(value = "page", defaultValue = "0")int page,
+                                                                          @RequestParam(value = "perPage", defaultValue = "10") int perPage ){
+        return new ResponseEntity<>(userService.getAllUsersByUsername(username, page, perPage), HttpStatus.OK);
+    }
+    @GetMapping("/videos/sub")
+    public ResponseEntity<List<VideoResponseUploadDTO>> getVideosPublishers(@RequestParam(value = "page", defaultValue = "0")int page,
+                                                                            @RequestParam(value = "perPage", defaultValue = "10") int perPage,
+                                                                            HttpServletRequest req ){
+        return new ResponseEntity<>(userService.getVideosPublishers(getUserIdFromSession(req), page, perPage), HttpStatus.OK);
+    }
+
+    @GetMapping("/sub")
+    public ResponseEntity<List<PublisherUserDTO>> getAllMyPublishers(@RequestParam(value = "page", defaultValue = "0") int page,
+                                                                   @RequestParam(value = "perPage", defaultValue = "10") int perPage,
+                                                                   HttpServletRequest req){
+        return new ResponseEntity<>(userService.getAllMyPublishers(getUserIdFromSession(req), page, perPage), HttpStatus.OK);
+    }
 }

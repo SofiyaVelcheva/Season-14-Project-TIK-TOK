@@ -16,10 +16,9 @@ import java.nio.file.Files;
 @RestController
 public class FileController extends GlobalController {
 
-    @GetMapping("/image/{fileName}") //todo should be images
-    @SneakyThrows
+    @GetMapping("/images/{fileName}")
     public void getProfilePhoto(@PathVariable String fileName, HttpServletResponse response) {
-        show(fileName, "photo", "Photo", response); //todo directory should be photos
+        show(fileName, "photos", "Photo", response);
     }
 
     @GetMapping("videos/{fileName}")

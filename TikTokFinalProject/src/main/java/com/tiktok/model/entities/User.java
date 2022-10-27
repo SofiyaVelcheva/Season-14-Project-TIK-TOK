@@ -1,17 +1,14 @@
 package com.tiktok.model.entities;
 
 import lombok.Data;
+import lombok.ToString;
 
 import javax.persistence.*;
+import java.awt.print.Pageable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-
-import java.util.Set;
-
 
 @Data
 @Entity(name = "users")
@@ -41,10 +38,8 @@ public class User {
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
 
-
-    @OneToMany (mappedBy = "owner")
+    @OneToMany(mappedBy = "owner")
     private List<Video> videos;
-
     @ManyToMany
     @JoinTable(
             name = "video_likes",
@@ -52,7 +47,7 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "video_id"))
     private List<Video> likedVideos;
 
-    @OneToMany (mappedBy = "owner")
+    @OneToMany(mappedBy = "owner")
     private List<Comment> comments;
 
     @ManyToMany
@@ -68,5 +63,15 @@ public class User {
             joinColumns = @JoinColumn(name = "publisher_id"),
             inverseJoinColumns = @JoinColumn(name = "subscriber_id"))
     private List<User> subscribers = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "subscribers")
+    private List<User> subscribeTo = new ArrayList<>();
+
+    @OneToMany(mappedBy = "sender")
+    List<Message> sent;
+
+    @OneToMany(mappedBy = "receiver")
+    List<Message> received;
+
 
 }

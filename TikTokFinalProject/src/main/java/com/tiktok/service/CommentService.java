@@ -65,7 +65,7 @@ public class CommentService extends GlobalService {
         return "Comment has " + user.getLikedComments().size() + " likes.";
     }
 
-    @Transactional(rollbackOn = {SQLException.class})
+    @Transactional
     public String deleteComment(int commentId, int userId) {
         User user = getUserById(userId);
         Comment comment = getCommentById(commentId);
