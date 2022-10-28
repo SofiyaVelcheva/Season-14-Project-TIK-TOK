@@ -2,7 +2,10 @@ package com.tiktok.controller;
 
 import com.tiktok.model.dto.comments.AddRequestCommentDTO;
 import com.tiktok.model.dto.comments.AddResponseCommentDTO;
+import com.tiktok.model.dto.comments.CommentResponseMessageDTO;
 import com.tiktok.model.dto.comments.CommentWithoutVideoDTO;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -12,36 +15,43 @@ import java.util.List;
 public class CommentController extends GlobalController {
 
     @PostMapping("/videos/{videoId}")
-    public AddResponseCommentDTO addComment(@PathVariable int videoId,@RequestBody AddRequestCommentDTO dto, HttpServletRequest request){
+    public ResponseEntity<AddResponseCommentDTO> addComment(@PathVariable int videoId,
+                                                            @RequestBody AddRequestCommentDTO dto,
+                                                            HttpServletRequest request) {
         int userId = getUserIdFromSession(request);
-        return commentService.addComment(videoId, userId, dto);
-    }
-    @PostMapping("/videos/{videoId}/comments/{commentId}")
-    public AddResponseCommentDTO replyToComment(@PathVariable int videoId, @PathVariable int commentId,
-                                                 @RequestBody AddRequestCommentDTO dto,  HttpServletRequest request){
-        int userId = getUserIdFromSession(request);
-        return commentService.replyToComment(videoId,userId,commentId,dto);
+        return new ResponseEntity<>(commentService.addComment(videoId, userId, dto), HttpStatus.CREATED);
     }
 
-    @PutMapping ("/comments/{commentId}/likes")
-    public String likeComment(@PathVariable int commentId, HttpServletRequest request){
+    @PostMapping("/comments/{commentId}")
+    public ResponseEntity<AddResponseCommentDTO> replyToComment(@PathVariable int commentId,
+                                                                @RequestBody AddRequestCommentDTO dto,
+                                                                HttpServletRequest request) {
+        int userId = getUserIdFromSession(request);
+        return new ResponseEntity<>(commentService.replyToComment(userId, commentId, dto), HttpStatus.CREATED);
+    }
+
+    @PutMapping("/comments/{commentId}/likes")
+    public ResponseEntity<CommentResponseMessageDTO> likeComment(@PathVariable int commentId,
+                                                                 HttpServletRequest request) {
         int userID = getUserIdFromSession(request);
-        return commentService.likeComment(commentId, userID);
+        return new ResponseEntity<>(commentService.likeComment(commentId, userID), HttpStatus.OK);
     }
 
-    @DeleteMapping ("/comments/{commentId}")
-    public String deleteComment (@PathVariable int commentId, HttpServletRequest request){
+    @DeleteMapping("/comments/{commentId}")
+    public ResponseEntity<CommentResponseMessageDTO> deleteComment(@PathVariable int commentId,
+                                                                   HttpServletRequest request) {
         int userId = getUserIdFromSession(request);
-        return commentService.deleteComment(commentId, userId);
+        return new ResponseEntity<>(commentService.deleteComment(commentId, userId), HttpStatus.OK);
     }
+
     @GetMapping("/videos/{videoId}/comments")
-    public List<CommentWithoutVideoDTO> showAllComments(@PathVariable int videoId){
-        return commentService.showAllComments(videoId);
+    public ResponseEntity<List<CommentWithoutVideoDTO>> showAllComments(@PathVariable int videoId) {
+        return new ResponseEntity<>(commentService.showAllComments(videoId), HttpStatus.OK);
     }
 
     @GetMapping("/videos/{videoId}/commentsOrderByLastAdd")
-    public List<CommentWithoutVideoDTO> showAllCommentsOrderByLastAdd (@PathVariable int videoId){
-        return commentService.showAllCommentsOrderByLastAdd(videoId);
+    public ResponseEntity<List<CommentWithoutVideoDTO>> showAllCommentsOrderByLastAdd(@PathVariable int videoId) {
+        return new ResponseEntity<>(commentService.showAllCommentsOrderByLastAdd(videoId), HttpStatus.OK);
     }
 
 }

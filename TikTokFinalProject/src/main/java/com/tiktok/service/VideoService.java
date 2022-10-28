@@ -1,9 +1,9 @@
 package com.tiktok.service;
 
 import com.tiktok.model.dto.videoDTO.request.VideoRequestEditDTO;
-import com.tiktok.model.dto.videoDTO.request.VideoRequestShowByDTO;
 import com.tiktok.model.dto.videoDTO.response.EditResponseVideoDTO;
 import com.tiktok.model.dto.videoDTO.response.VideoResponseDTO;
+import com.tiktok.model.dto.videoDTO.response.VideoResponseMessageDTO;
 import com.tiktok.model.dto.videoDTO.response.VideoResponseWithoutOwnerDTO;
 import com.tiktok.model.entities.User;
 import com.tiktok.model.entities.Video;
@@ -24,11 +24,15 @@ import java.util.List;
 @Service
 public class VideoService extends GlobalService {
 
+    public static final int MAX_LENGTH = 200;
     @Autowired
     protected FileService fileService;
 
     @Transactional // cause the sound and hashtag should be made as well
     public VideoResponseDTO uploadVideo(int userId, MultipartFile file, Boolean isLive, Boolean isPrivate, String description) {
+        if (description.length() > MAX_LENGTH) {
+            throw new BadRequestException("The description is too long!");
+        }
         User user = getUserById(userId);
         String path = fileService.createVideo(file, userId);
         Video video = new Video();
@@ -46,12 +50,14 @@ public class VideoService extends GlobalService {
         }
         return modelMapper.map(video, VideoResponseDTO.class);
     }
+
     @Transactional
     public EditResponseVideoDTO editVideo(int videoId, VideoRequestEditDTO dto, int userId) {
+        if (dto.getDescription().length() > MAX_LENGTH) {
+            throw new BadRequestException("The description is too long!");
+        }
         Video video = getVideoById(videoId);
-        User user = getUserById(userId); //check if the user is in DB
-        String errorMessage = "The video you try to edit is not yours";
-        validateVideoWithOwner(userId, video, errorMessage);
+        validateVideoWithOwner(userId, videoId, "The video you try to edit is not yours");
         video.setPrivate(dto.isPrivate());
         video.setDescription(dto.getDescription());
         if (!video.isPrivate()) {
@@ -62,25 +68,23 @@ public class VideoService extends GlobalService {
         return modelMapper.map(video, EditResponseVideoDTO.class);
     }
 
-    public String deleteVideo(int videoId, int userId) {
+    @Transactional
+    public VideoResponseMessageDTO deleteVideo(int videoId, int userId) {
         Video video = getVideoById(videoId);
-        User user = getUserById(userId); //check if the user is in DB
-        String errorMessage = "The video you try to delete is not yours";
-        validateVideoWithOwner(userId, video, errorMessage);
+        validateVideoWithOwner(userId, videoId, "The video you try to delete is not yours");
         if (video.getVideoUrl() != null) {
             File currentVideo = new File(video.getVideoUrl());
             currentVideo.delete();
         }
         videoRepository.delete(video);
-        return "The video is deleted";
+        return new VideoResponseMessageDTO("The video is deleted!");
     }
 
-    public String likeVideo(int videoId, int userId) {
+    public VideoResponseMessageDTO likeVideo(int videoId, int userId) {
         Video video = getVideoById(videoId);
         User user = getUserById(userId);
-        String errorMessage = "The video you try to like is yours";
-        if (video.isPrivate() || !validateVideoWithOwner(userId, video, errorMessage)) { //even the owner can't like the video
-            throw new UnauthorizedException("The video is locked by owner");
+        if (video.getOwner().equals(user)) {
+            throw new UnauthorizedException("The video you try to like is yours!"); //even the owner can't like the video
         }
         if (user.getLikedVideos().contains(video)) {
             user.getLikedVideos().remove(video);
@@ -88,44 +92,27 @@ public class VideoService extends GlobalService {
             user.getLikedVideos().add(video);
         }
         userRepository.save(user);
-        return "Video has " + video.getLikers().size() + " likes.";
+        return new VideoResponseMessageDTO("Video has " + video.getLikers().size() + " likes.");
     }
 
-    public List<VideoResponseWithoutOwnerDTO> showMyVideos(int userId, int pageNumber, int videosPerPage){
+    public List<VideoResponseWithoutOwnerDTO> showMyVideos(int userId, int pageNumber, int videosPerPage) {
         Pageable page = PageRequest.of(pageNumber, videosPerPage);
-        User user = getUserById(userId);
-        List<Video> videos = videoRepository.findAllByOwner(user);
+        List<Video> videos = videoRepository.showMyVideos(userId, page);
         List<VideoResponseWithoutOwnerDTO> myVideos = new ArrayList<>();
-        for (Video v : videos) {
-            VideoResponseWithoutOwnerDTO dto = modelMapper.map(v, VideoResponseWithoutOwnerDTO.class);
-            myVideos.add(dto);
-            System.out.println(v.getLikers().size());
+        for (Video video : videos) {
+            myVideos.add(modelMapper.map(video, VideoResponseWithoutOwnerDTO.class));
         }
         return myVideos;
     }
 
-
-    private boolean validateVideoWithOwner(int userId, Video video, String errorMessage) {
+    private void validateVideoWithOwner(int userId, int videoId, String errorMessage) {
         List<Video> myVideos = videoRepository.findAllByOwner(getUserById(userId));
-        for (Video v : myVideos) {
-            if (v.getId() == video.getId()) {
-                return true;
+        for (Video video : myVideos) {
+            if (video.getId() == videoId) {
+                return;
             }
         }
-        throw new BadRequestException(errorMessage);
+        throw new UnauthorizedException(errorMessage);
     }
 
-
-    public List<VideoResponseWithoutOwnerDTO> showByKrasiRequst(VideoRequestShowByDTO dto) { // todo convert the date Incorrect DATETIME value: ':=uploadAt'
-        String uploadAt = dto.getUploadAt();
-        String uploadTo = dto.getUploadTo();
-        List<Video> videos = videoRepository.KrasiRequest(dto.getTitle(), dto.getUsername(),
-                uploadAt, uploadTo);
-        List<VideoResponseWithoutOwnerDTO> krasiResponse = new ArrayList<>();
-        for (Video v : videos) {
-            VideoResponseWithoutOwnerDTO krasi = modelMapper.map(v, VideoResponseWithoutOwnerDTO.class);
-            krasiResponse.add(krasi);
-        }
-        return krasiResponse;
-    }
 }

@@ -5,6 +5,7 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -41,10 +42,10 @@ public class Video {
     private String description;
 
     @ManyToMany(mappedBy = "likedVideos")
-    List<User> likers;
+    List<User> likers = new ArrayList<>();
 
     @OneToMany (mappedBy = "video")
-    List<Comment> comments;
+    List<Comment> comments = new ArrayList<>();
 
 
 }
