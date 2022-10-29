@@ -38,6 +38,9 @@ public class User {
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
 
+    @Column(name = "verification_code")
+    private String verificationCode;
+
     @OneToMany(mappedBy = "owner")
     private List<Video> videos;
     @ManyToMany

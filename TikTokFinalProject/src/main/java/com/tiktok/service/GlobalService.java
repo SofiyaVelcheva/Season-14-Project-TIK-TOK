@@ -9,12 +9,10 @@ import com.tiktok.model.exceptions.UnauthorizedException;
 import com.tiktok.model.repository.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.io.File;
 import java.util.List;
 
-@RestController
 public abstract class GlobalService {
 
     @Autowired

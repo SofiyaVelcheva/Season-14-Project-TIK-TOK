@@ -21,6 +21,11 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     Optional<User> findByPhoneNumber(String phoneNumber);
 
+    Optional<User> findUserByVerificationCode(String verificationCode);
+
+    @Query(value = "SELECT u.id FROM users AS u WHERE u.verification_code = ':verificationCode';", nativeQuery = true)
+    Optional<User> findByVerificationCode(@Param("verificationCode") String verificationCode);
+
     @Query(value = "SELECT * FROM users as u " +
             "LEFT JOIN subscribers as s ON(u.id = s.publisher_id) " +
             "WHERE u.username LIKE :username AND u.username NOT LIKE '%delete%'" +

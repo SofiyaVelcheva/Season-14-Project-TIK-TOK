@@ -1,9 +1,9 @@
 package com.tiktok.service;
 
+import com.tiktok.model.dto.TextResponseDTO;
 import com.tiktok.model.dto.videoDTO.request.VideoRequestEditDTO;
 import com.tiktok.model.dto.videoDTO.response.EditResponseVideoDTO;
 import com.tiktok.model.dto.videoDTO.response.VideoResponseDTO;
-import com.tiktok.model.dto.videoDTO.response.VideoResponseMessageDTO;
 import com.tiktok.model.dto.videoDTO.response.VideoResponseWithoutOwnerDTO;
 import com.tiktok.model.entities.User;
 import com.tiktok.model.entities.Video;
@@ -26,7 +26,10 @@ public class VideoService extends GlobalService {
 
     public static final int MAX_LENGTH = 200;
     @Autowired
-    protected FileService fileService;
+    private FileService fileService;
+
+    @Autowired
+    private SoundService soundService;
 
     @Transactional // cause the sound and hashtag should be made as well
     public VideoResponseDTO uploadVideo(int userId, MultipartFile file, Boolean isLive, Boolean isPrivate, String description) {
@@ -45,7 +48,7 @@ public class VideoService extends GlobalService {
         videoRepository.save(video);
         if (!video.isPrivate()) {
             //todo create a sound
-            //soundService.newSound(video, path); //todo fix .ApiException: java.net.SocketTimeoutException: timeout
+           // soundService.newSound(video, path); //todo fix .ApiException: java.net.SocketTimeoutException: timeout
             //todo set the sound id in video
         }
         return modelMapper.map(video, VideoResponseDTO.class);
@@ -68,19 +71,7 @@ public class VideoService extends GlobalService {
         return modelMapper.map(video, EditResponseVideoDTO.class);
     }
 
-    @Transactional
-    public VideoResponseMessageDTO deleteVideo(int videoId, int userId) {
-        Video video = getVideoById(videoId);
-        validateVideoWithOwner(userId, videoId, "The video you try to delete is not yours");
-        if (video.getVideoUrl() != null) {
-            File currentVideo = new File(video.getVideoUrl());
-            currentVideo.delete();
-        }
-        videoRepository.delete(video);
-        return new VideoResponseMessageDTO("The video is deleted!");
-    }
-
-    public VideoResponseMessageDTO likeVideo(int videoId, int userId) {
+    public TextResponseDTO likeVideo(int videoId, int userId) {
         Video video = getVideoById(videoId);
         User user = getUserById(userId);
         if (video.getOwner().equals(user)) {
@@ -92,17 +83,30 @@ public class VideoService extends GlobalService {
             user.getLikedVideos().add(video);
         }
         userRepository.save(user);
-        return new VideoResponseMessageDTO("Video has " + video.getLikers().size() + " likes.");
+        return new TextResponseDTO("Video has " + video.getLikers().size() + " likes.");
+    }
+
+    @Transactional
+    public TextResponseDTO deleteVideo(int videoId, int userId) {
+        Video video = getVideoById(videoId);
+        validateVideoWithOwner(userId, videoId, "The video you try to delete is not yours");
+        if (video.getVideoUrl() != null) {
+            File currentVideo = new File(video.getVideoUrl());
+            currentVideo.delete();
+        }
+        videoRepository.delete(video);
+        return new TextResponseDTO("The video is deleted!");
     }
 
     public List<VideoResponseWithoutOwnerDTO> showMyVideos(int userId, int pageNumber, int videosPerPage) {
         Pageable page = PageRequest.of(pageNumber, videosPerPage);
         List<Video> videos = videoRepository.showMyVideos(userId, page);
-        List<VideoResponseWithoutOwnerDTO> myVideos = new ArrayList<>();
-        for (Video video : videos) {
-            myVideos.add(modelMapper.map(video, VideoResponseWithoutOwnerDTO.class));
-        }
-        return myVideos;
+        return mapDto(videos);
+    }
+    public List<VideoResponseWithoutOwnerDTO> showLiveVideos(int pageNumber, int videosPerPage) {
+        Pageable page = PageRequest.of(pageNumber,videosPerPage);
+        List<Video> videos = videoRepository.getAllLiveVideos(page);
+        return mapDto(videos);
     }
 
     private void validateVideoWithOwner(int userId, int videoId, String errorMessage) {
@@ -115,4 +119,12 @@ public class VideoService extends GlobalService {
         throw new UnauthorizedException(errorMessage);
     }
 
+    private List<VideoResponseWithoutOwnerDTO> mapDto (List<Video> videos){
+        List<VideoResponseWithoutOwnerDTO> dtoVideos = new ArrayList<>();
+        for (Video video : videos){
+            VideoResponseWithoutOwnerDTO dto = modelMapper.map(video, VideoResponseWithoutOwnerDTO.class);
+            dtoVideos.add(dto);
+        }
+        return dtoVideos;
+    }
 }

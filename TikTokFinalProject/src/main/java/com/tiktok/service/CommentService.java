@@ -6,6 +6,8 @@ import com.tiktok.model.entities.User;
 import com.tiktok.model.entities.Video;
 import com.tiktok.model.exceptions.BadRequestException;
 import com.tiktok.model.exceptions.UnauthorizedException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
@@ -14,9 +16,9 @@ import java.util.List;
 
 @Service
 public class CommentService extends GlobalService {
-    public AddResponseCommentDTO addComment(int videoId, int userId, AddRequestCommentDTO dto) {
+    public AddResponseCommentDTO addComment(int videoId, int userId, CommentWithTextDTO dto) {
         Video video = getVideoById(videoId);
-        if (video.isPrivate()) { //even the owner can't add a comment
+        if (video.isPrivate()) { //even the owner can't add a comment to private videos
             throw new UnauthorizedException("The video is locked by owner!");
         }
         User user = getUserById(userId);
@@ -29,7 +31,7 @@ public class CommentService extends GlobalService {
         return modelMapper.map(comment, AddResponseCommentDTO.class);
     }
 
-    public AddResponseCommentDTO replyToComment(int userId, int commentId, AddRequestCommentDTO dto) {
+    public AddResponseCommentDTO replyToComment(int userId, int commentId, CommentWithTextDTO dto) {
         User user = getUserById(userId);
         Comment parent = getCommentById(commentId);
         if (parent.getParentId() != null) {
@@ -47,7 +49,7 @@ public class CommentService extends GlobalService {
         return response;
     }
 
-    public CommentResponseMessageDTO likeComment(int commentId, int userID) {
+    public CommentWithTextDTO likeComment(int commentId, int userID) {
         User user = getUserById(userID);
         Comment comment = getCommentById(commentId);
         if (user.getLikedComments().contains(comment)) {
@@ -56,11 +58,11 @@ public class CommentService extends GlobalService {
             user.getLikedComments().add(comment);
         }
         userRepository.save(user);
-        return new CommentResponseMessageDTO("Comment has " + user.getLikedComments().size() + " likes.");
+        return new CommentWithTextDTO("Comment has " + user.getLikedComments().size() + " likes.");
     }
 
     @Transactional
-    public CommentResponseMessageDTO deleteComment(int commentId, int userId) {
+    public CommentWithTextDTO deleteComment(int commentId, int userId) {
         Comment comment = getCommentById(commentId);
         if (comment.getVideo().getOwner().getId() != userId && comment.getOwner().getId() != userId) {
             throw new UnauthorizedException("You can't delete comment which isn't yours!");
@@ -68,28 +70,39 @@ public class CommentService extends GlobalService {
         List<Comment> comments = comment.getChildComments();
         commentRepository.deleteAll(comments); // delete the children
         commentRepository.delete(comment);
-        return new CommentResponseMessageDTO("The comment is deleted!");
+        return new CommentWithTextDTO("The comment is deleted!");
     }
 
-    public List<CommentWithoutVideoDTO> showAllComments(int videoId) {
+    public List<CommentWithoutVideoDTO> showAllComments(int videoId, int pageNumber, int commentsPerPage) {
+        Pageable page = PageRequest.of(pageNumber,commentsPerPage);
         Video video = getVideoById(videoId);
-        List<Comment> comments = commentRepository.findAllByVideo(video);
-        List<CommentWithoutVideoDTO> videoWithComments = new ArrayList<>();
-        for (Comment comment : comments) {
-            CommentWithoutVideoDTO dto = modelMapper.map(comment, CommentWithoutVideoDTO.class);
-            videoWithComments.add(dto);
-        }
-        return videoWithComments;
+        List<Comment> comments = commentRepository.findAllByVideo(video, page);
+        return mapDto(comments);
     }
 
 
-    public List<CommentWithoutVideoDTO> showAllCommentsOrderByLastAdd(int videoId) {
-        List<Comment> comments = commentRepository.findParentCommentsOrderByDate(videoId);
-        List<CommentWithoutVideoDTO> allComments = new ArrayList<>();
-        for (Comment comment : comments) {
+    public List<CommentWithoutVideoDTO> showAllCommentsOrderByLastAdd(int videoId, int pageNumber, int commentsPerPage) {
+        Pageable page = PageRequest.of(pageNumber,commentsPerPage);
+        List<Comment> comments = commentRepository.findParentCommentsOrderByDate(videoId, page);
+        return mapDto(comments);
+    }
+    private List<CommentWithoutVideoDTO> mapDto (List<Comment> comments){
+        List<CommentWithoutVideoDTO> dtoComments = new ArrayList<>();
+        for (Comment comment : comments){
             CommentWithoutVideoDTO dto = modelMapper.map(comment, CommentWithoutVideoDTO.class);
-            allComments.add(dto);
+            dtoComments.add(dto);
         }
-        return allComments;
+        return dtoComments;
+    }
+
+    public List<CommentWithoutUserDTO> repliesToComment(int commentId, int pageNumber, int commentsPerPage) {
+        Pageable page = PageRequest.of(pageNumber,commentsPerPage);
+        List<Comment> replies = commentRepository.findAllRepliesToComment(commentId, page);
+        List<CommentWithoutUserDTO> dtoComments = new ArrayList<>();
+        for (Comment comment : replies){
+            CommentWithoutUserDTO dto = modelMapper.map(comment, CommentWithoutUserDTO.class);
+            dtoComments.add(dto);
+        }
+        return dtoComments;
     }
 }

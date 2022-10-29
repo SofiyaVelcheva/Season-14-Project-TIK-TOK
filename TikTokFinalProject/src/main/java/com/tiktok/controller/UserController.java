@@ -1,5 +1,6 @@
 package com.tiktok.controller;
 
+import com.tiktok.model.dto.TextResponseDTO;
 import com.tiktok.model.dto.userDTO.*;
 import com.tiktok.model.dto.userDTO.LoginRequestUserDTO;
 import com.tiktok.model.dto.userDTO.LoginResponseUserDTO;
@@ -114,5 +115,13 @@ public class UserController extends GlobalController {
                                                                    @RequestParam(value = "perPage", defaultValue = "10") int perPage,
                                                                    HttpServletRequest req){
         return new ResponseEntity<>(userService.getAllMyPublishers(getUserIdFromSession(req), page, perPage), HttpStatus.OK);
+    }
+
+    @PostMapping("/verifyEmail")
+    public ResponseEntity<TextResponseDTO> verifyEmail(@RequestBody VerifyEmailDTO dto,
+                                                       HttpServletRequest request) {
+        System.out.println(dto.getVerificationCode());
+        int userId = getUserIdFromSession(request);
+        return new ResponseEntity<>(userService.verifyEmail(dto, userId), HttpStatus.ACCEPTED);
     }
 }
