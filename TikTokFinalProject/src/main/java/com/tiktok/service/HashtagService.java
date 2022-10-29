@@ -1,14 +1,8 @@
 package com.tiktok.service;
 
-
-import com.tiktok.model.dto.videoDTO.VideoUploadResponseDTO;
 import com.tiktok.model.entities.Hashtag;
 import com.tiktok.model.entities.Video;
 import com.tiktok.model.exceptions.BadRequestException;
-import com.tiktok.model.exceptions.NotFoundException;
-import com.tiktok.model.exceptions.UnauthorizedException;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

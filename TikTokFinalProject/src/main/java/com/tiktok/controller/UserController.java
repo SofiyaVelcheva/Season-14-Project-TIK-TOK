@@ -16,7 +16,6 @@ import java.util.List;
 
 @RestController
 public class UserController extends GlobalController {
-
     @PostMapping("/auth")
     public ResponseEntity<UserResponseDTO> login(@Valid @RequestBody LoginRequestUserDTO user, HttpServletRequest req) {
         if (isLogged(req)) {

@@ -1,4 +1,4 @@
-package com.tiktok.model.dto.videoDTO;
+package com.tiktok.model.dto.videoDTO.response;
 
 import com.tiktok.model.entities.Sound;
 import lombok.Data;
@@ -8,6 +8,5 @@ public class EditResponseVideoDTO {
 
     private boolean isPrivate;
     private String description;
-    private Sound sound;
 
 }

@@ -51,7 +51,7 @@ public class User {
     @ManyToMany
     @JoinTable(
             name = "comment_likes",
-            joinColumns = @JoinColumn(name = "user_id"),
+            joinColumns = @JoinColumn(name = "owner_id"),
             inverseJoinColumns = @JoinColumn(name = "comment_id"))
     private List<Comment> likedComments;
 

@@ -1,4 +1,4 @@
-package com.tiktok.model.dto.videoDTO;
+package com.tiktok.model.dto.videoDTO.response;
 
 import com.tiktok.model.dto.comments.CommentWithoutVideoDTO;
 import com.tiktok.model.dto.userDTO.PublisherUserDTO;
@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
-public class VideoWithoutOwnerDTO {
+public class VideoResponseWithoutOwnerDTO {
 
     private int id;
     private String videoUrl;

@@ -1,4 +1,4 @@
-package com.tiktok.model.dto.videoDTO;
+package com.tiktok.model.dto.videoDTO.response;
 
 import com.tiktok.model.dto.userDTO.PublisherUserDTO;
 import com.tiktok.model.entities.Sound;
@@ -6,7 +6,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class VideoUploadResponseDTO {
+public class VideoResponseUploadDTO {
 
     private int id; // todo remove
     private String videoUrl;

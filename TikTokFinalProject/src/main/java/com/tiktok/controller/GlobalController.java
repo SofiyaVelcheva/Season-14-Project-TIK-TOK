@@ -6,6 +6,11 @@ import com.tiktok.model.exceptions.BadRequestException;
 import com.tiktok.model.exceptions.NotFoundException;
 import com.tiktok.model.exceptions.UnauthorizedException;
 import com.tiktok.service.*;
+import com.tiktok.service.CommentService;
+import com.tiktok.service.UserService;
+import com.tiktok.service.MessageService;
+import com.tiktok.service.UserService;
+import com.tiktok.service.VideoService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,8 +41,7 @@ public abstract class GlobalController {
     public VideoService videoService;
     @Autowired
     public CommentService commentService;
-    @Autowired
-    public ModelMapper modelMapper;
+
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)

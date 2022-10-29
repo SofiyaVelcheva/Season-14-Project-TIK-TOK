@@ -1,6 +1,6 @@
 package com.tiktok.model.dto.hashtagDTO;
 
-import com.tiktok.model.dto.videoDTO.VideoUploadResponseDTO;
+import com.tiktok.model.dto.videoDTO.response.VideoResponseUploadDTO;
 import lombok.Data;
 
 import java.util.List;
@@ -10,6 +10,6 @@ public class HashtagResponseDTO {
 
     private int id;
     private String text;
-    private List<VideoUploadResponseDTO> videos;
+    private List<VideoResponseUploadDTO> videos;
 
 }

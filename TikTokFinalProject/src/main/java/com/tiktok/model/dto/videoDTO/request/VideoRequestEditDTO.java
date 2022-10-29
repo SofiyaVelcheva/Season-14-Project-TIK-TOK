@@ -1,9 +1,9 @@
-package com.tiktok.model.dto.videoDTO;
+package com.tiktok.model.dto.videoDTO.request;
 
 import lombok.Data;
 
 @Data
-public class EditRequestVideoDTO {
+public class VideoRequestEditDTO {
 
     private boolean isPrivate;
     private String description;

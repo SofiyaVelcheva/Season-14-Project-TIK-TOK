@@ -1,6 +1,7 @@
 package com.tiktok.service;
 
 import com.tiktok.model.dto.userDTO.*;
+import com.tiktok.model.dto.videoDTO.response.VideoResponseUploadDTO;
 import com.tiktok.model.entities.User;
 import com.tiktok.model.exceptions.BadRequestException;
 import com.tiktok.model.exceptions.NotFoundException;

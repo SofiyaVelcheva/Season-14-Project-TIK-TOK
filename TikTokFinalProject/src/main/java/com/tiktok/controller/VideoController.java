@@ -1,7 +1,8 @@
 package com.tiktok.controller;
 
-import com.tiktok.model.dto.comments.CommentWithoutVideoDTO;
-import com.tiktok.model.dto.videoDTO.*;
+import com.tiktok.model.dto.videoDTO.request.VideoRequestEditDTO;
+import com.tiktok.model.dto.videoDTO.response.*;
+import com.tiktok.model.exceptions.UnauthorizedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,80 +14,61 @@ import java.util.List;
 @RestController
 public class VideoController extends GlobalController {
 
-    @PostMapping("users/{userId}/uploadVideo")
-    public VideoWithoutOwnerDTO uploadVideo(@PathVariable int userId, @RequestParam(value = "file") MultipartFile file, @RequestParam(value = "isLive") Boolean isLve,
-                                            @RequestParam(value = "isPrivate") Boolean isPrivate, @RequestParam(value = "description") String description,
-                                            HttpServletRequest request) {
-        int uid = getUserIdFromSession(request);
-        return videoService.uploadVideo(uid, file, isLve, isPrivate, description);
+    @PostMapping("/users/{userId}/uploadVideo")
+    public ResponseEntity<VideoResponseDTO> uploadVideo(@PathVariable int userId,
+                                                        @RequestParam(value = "file") MultipartFile file,
+                                                        @RequestParam(value = "isLive") Boolean isLve,
+                                                        @RequestParam(value = "isPrivate") Boolean isPrivate,
+                                                        @RequestParam(value = "description") String description,
+                                                        HttpServletRequest request) {
+        int userFromSess = getUserIdFromSession(request);
+        if (userFromSess != userId){
+            throw new UnauthorizedException("You have to log in from your account!");
+        }
+        return new ResponseEntity<>(videoService.uploadVideo(userId, file, isLve, isPrivate, description), HttpStatus.CREATED);
     }
 
-    @PutMapping("videos/{videoId}")
-    public EditResponseVideoDTO editVideo(@PathVariable int videoId, @RequestBody EditRequestVideoDTO dto, HttpServletRequest request) {
+    @PutMapping("/videos/{videoId}")
+    public ResponseEntity<EditResponseVideoDTO> editVideo(@PathVariable int videoId,
+                                                          @RequestBody VideoRequestEditDTO dto,
+                                                          HttpServletRequest request) {
         int userId = getUserIdFromSession(request);
-        return videoService.editVideo(videoId, dto, userId);
+        return new ResponseEntity<>(videoService.editVideo(videoId, dto, userId), HttpStatus.OK);
     }
 
-    @DeleteMapping("videos/{videoId}")
-    public String deleteVideo(@PathVariable int videoId, HttpServletRequest request){
+    @DeleteMapping("/videos/{videoId}")
+    public ResponseEntity<VideoResponseMessageDTO> deleteVideo(@PathVariable int videoId,
+                                                               HttpServletRequest request) {
         int userId = getUserIdFromSession(request);
-        return videoService.deleteVideo(videoId, userId);
+        return new ResponseEntity<>(videoService.deleteVideo(videoId, userId), HttpStatus.OK);
     }
 
-    @PutMapping("videos/{videoId}/likes")
-    public String likeVideo (@PathVariable int videoId, HttpServletRequest request){
+    @PutMapping("/videos/{videoId}/like")
+    public ResponseEntity<VideoResponseMessageDTO> likeVideo(@PathVariable int videoId,
+                                                             HttpServletRequest request) {
         int userId = getUserIdFromSession(request);
-        return videoService.likeVideo(videoId, userId);
+        return new ResponseEntity<>(videoService.likeVideo(videoId, userId), HttpStatus.OK);
     }
 
-    @GetMapping("/users/myVideos")
-    public List<VideoWithoutOwnerDTO> showMyVideos(HttpServletRequest request){
+    @PostMapping("/users/myVideos")
+    public ResponseEntity<List<VideoResponseWithoutOwnerDTO>> showMyVideos(@RequestParam(defaultValue = "0") int pageNumber,
+                                                                           @RequestParam(defaultValue = "3") int videosPerPage,
+                                                                           HttpServletRequest request) {
         int userId = getUserIdFromSession(request);
-        return videoService.showMyVideos(userId);
-    }
-
-    @GetMapping("/videos/{videoId}/comments")//commentController
-    public List<CommentWithoutVideoDTO> showAllComments(@PathVariable int videoId){
-        return videoService.showAllComments(videoId);
-    }
-
-    @GetMapping("/videos/{videoId}/commentsOrderByLastAdd") //commentController
-    public List<CommentWithoutVideoDTO> showAllCommentsOrderByLastAdd (@PathVariable int videoId){
-        return videoService.showAllCommentsOrderByLastAdd(videoId);
-    }
-
-    @GetMapping("/videos/krasi")
-    public List<VideoWithoutOwnerDTO> showByKrasiRequst (@RequestBody RequestShowByDTO dto){
-        return videoService.showByKrasiRequst(dto);
+        return new ResponseEntity<>(videoService.showMyVideos(userId, pageNumber, videosPerPage), HttpStatus.OK);
     }
 
     @GetMapping("/videos/sub")
-    public ResponseEntity<List<VideoUploadResponseDTO>> getVideosPublishers(@RequestParam(value = "page", defaultValue = "0") int page,
+    public ResponseEntity<List<VideoResponseUploadDTO>> getVideosPublishers(@RequestParam(value = "page", defaultValue = "0") int page,
                                                                             @RequestParam(value = "perPage", defaultValue = "10") int perPage,
                                                                             HttpServletRequest req) {
         return new ResponseEntity<>(videoService.getVideosPublishers(getUserIdFromSession(req), page, perPage), HttpStatus.OK);
     }
 
     @GetMapping("/videos/hashtag")
-    public ResponseEntity<List<VideoUploadResponseDTO>> getAllVideosHashtag(@RequestParam(value = "text") String text,
+    public ResponseEntity<List<VideoResponseUploadDTO>> getAllVideosHashtag(@RequestParam(value = "text") String text,
                                                                             @RequestParam(value = "page", defaultValue = "0") int page,
                                                                             @RequestParam(value = "perPage", defaultValue = "10") int perPage) {
         return new ResponseEntity<>(videoService.getAllVideosHashtag(text, page, perPage), HttpStatus.OK);
     }
-
-
-
-//    @GetMapping("/videos/showByLikes")
-//    public List<VideoWithoutOwnerDTO> showAllByLikes(){
-//        return videoService.showAllByLikes();
-//    }
-//
-//    @GetMapping("/videos/showByComments")
-//    public List<VideoWithoutOwnerDTO> showAllByComments (){
-//        return videoService.showAllByComments();
-//    }
-//    @GetMapping("/videos/showByDate")
-//    public List<VideoWithoutOwnerDTO> showAllByDate (){
-//        return videoService.showAllByDate();
-//    }
 }

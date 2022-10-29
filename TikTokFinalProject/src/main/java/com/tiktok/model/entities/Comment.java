@@ -4,6 +4,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -25,7 +26,11 @@ public class Comment {
 
     @ManyToOne
     @JoinColumn(name = "parent_id")
-    private Comment parentId; //comment with comments
+    private Comment parentId; //comment with parent
+
+    @OneToMany
+    @JoinColumn (name = "parent_id")
+    private List<Comment> childComments = new ArrayList<>(); // list with child comments
 
     @ManyToMany (mappedBy = "likedComments")
     private List<User> likers;
