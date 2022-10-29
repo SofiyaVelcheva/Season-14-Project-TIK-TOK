@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @Data
 public class VideoUploadResponseDTO {
 
+    private int id; // todo remove
     private String videoUrl;
     private LocalDateTime uploadAt;
     private Sound sound;

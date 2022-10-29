@@ -1,16 +1,17 @@
 package com.tiktok.service;
 
 import com.tiktok.model.dto.comments.CommentWithoutVideoDTO;
-import com.tiktok.model.dto.videoDTO.EditRequestVideoDTO;
-import com.tiktok.model.dto.videoDTO.EditResponseVideoDTO;
-import com.tiktok.model.dto.videoDTO.RequestShowByDTO;
-import com.tiktok.model.dto.videoDTO.VideoWithoutOwnerDTO;
+import com.tiktok.model.dto.videoDTO.*;
 import com.tiktok.model.entities.Comment;
 import com.tiktok.model.entities.User;
 import com.tiktok.model.entities.Video;
 import com.tiktok.model.exceptions.BadRequestException;
+import com.tiktok.model.exceptions.NotFoundException;
 import com.tiktok.model.exceptions.UnauthorizedException;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,8 +22,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Service
 public class VideoService extends GlobalService {
+
+    @Autowired
+    private HashtagService hashtagService;
 
 
     public VideoWithoutOwnerDTO uploadVideo(int userId, MultipartFile file, Boolean isLive, Boolean isPrivate, String description) {
@@ -50,6 +55,7 @@ public class VideoService extends GlobalService {
             video.setLive(isLive);
             video.setPrivate(isPrivate);
             video.setDescription(description);
+            hashtagService.addHashtags(video);
             videoRepository.save(video);
             if (!video.isPrivate()) {
                 //todo create a sound
@@ -62,11 +68,14 @@ public class VideoService extends GlobalService {
         }
     }
 
+
     public EditResponseVideoDTO editVideo(int videoId, EditRequestVideoDTO dto, int userID) {
         Video video = getVideoById(videoId);
         confirmOwner(userID, video);
         video.setPrivate(dto.isPrivate());
+        video.getHashtags().clear();
         video.setDescription(dto.getDescription());
+        hashtagService.addHashtags(video);
         if (!video.isPrivate()) {
             //todo create a sound
             //todo set the sound id in video
@@ -192,17 +201,34 @@ public class VideoService extends GlobalService {
         }
     }
 
-
     public List<VideoWithoutOwnerDTO> showByKrasiRequst(RequestShowByDTO dto) { // todo convert the date Incorrect DATETIME value: ':=uploadAt'
         String uploadAt = dto.getUploadAt();
         String uploadTo = dto.getUploadTo();
         List<Video> videos = videoRepository.KrasiRequest(dto.getTitle(), dto.getUsername(),
                 uploadAt, uploadTo);
-        List <VideoWithoutOwnerDTO> krasiResponse = new ArrayList<>();
-        for (Video v : videos){
+        List<VideoWithoutOwnerDTO> krasiResponse = new ArrayList<>();
+        for (Video v : videos) {
             VideoWithoutOwnerDTO krasi = modelMapper.map(v, VideoWithoutOwnerDTO.class);
             krasiResponse.add(krasi);
         }
         return krasiResponse;
+    }
+
+    public List<VideoUploadResponseDTO> getAllVideosHashtag(String text, int page, int perPage) {
+        Pageable pageable = PageRequest.of(page, perPage);
+        text = text.startsWith("#") ? text : "#" + text;
+        text = "%" + text + "%";
+        List<Video> allVideos = videoRepository.getAllHashtagByName(text, pageable);
+        if (allVideos.isEmpty()) {
+            throw new NotFoundException("Not found videos with this hashtag.");
+        }
+        return getVideoUploadResponseDTOS(allVideos);
+    }
+
+    public List<VideoUploadResponseDTO> getVideosPublishers(int userId, int page, int perPage) {
+        Pageable pageable = PageRequest.of(page, perPage);
+        List<Video> videos = videoRepository.getAllVideosPublishers(userId, pageable);
+        checkCollection(videos);
+        return getVideoUploadResponseDTOS(videos);
     }
 }

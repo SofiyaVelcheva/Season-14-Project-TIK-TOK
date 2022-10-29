@@ -21,7 +21,7 @@ public class Video {
     @JoinColumn(name = "owner_id")
     private User owner;
 
-    @Column (name = "video_url")
+    @Column(name = "video_url")
     private String videoUrl;
 
     @Column
@@ -43,8 +43,15 @@ public class Video {
     @ManyToMany(mappedBy = "likedVideos")
     List<User> likers;
 
-    @OneToMany (mappedBy = "video")
+    @OneToMany(mappedBy = "video")
     List<Comment> comments;
+
+    @ManyToMany
+    @JoinTable(
+            name = "videos_with_hashtags",
+            joinColumns = @JoinColumn(name = "video_id"),
+            inverseJoinColumns = @JoinColumn(name = "hashtag_id"))
+    List<Hashtag> hashtags;
 
 
 }

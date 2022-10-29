@@ -31,3 +31,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Profile Photos ###
+/photos/
+
+### Users Videos ###
+/videos/

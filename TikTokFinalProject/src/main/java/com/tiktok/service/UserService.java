@@ -1,9 +1,7 @@
 package com.tiktok.service;
 
 import com.tiktok.model.dto.userDTO.*;
-import com.tiktok.model.dto.videoDTO.VideoUploadResponseDTO;
 import com.tiktok.model.entities.User;
-import com.tiktok.model.entities.Video;
 import com.tiktok.model.exceptions.BadRequestException;
 import com.tiktok.model.exceptions.NotFoundException;
 import com.tiktok.model.exceptions.UnauthorizedException;
@@ -13,6 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -24,27 +23,26 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class UserService extends GlobalService {
-
+    private static final int MIN_YEARS_USER = 13;
+    private static final int MAX_YEARS_USER = 100;
+    private static final int WIDTH_PIXELS = 20;
+    private static final int HEIGHT_PIXELS = 20;
     private static Pageable pageable;
 
-    public LoginResponseUserDTO login(LoginRequestUserDTO dto) {
+    public UserResponseDTO login(LoginRequestUserDTO dto) {
         dto.setPassword(DigestUtils.sha256Hex(dto.getPassword()));
-        Optional<User> u = userRepository.
-                findByUsernameAndPassword(dto.getUsername(), dto.getPassword());
-        if (u.isEmpty()) {
-            throw new BadRequestException("Username or password invalid!");
-        }
-        u.get().setLastLogin(LocalDateTime.now());
-        userRepository.save(u.get());
-        return modelMapper.map(u.get(), LoginResponseUserDTO.class);
+        User u = getUserByUsernamePassword(dto.getUsername(), dto.getPassword());
+        u.setLastLogin(LocalDateTime.now());
+        userRepository.save(u);
+        return getUserResponseDTO(u);
     }
 
-    public BasicUserResponseDTO register(RegisterRequestUserDTO dto) {
+
+    public UserResponseDTO register(RegisterRequestUserDTO dto) {
         validateUsername(dto.getUsername());
         validatePassword(dto.getPassword(), dto.getConfirmPassword());
         validateEmail(dto.getEmail());
@@ -53,8 +51,8 @@ public class UserService extends GlobalService {
         dto.setPassword(DigestUtils.sha256Hex(dto.getPassword()));
         User user = modelMapper.map(dto, User.class);
         user.setVerifiedEmail(false);
-        userRepository.save(user);
-        return modelMapper.map(dto, BasicUserResponseDTO.class);
+        user = userRepository.save(user);
+        return getUserResponseDTO(user);
     }
 
     private void validateUsername(String username) {
@@ -84,12 +82,15 @@ public class UserService extends GlobalService {
 
     private void validateBirthday(LocalDate dateOfBirth) {
         Period p = Period.between(dateOfBirth, LocalDate.now());
-        if (p.getYears() < 13 || p.getYears() > 100) {
+        if (p.getYears() < MIN_YEARS_USER || p.getYears() > MAX_YEARS_USER) {
             throw new UnauthorizedException("You should be more 13 years old.");
         }
     }
 
-    public void deleteUser(int userId) {
+    public void deleteUser(int userId, int userIdFromSession) {
+        if (userId != userIdFromSession) {
+            throw new BadRequestException("You are not owner of this account.");
+        }
         User u = getUserById(userId);
         if (u.getUsername().contains("Delete")) {
             throw new NotFoundException("User not found");
@@ -104,7 +105,7 @@ public class UserService extends GlobalService {
         userRepository.save(u);
     }
 
-    public BasicUserResponseDTO edit(int id, EditUserRequestDTO dto) {
+    public UserResponseDTO edit(int id, EditUserRequestDTO dto) {
         User u = getUserById(id);
         if (dto.getFirstName() != null) {
             u.setFirstName(dto.getFirstName());
@@ -121,11 +122,10 @@ public class UserService extends GlobalService {
             u.setPhoneNumber(dto.getPhoneNumber());
         }
         userRepository.save(u);
-        return modelMapper.map(u, BasicUserResponseDTO.class);
+        return getUserResponseDTO(u);
     }
 
-    public BasicUserResponseDTO changePass(int userIdFromSession,
-                                           ChangePassRequestUserDTO dto) {
+    public UserResponseDTO changePass(int userIdFromSession, ChangePassRequestUserDTO dto) {
         if (dto.getCurrentPassword().equals(dto.getNewPassword())) {
             throw new BadRequestException("Current pass and new pass are the same.");
         }
@@ -137,11 +137,10 @@ public class UserService extends GlobalService {
         }
         u.setPassword(DigestUtils.sha256Hex(dto.getNewPassword()));
         userRepository.save(u);
-        return modelMapper.map(u, BasicUserResponseDTO.class);
+        return getUserResponseDTO(u);
     }
 
-    public BasicUserResponseDTO uploadProfilePhoto(int userIdFromSession,
-                                                   MultipartFile file) {
+    public UserResponseDTO uploadProfilePhoto(int userIdFromSession, MultipartFile file) {
         try {
             User user = getUserById(userIdFromSession);
             checkContentType(file);
@@ -161,7 +160,7 @@ public class UserService extends GlobalService {
             }
             user.setPhotoURL(name);
             userRepository.save(user);
-            return modelMapper.map(user, BasicUserResponseDTO.class);
+            return getUserResponseDTO(user);
         } catch (IOException e) {
             throw new BadRequestException(e.getMessage(), e);
         }
@@ -179,7 +178,7 @@ public class UserService extends GlobalService {
         BufferedImage buffImage = ImageIO.read(inputStreamFile);
         int width = buffImage.getWidth();
         int height = buffImage.getHeight();
-        if (width < 20 || height < 20) {
+        if (width < WIDTH_PIXELS || height < HEIGHT_PIXELS) {
             throw new BadRequestException("Photos must be at least 20x20 pixels to upload");
         }
     }
@@ -209,49 +208,29 @@ public class UserService extends GlobalService {
         publisher.getSubscribers().remove(subscriber);
         userRepository.save(publisher);
     }
-    public WithoutPassResponseUserDTO getUser(int uid) {
+
+    public UserResponseDTO getUser(int uid) {
         User u = getUserById(uid);
-        WithoutPassResponseUserDTO dto = modelMapper.map(u, WithoutPassResponseUserDTO.class);
-        dto.setNumberOfVideos(u.getVideos().size());
-        dto.setNumberOfSubscribers(u.getSubscribers().size());
-        dto.setNumberOfSubscribeTo(u.getSubscribeTo().size());
-        return dto;
+        return getUserResponseDTO(u);
     }
 
-    public List<UsernameResponseDTO> getAllUsersByUsername(String username, int page, int perPage) {
+
+    public List<UserResponseDTO> getAllUsersByUsername(String username, int page, int perPage) {
         if (username.trim().isEmpty()) {
             throw new BadRequestException("Empty field with username.");
         }
         username = "%" + username + "%";
         pageable = PageRequest.of(page, perPage);
         List<User> users = userRepository.findAllByUsername(username, pageable);
-        if (users.isEmpty()){
-            throw new UnauthorizedException("Not found suggested");
-        }
-        List<UsernameResponseDTO> responseUsers = new ArrayList<>();
+        checkCollection(users);
+        List<UserResponseDTO> responseUsers = new ArrayList<>();
         for (User u : users) {
-            UsernameResponseDTO user = modelMapper.map(u, UsernameResponseDTO.class);
-            user.setNumberOfSubscribers(u.getSubscribers().size());
-            user.setNumberOfVideos(u.getVideos().size());
+            UserResponseDTO user = getUserResponseDTO(u);
             responseUsers.add(user);
         }
         return responseUsers;
     }
 
-    public List<VideoUploadResponseDTO> getVideosPublishers(int userId, int page, int perPage) {
-        pageable = PageRequest.of(page, perPage);
-        List<Video> videos = videoRepository.getAllVideosPublishers(userId, pageable);;
-        checkCollection(videos);
-        List<VideoUploadResponseDTO> responseVideos = new ArrayList<>();
-        for (Video video : videos) {
-            VideoUploadResponseDTO dto = modelMapper.map(video, VideoUploadResponseDTO.class);
-            //dto.setNumberOfLikes(video.getLikers().size());
-            dto.setNumberOfComments(video.getComments().size());
-            dto.setPublisher(modelMapper.map(video.getOwner(), PublisherUserDTO.class));
-            responseVideos.add(dto);
-        }
-        return responseVideos;
-    }
 
     public List<PublisherUserDTO> getAllMyPublishers(int userId, int page, int perPage) {
         pageable = PageRequest.of(page, perPage);
@@ -259,6 +238,20 @@ public class UserService extends GlobalService {
         checkCollection(users);
         List<PublisherUserDTO> publisherDTO = users.stream().map(u -> modelMapper.map(u, PublisherUserDTO.class)).collect(Collectors.toList());
         return publisherDTO;
+    }
+
+    private UserResponseDTO getUserResponseDTO(User u) {
+        UserResponseDTO responseDTO = modelMapper.map(u, UserResponseDTO.class);
+        if (u.getVideos() != null) {
+            responseDTO.setNumberOfVideos(u.getVideos().size());
+        }
+        if (u.getSubscribers() != null) {
+            responseDTO.setNumberOfSubscribers(u.getSubscribers().size());
+        }
+        if (u.getSubscribeTo() != null) {
+            responseDTO.setNumberOfSubscribeTo(u.getSubscribeTo().size());
+        }
+        return responseDTO;
     }
 }
 
