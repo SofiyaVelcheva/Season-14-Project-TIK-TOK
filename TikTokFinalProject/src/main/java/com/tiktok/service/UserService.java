@@ -286,15 +286,21 @@ public class UserService extends GlobalService {
     }
 
     private void sendVerificationEmail(User user) throws MessagingException, UnsupportedEncodingException {
-        String toAddress = user.getEmail();
-        String fromAddress = "tiktokteams14itt@gmail.com";
-        String senderName = "Tik Tok Team";
         String subject = "Tik-Tok - Verify your registration";
         String content = "Dear [[name]],<br>"
                 + "Please use the generated code below to verify your registration:<br>"
                 + "<h3><a href=\"[[URL]]\" target=\"_self\">CODE: " + user.getVerificationCode() + " </a></h3>"
                 + "Thank you!,<br>"
                 + "Tik Tok Team";
+        sendEmail(user, subject, content);
+    }
+
+
+    public void sendEmail(User user, String subject, String content1) throws MessagingException, UnsupportedEncodingException {
+        String toAddress = user.getEmail();
+        String fromAddress = "tiktokteams14itt@gmail.com";
+        String senderName = "Tik Tok Team";
+        String content = content1;
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
         helper.setFrom(fromAddress, senderName);
@@ -304,7 +310,6 @@ public class UserService extends GlobalService {
         helper.setText(content, true);
         mailSender.send(message);
     }
-
 
 }
 

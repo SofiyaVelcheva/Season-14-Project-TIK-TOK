@@ -10,10 +10,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.util.Properties;
 
 @SpringBootApplication
+@EnableScheduling
 public class TikTokFinalProjectApplication {
 
     public static void main(String[] args) {

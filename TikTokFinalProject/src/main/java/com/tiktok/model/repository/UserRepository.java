@@ -38,4 +38,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
             "WHERE subscriber_id = :uid AND username NOT LIKE '%delete%'", nativeQuery = true)
     List<User> getAllSub(@Param("uid") int uid, Pageable pageable);
 
+    @Query(value = "SELECT * FROM users AS u WHERE u.last_login <= DATE_SUB(:date,INTERVAL 7 DAYS)  ", nativeQuery = true)
+    List<User> findAllUsersWhoForgotToLogIn(@Param("date") String localDateNow);
 }
