@@ -23,6 +23,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     Optional<User> findUserByVerificationCode(String verificationCode);
 
+
     @Query(value = "SELECT u.id FROM users AS u WHERE u.verification_code = ':verificationCode';", nativeQuery = true)
     Optional<User> findByVerificationCode(@Param("verificationCode") String verificationCode);
 

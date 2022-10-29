@@ -11,6 +11,7 @@ import com.tiktok.model.exceptions.NotFoundException;
 import com.tiktok.model.repository.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,6 +35,8 @@ public abstract class GlobalService {
     protected MessageRepository messageRepository;
     @Autowired
     protected HashtagRepository hashtagRepository;
+
+    protected static Pageable pageable;
 
     protected Video getVideoById(int videoId) {
         return videoRepository.findById(videoId).orElseThrow(() -> new NotFoundException("Video not found"));

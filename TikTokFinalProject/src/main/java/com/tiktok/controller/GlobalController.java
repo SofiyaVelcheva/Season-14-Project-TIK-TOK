@@ -1,5 +1,6 @@
 package com.tiktok.controller;
 
+import com.tiktok.model.dto.TextResponseDTO;
 import com.tiktok.model.dto.errorDTO.ErrorDTO;
 import com.tiktok.model.dto.userDTO.ResponseDTO;
 import com.tiktok.model.exceptions.BadRequestException;
@@ -94,11 +95,15 @@ public abstract class GlobalController {
             session.invalidate();
             throw new UnauthorizedException("You have to log in!");
         }
+        int userId = (int) session.getAttribute(USER_ID);
+        if (!userService.verifyAccount(userId)) {
+            throw new UnauthorizedException("You should verify your email!");
+        }
         session.setMaxInactiveInterval(30 * 60 * 1000); // 30 minutes
-        return (int) session.getAttribute(USER_ID);
+        return userId;
     }
 
-    public boolean isLogged(HttpServletRequest req){
+    public boolean isLogged(HttpServletRequest req) {
         HttpSession session = req.getSession();
         return Boolean.TRUE.equals(session.getAttribute(LOGGED))
                 && session.getAttribute(USER_ID) != null
@@ -112,7 +117,6 @@ public abstract class GlobalController {
         session.setAttribute(USER_ID, id);
         session.setAttribute(REMOTE_IP, req.getRemoteAddr());
     }
-
 
     public ResponseDTO getResponseDTO(String text) {
         ResponseDTO dto = new ResponseDTO();

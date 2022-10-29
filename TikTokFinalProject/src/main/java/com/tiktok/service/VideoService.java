@@ -13,7 +13,6 @@ import com.tiktok.model.exceptions.NotFoundException;
 import com.tiktok.model.exceptions.UnauthorizedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -108,13 +107,13 @@ public class VideoService extends GlobalService {
     }
 
     public List<VideoResponseWithoutOwnerDTO> showMyVideos(int userId, int pageNumber, int videosPerPage) {
-        Pageable page = PageRequest.of(pageNumber, videosPerPage);
-        List<Video> videos = videoRepository.showMyVideos(userId, page);
+        pageable = PageRequest.of(pageNumber, videosPerPage);
+        List<Video> videos = videoRepository.showMyVideos(userId, pageable);
         return mapDto(videos);
     }
     public List<VideoResponseWithoutOwnerDTO> showLiveVideos(int pageNumber, int videosPerPage) {
-        Pageable page = PageRequest.of(pageNumber,videosPerPage);
-        List<Video> videos = videoRepository.getAllLiveVideos(page);
+        pageable = PageRequest.of(pageNumber,videosPerPage);
+        List<Video> videos = videoRepository.getAllLiveVideos(pageable);
         return mapDto(videos);
     }
 
@@ -137,7 +136,7 @@ public class VideoService extends GlobalService {
         return dtoVideos;
     }
     public List<VideoResponseUploadDTO> getAllVideosHashtag(String text, int page, int perPage) {
-        Pageable pageable = PageRequest.of(page, perPage);
+        pageable = PageRequest.of(page, perPage);
         text = text.startsWith("#") ? text : "#" + text;
         text = "%" + text + "%";
         List<Video> allVideos = videoRepository.getAllHashtagByName(text, pageable);
@@ -148,7 +147,7 @@ public class VideoService extends GlobalService {
     }
 
     public List<VideoResponseUploadDTO> getVideosPublishers(int userId, int page, int perPage) {
-        Pageable pageable = PageRequest.of(page, perPage);
+        pageable = PageRequest.of(page, perPage);
         List<Video> videos = videoRepository.getAllVideosPublishers(userId, pageable);
         checkCollection(videos);
         return getVideoUploadResponseDTOS(videos);

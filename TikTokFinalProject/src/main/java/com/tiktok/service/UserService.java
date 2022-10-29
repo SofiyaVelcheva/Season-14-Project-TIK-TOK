@@ -11,7 +11,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -42,7 +41,7 @@ public class UserService extends GlobalService {
     private static final int MAX_YEARS_USER = 100;
     private static final int WIDTH_PIXELS = 20;
     private static final int HEIGHT_PIXELS = 20;
-    private static Pageable pageable;
+
 
     public UserResponseDTO login(LoginRequestUserDTO dto) {
         dto.setPassword(DigestUtils.sha256Hex(dto.getPassword()));
@@ -118,6 +117,8 @@ public class UserService extends GlobalService {
         u.setEmail("Deleted on " + LocalDateTime.now());
         u.setPhoneNumber("Deleted on " + u.getId());
         u.setPhotoURL("Deleted on  " + LocalDateTime.now());
+        u.setVerificationCode("Deleted on " + LocalDateTime.now());
+        u.setVerifiedEmail(false);
         userRepository.save(u);
     }
 
@@ -311,5 +312,9 @@ public class UserService extends GlobalService {
         mailSender.send(message);
     }
 
+    public boolean verifyAccount(int userId) {
+        User user = getUserById(userId);
+        return user.isVerifiedEmail();
+    }
 }
 

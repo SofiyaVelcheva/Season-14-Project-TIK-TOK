@@ -105,11 +105,9 @@ public class UserController extends GlobalController {
         return new ResponseEntity<>(userService.getAllMyPublishers(getUserIdFromSession(req), page, perPage), HttpStatus.OK);
     }
 
-    @PostMapping("/verifyEmail")
-    public ResponseEntity<TextResponseDTO> verifyEmail(@RequestParam(value = "verificationCode") String verificationCode,
-                                                       HttpServletRequest request) {
-        System.out.println(verificationCode);
-        int userId = getUserIdFromSession(request);
+    @PostMapping("users/{userId}/verifyEmail")
+    public ResponseEntity<TextResponseDTO> verifyEmail(@PathVariable (name = "userId") int userId,
+                                                       @RequestParam(value = "verificationCode") String verificationCode) {
         return new ResponseEntity<>(userService.verifyEmail(verificationCode, userId), HttpStatus.ACCEPTED);
     }
 }
