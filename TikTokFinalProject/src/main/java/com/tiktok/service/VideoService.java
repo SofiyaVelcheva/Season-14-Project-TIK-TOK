@@ -5,9 +5,11 @@ import com.tiktok.model.dto.videoDTO.request.VideoRequestEditDTO;
 import com.tiktok.model.dto.videoDTO.response.EditResponseVideoDTO;
 import com.tiktok.model.dto.videoDTO.response.VideoResponseDTO;
 import com.tiktok.model.dto.videoDTO.response.VideoResponseWithoutOwnerDTO;
+import com.tiktok.model.dto.videoDTO.response.*;
 import com.tiktok.model.entities.User;
 import com.tiktok.model.entities.Video;
 import com.tiktok.model.exceptions.BadRequestException;
+import com.tiktok.model.exceptions.NotFoundException;
 import com.tiktok.model.exceptions.UnauthorizedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Service
 public class VideoService extends GlobalService {
 
@@ -30,6 +33,9 @@ public class VideoService extends GlobalService {
 
     @Autowired
     private SoundService soundService;
+    @Autowired
+    private HashtagService hashtagService;
+
 
     @Transactional // cause the sound and hashtag should be made as well
     public VideoResponseDTO uploadVideo(int userId, MultipartFile file, Boolean isLive, Boolean isPrivate, String description) {
@@ -45,10 +51,11 @@ public class VideoService extends GlobalService {
         video.setLive(isLive);
         video.setPrivate(isPrivate);
         video.setDescription(description);
+        hashtagService.addHashtags(video);
         videoRepository.save(video);
         if (!video.isPrivate()) {
             //todo create a sound
-           // soundService.newSound(video, path); //todo fix .ApiException: java.net.SocketTimeoutException: timeout
+            //soundService.newSound(video, path); //todo fix .ApiException: java.net.SocketTimeoutException: timeout
             //todo set the sound id in video
         }
         return modelMapper.map(video, VideoResponseDTO.class);
@@ -62,7 +69,9 @@ public class VideoService extends GlobalService {
         Video video = getVideoById(videoId);
         validateVideoWithOwner(userId, videoId, "The video you try to edit is not yours");
         video.setPrivate(dto.isPrivate());
+        video.getHashtags().clear();
         video.setDescription(dto.getDescription());
+        hashtagService.addHashtags(video);
         if (!video.isPrivate()) {
             //todo create a sound
             //todo set the sound id in video
@@ -126,5 +135,22 @@ public class VideoService extends GlobalService {
             dtoVideos.add(dto);
         }
         return dtoVideos;
+    }
+    public List<VideoResponseUploadDTO> getAllVideosHashtag(String text, int page, int perPage) {
+        Pageable pageable = PageRequest.of(page, perPage);
+        text = text.startsWith("#") ? text : "#" + text;
+        text = "%" + text + "%";
+        List<Video> allVideos = videoRepository.getAllHashtagByName(text, pageable);
+        if (allVideos.isEmpty()) {
+            throw new NotFoundException("Not found videos with this hashtag.");
+        }
+        return getVideoUploadResponseDTOS(allVideos);
+    }
+
+    public List<VideoResponseUploadDTO> getVideosPublishers(int userId, int page, int perPage) {
+        Pageable pageable = PageRequest.of(page, perPage);
+        List<Video> videos = videoRepository.getAllVideosPublishers(userId, pageable);
+        checkCollection(videos);
+        return getVideoUploadResponseDTOS(videos);
     }
 }

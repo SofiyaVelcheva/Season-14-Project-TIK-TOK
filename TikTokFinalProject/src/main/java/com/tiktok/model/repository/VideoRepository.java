@@ -28,7 +28,11 @@ public interface VideoRepository extends JpaRepository<Video, Integer> {
             "WHERE u.id = :userId", nativeQuery = true)
     List<Video> showMyVideos(@Param("userId") int userId, Pageable page);
 
+    @Query(value = "SELECT * FROM videos as v WHERE id IN (SELECT id FROM videos_with_hashtags)" +
+            "AND description LIKE :hashtag ORDER BY upload_at desc", nativeQuery = true)
+    List<Video> getAllHashtagByName(@Param("hashtag") String hashtag, Pageable pageable);
 
-
+    @Query(value = "SELECT * FROM videos AS v JOIN users AS u ON (v.owner_id = u.id) WHERE u.username LIKE 'Deleted%'", nativeQuery = true)
+    List<Video> deleteAllVideosWithoutUser();
 }
 

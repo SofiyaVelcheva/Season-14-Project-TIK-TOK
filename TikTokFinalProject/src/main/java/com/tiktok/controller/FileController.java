@@ -17,12 +17,14 @@ import java.nio.file.Files;
 public class FileController extends GlobalController {
 
     @GetMapping("/images/{fileName}")
-    public void getProfilePhoto(@PathVariable String fileName, HttpServletResponse response) {
+    public void getProfilePhoto(@PathVariable String fileName,
+                                HttpServletResponse response) {
         show(fileName, "photos", "Photo", response);
     }
 
     @GetMapping("videos/{fileName}")
-    public void showVideo(@PathVariable String fileName, HttpServletResponse response) {
+    public void showVideo(@PathVariable String fileName,
+                          HttpServletResponse response) {
         show(fileName, "videos", "Video", response);
     }
 

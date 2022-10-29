@@ -47,5 +47,12 @@ public class Video {
     @OneToMany (mappedBy = "video")
     List<Comment> comments = new ArrayList<>();
 
+    @ManyToMany
+    @JoinTable(
+            name = "videos_with_hashtags",
+            joinColumns = @JoinColumn(name = "video_id"),
+            inverseJoinColumns = @JoinColumn(name = "hashtag_id"))
+    List<Hashtag> hashtags;
+
 
 }

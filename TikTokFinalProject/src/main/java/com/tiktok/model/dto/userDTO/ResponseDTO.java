@@ -3,7 +3,8 @@ package com.tiktok.model.dto.userDTO;
 import lombok.Data;
 
 @Data
-public class VerifyEmailDTO {
+public class ResponseDTO {
 
-    private String verificationCode;
+    private String text;
+
 }

@@ -2,10 +2,10 @@ package com.tiktok.controller;
 
 import com.tiktok.model.dto.TextResponseDTO;
 import com.tiktok.model.dto.videoDTO.request.VideoRequestEditDTO;
+import com.tiktok.model.dto.videoDTO.response.*;
 import com.tiktok.model.dto.videoDTO.response.EditResponseVideoDTO;
 import com.tiktok.model.dto.videoDTO.response.VideoResponseDTO;
 import com.tiktok.model.dto.videoDTO.response.VideoResponseWithoutOwnerDTO;
-import com.tiktok.model.exceptions.UnauthorizedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -59,4 +59,17 @@ public class VideoController extends GlobalController {
         return new ResponseEntity<>(videoService.showLiveVideos(pageNumber, videosPerPage), HttpStatus.OK);
     }
 
+    @GetMapping("/videos/sub")
+    public ResponseEntity<List<VideoResponseUploadDTO>> getVideosPublishers(@RequestParam(value = "page", defaultValue = "0") int page,
+                                                                            @RequestParam(value = "perPage", defaultValue = "10") int perPage,
+                                                                            HttpServletRequest req) {
+        return new ResponseEntity<>(videoService.getVideosPublishers(getUserIdFromSession(req), page, perPage), HttpStatus.OK);
+    }
+
+    @GetMapping("/videos/hashtag")
+    public ResponseEntity<List<VideoResponseUploadDTO>> getAllVideosHashtag(@RequestParam(value = "text") String text,
+                                                                            @RequestParam(value = "page", defaultValue = "0") int page,
+                                                                            @RequestParam(value = "perPage", defaultValue = "10") int perPage) {
+        return new ResponseEntity<>(videoService.getAllVideosHashtag(text, page, perPage), HttpStatus.OK);
+    }
 }

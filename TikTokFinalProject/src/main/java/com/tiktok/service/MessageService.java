@@ -25,19 +25,13 @@ public class MessageService extends GlobalService {
         if (!sender.getSubscribeTo().contains(receiver)) {
             throw new BadRequestException("Message cannot be sent because you aren't following this user.");
         }
-        if (!sender.getSubscribers().contains(receiver)) {
-            throw new BadRequestException("Message cannot be sent since this user isn't following you.");
-        }
-        Message message = new Message();
-        message.setSender(sender);
-        message.setReceiver(receiver);
-        message.setText(text);
-        message.setSend_at(LocalDateTime.now());
-        messageRepository.save(message);
+        Message message = createMessage(text, sender, receiver);
         SendMessageResponseDTO responseDTO = modelMapper.map(message, SendMessageResponseDTO.class);
         responseDTO.setReceiver(modelMapper.map(receiver, PublisherUserDTO.class));
         return responseDTO;
     }
+
+
 
     public SendMessageResponseDTO editMessage(int mid, String newText, int userId) {
         Message message = getMessageById(mid);
@@ -60,12 +54,7 @@ public class MessageService extends GlobalService {
         List<User> allSubscribers = sender.getSubscribers();
         checkCollection(allSubscribers);
         for (User subscriber : allSubscribers) {
-            Message message = new Message();
-            message.setSender(sender);
-            message.setReceiver(subscriber);
-            message.setText(text);
-            message.setSend_at(LocalDateTime.now());
-            messageRepository.save(message);
+            createMessage(text, sender, subscriber);
         }
     }
 
@@ -82,6 +71,16 @@ public class MessageService extends GlobalService {
             messageDTO.setSender(modelMapper.map(m.getSender(), PublisherUserDTO.class));
             return messageDTO;
         }).toList();
+    }
+
+    private Message createMessage(String text, User sender, User receiver) {
+        Message message = new Message();
+        message.setSender(sender);
+        message.setReceiver(receiver);
+        message.setText(text);
+        message.setSend_at(LocalDateTime.now());
+        messageRepository.save(message);
+        return message;
     }
 
     private void checkOwner(int userId, Message message) {
