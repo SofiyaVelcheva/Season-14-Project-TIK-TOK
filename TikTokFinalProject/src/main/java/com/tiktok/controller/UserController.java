@@ -1,5 +1,6 @@
 package com.tiktok.controller;
 
+import com.tiktok.model.dto.TextResponseDTO;
 import com.tiktok.model.dto.user.*;
 import com.tiktok.model.dto.user.LoginRequestUserDTO;
 import com.tiktok.model.dto.user.RegisterRequestUserDTO;
@@ -17,7 +18,8 @@ import java.util.List;
 @RestController
 public class UserController extends GlobalController {
     @PostMapping("/auth")
-    public ResponseEntity<UserResponseDTO> login(@Valid @RequestBody LoginRequestUserDTO user, HttpServletRequest req) {
+    public ResponseEntity<UserResponseDTO> login(@Valid @RequestBody LoginRequestUserDTO user,
+                                                 HttpServletRequest req) {
         if (isLogged(req)) {
             throw new BadRequestException("You are already logged in.");
         }
@@ -36,13 +38,15 @@ public class UserController extends GlobalController {
     }
 
     @PutMapping("/users")
-    public ResponseEntity<UserResponseDTO> edit(@Valid @RequestBody EditUserRequestDTO dto, HttpServletRequest req) {
+    public ResponseEntity<UserResponseDTO> edit(@Valid @RequestBody EditUserRequestDTO dto,
+                                                HttpServletRequest req) {
         UserResponseDTO user = userService.edit(getUserIdFromSession(req), dto);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @PutMapping("/users/pass")
-    public ResponseEntity<UserResponseDTO> changePass(HttpServletRequest req, @Valid @RequestBody ChangePassRequestUserDTO dto) {
+    public ResponseEntity<UserResponseDTO> changePass(HttpServletRequest req,
+                                                      @Valid @RequestBody ChangePassRequestUserDTO dto) {
         UserResponseDTO userDTO = userService.changePass(getUserIdFromSession(req), dto);
         req.getSession().invalidate();
         return new ResponseEntity<>(userDTO, HttpStatus.OK);
@@ -64,21 +68,25 @@ public class UserController extends GlobalController {
         return new ResponseEntity<>(getResponseDTO("Log out!"), HttpStatus.OK);
     }
 
+
     @DeleteMapping("/users/{id}")
-    public ResponseEntity<ResponseDTO> deleteUser(@PathVariable int id, HttpServletRequest req) {
+    public ResponseEntity<ResponseDTO> deleteUser(@PathVariable int id,
+                                                  HttpServletRequest req) {
         userService.deleteUser(id, getUserIdFromSession(req));
         req.getSession().invalidate();
         return new ResponseEntity<>(getResponseDTO("Your delete request was successful."), HttpStatus.OK);
     }
 
     @PostMapping("/users/{id}/sub")
-    public ResponseEntity<ResponseDTO> subscribe(@PathVariable(name = "id") int publisherId, HttpServletRequest req) {
+    public ResponseEntity<ResponseDTO> subscribe(@PathVariable(name = "id") int publisherId,
+                                                 HttpServletRequest req) {
         userService.subscribe(publisherId, getUserIdFromSession(req));
         return new ResponseEntity<>(getResponseDTO("Your follow request was successful."), HttpStatus.OK);
     }
 
     @PostMapping("/users/{id}/unsub")
-    public ResponseEntity<ResponseDTO> unsubscribe(@PathVariable(name = "id") int publisherId, HttpServletRequest req) {
+    public ResponseEntity<ResponseDTO> unsubscribe(@PathVariable(name = "id") int publisherId,
+                                                   HttpServletRequest req) {
         userService.unsubscribe(publisherId, getUserIdFromSession(req));
         return new ResponseEntity<>(getResponseDTO("Your unfollow request was successful."), HttpStatus.OK);
     }
@@ -101,5 +109,11 @@ public class UserController extends GlobalController {
                                                                      @RequestParam(value = "perPage", defaultValue = "10") int perPage,
                                                                      HttpServletRequest req) {
         return new ResponseEntity<>(userService.getAllMyPublishers(getUserIdFromSession(req), page, perPage), HttpStatus.OK);
+    }
+
+    @PostMapping("users/{userId}/verifyEmail")
+    public ResponseEntity<TextResponseDTO> verifyEmail(@PathVariable(name = "userId") int userId,
+                                                       @RequestParam(value = "verificationCode") String verificationCode) {
+        return new ResponseEntity<>(userService.verifyEmail(verificationCode, userId), HttpStatus.ACCEPTED);
     }
 }

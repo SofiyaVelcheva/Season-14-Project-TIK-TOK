@@ -1,14 +1,23 @@
 package com.tiktok.service;
 
 import com.tiktok.model.dto.user.*;
+import com.tiktok.model.dto.TextResponseDTO;
 import com.tiktok.model.entities.User;
 import com.tiktok.model.exceptions.BadRequestException;
 import com.tiktok.model.exceptions.NotFoundException;
 import com.tiktok.model.exceptions.UnauthorizedException;
+import net.bytebuddy.utility.RandomString;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
@@ -18,9 +27,11 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserService extends GlobalService {
+
+    @Autowired
+    private JavaMailSender mailSender;
     private static final int MIN_YEARS_USER = 13;
     private static final int MAX_YEARS_USER = 100;
-    private static Pageable pageable;
 
     public UserResponseDTO login(LoginRequestUserDTO dto) {
         dto.setPassword(DigestUtils.sha256Hex(dto.getPassword()));
@@ -39,7 +50,13 @@ public class UserService extends GlobalService {
         dto.setPassword(DigestUtils.sha256Hex(dto.getPassword()));
         User user = modelMapper.map(dto, User.class);
         user.setVerifiedEmail(false);
-        user = userRepository.save(user);
+        user.setVerificationCode(RandomString.make(6));
+        try {
+            sendVerificationEmail(user);
+        } catch (MessagingException | UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+        userRepository.save(user);
         return getUserResponseDTO(user);
     }
 
@@ -90,6 +107,8 @@ public class UserService extends GlobalService {
         u.setEmail("Deleted on " + LocalDateTime.now());
         u.setPhoneNumber("Deleted on " + u.getId());
         u.setPhotoURL("Deleted on  " + LocalDateTime.now());
+        u.setVerificationCode("Deleted on " + LocalDateTime.now());
+        u.setVerifiedEmail(false);
         userRepository.save(u);
     }
 
@@ -127,8 +146,6 @@ public class UserService extends GlobalService {
         userRepository.save(u);
         return getUserResponseDTO(u);
     }
-
-
 
     public void subscribe(int publisherId, int subscriberId) {
         if (publisherId == subscriberId) {
@@ -179,10 +196,54 @@ public class UserService extends GlobalService {
     public List<PublisherUserDTO> getAllMyPublishers(int userId, int page, int perPage) {
         pageable = PageRequest.of(page, perPage);
         List<User> users = userRepository.getAllSub(userId, pageable);
-        List<PublisherUserDTO> publisherDTO = users.stream().map(u -> modelMapper.map(u, PublisherUserDTO.class)).collect(Collectors.toList());
-        return publisherDTO;
+        return users.stream().map(u -> modelMapper.map(u, PublisherUserDTO.class)).collect(Collectors.toList());
     }
 
 
+    public TextResponseDTO verifyEmail(String verificationCode, int userId) {
+        User user = getUserById(userId);
+        System.out.println(userId);
+        System.out.println(user.getVerificationCode());
+        if (user.getVerificationCode().equals(verificationCode)) {
+            if (user.isVerifiedEmail()) {
+                throw new BadRequestException("You already verified your email!");
+            }
+            user.setVerifiedEmail(true);
+            userRepository.save(user);
+            return new TextResponseDTO("You have been verified successfully");
+        }
+        throw new BadRequestException("The code you enter isn't correct!");
+    }
+
+    private void sendVerificationEmail(User user) throws MessagingException, UnsupportedEncodingException {
+        String subject = "Tik-Tok - Verify your registration";
+        String content = "Dear [[name]],<br>"
+                + "Please use the generated code below to verify your registration:<br>"
+                + "<h3><a href=\"[[URL]]\" target=\"_self\">CODE: " + user.getVerificationCode() + " </a></h3>"
+                + "Thank you!,<br>"
+                + "Tik Tok Team";
+        sendEmail(user, subject, content);
+    }
+
+
+    public void sendEmail(User user, String subject, String content1) throws MessagingException, UnsupportedEncodingException {
+        String toAddress = user.getEmail();
+        String fromAddress = "tiktokteams14itt@gmail.com";
+        String senderName = "Tik Tok Team";
+        String content = content1;
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message);
+        helper.setFrom(fromAddress, senderName);
+        helper.setTo(toAddress);
+        helper.setSubject(subject);
+        content = content.replace("[[name]]", user.getFirstName() + " " + user.getLastName());
+        helper.setText(content, true);
+        mailSender.send(message);
+    }
+
+    public boolean verifyAccount(int userId) {
+        User user = getUserById(userId);
+        return user.isVerifiedEmail();
+    }
 }
 

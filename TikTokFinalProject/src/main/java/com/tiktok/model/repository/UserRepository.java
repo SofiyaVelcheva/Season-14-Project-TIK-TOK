@@ -12,10 +12,21 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
+
     Optional<User> findByUsernameAndPassword(String username, String pass);
+
     Optional<User> findByEmail(String email);
+
     Optional<User> findByUsername(String username);
+
     Optional<User> findByPhoneNumber(String phoneNumber);
+
+    Optional<User> findUserByVerificationCode(String verificationCode);
+
+
+    @Query(value = "SELECT u.id FROM users AS u WHERE u.verification_code = ':verificationCode';", nativeQuery = true)
+    Optional<User> findByVerificationCode(@Param("verificationCode") String verificationCode);
+
     @Query(value = "SELECT * FROM users as u " +
             "LEFT JOIN subscribers as s ON(u.id = s.publisher_id) " +
             "WHERE u.username LIKE :username AND u.username NOT LIKE '%delete%'" +
@@ -26,4 +37,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @Query(value = "SELECT * FROM users as u LEFT JOIN subscribers as s ON u.id = s.publisher_id " +
             "WHERE subscriber_id = :uid AND username NOT LIKE '%delete%'", nativeQuery = true)
     List<User> getAllSub(@Param("uid") int uid, Pageable pageable);
+
+    @Query(value = "SELECT * FROM users AS u WHERE u.last_login <= DATE_SUB(:date,INTERVAL 7 DAYS)  ", nativeQuery = true)
+    List<User> findAllUsersWhoForgotToLogIn(@Param("date") String localDateNow);
 }

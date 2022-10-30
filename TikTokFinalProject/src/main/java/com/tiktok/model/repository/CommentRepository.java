@@ -2,6 +2,7 @@ package com.tiktok.model.repository;
 
 import com.tiktok.model.entities.Comment;
 import com.tiktok.model.entities.Video;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,12 +12,13 @@ import java.util.List;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Integer> {
-    List<Comment> findAllByVideo(Video video);
+    List<Comment> findAllByVideo(Video video, Pageable page);
 
-    @Query(value =  "SELECT * FROM comments AS c JOIN videos AS v ON (c.video_id = v.id)" +
-                    "WHERE c.video_id =:videoId", nativeQuery = true)
-    List<Comment> findAllCommentsToVideo(@Param("videoId") Integer videoId);
+
     @Query(value = "SELECT * FROM comments AS c JOIN users WHERE video_id = :videoId AND " +
             "c.parent_id is null GROUP BY c.id ORDER BY upload_at DESC", nativeQuery = true)
-    List<Comment> findParentCommentsOrderByDate(@Param("videoId") Integer videoId);
+    List<Comment> findParentCommentsOrderByDate(@Param("videoId") Integer videoId, Pageable page);
+
+    @Query(value = "SELECT * FROM comments AS c WHERE c.parent_id = :commentId", nativeQuery = true)
+    List<Comment> findAllRepliesToComment(@Param("commentId") Integer commentId,Pageable page);
 }

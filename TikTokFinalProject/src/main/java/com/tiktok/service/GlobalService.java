@@ -13,6 +13,7 @@ import com.tiktok.model.repository.*;
 import lombok.Setter;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +37,8 @@ public abstract class GlobalService {
     @Autowired
     @Setter
     protected HashtagRepository hashtagRepository;
+
+    protected static Pageable pageable;
 
     protected Video getVideoById(int videoId) {
         return videoRepository.findById(videoId).orElseThrow(() -> new NotFoundException("Video not found"));
@@ -68,6 +71,7 @@ public abstract class GlobalService {
         }
         return responseVideos;
     }
+
     public UserResponseDTO getUserResponseDTO(User u) {
         UserResponseDTO responseDTO = modelMapper.map(u, UserResponseDTO.class);
         if (u.getVideos() != null) {

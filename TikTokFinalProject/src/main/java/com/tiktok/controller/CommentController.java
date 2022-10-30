@@ -1,8 +1,8 @@
 package com.tiktok.controller;
 
-import com.tiktok.model.dto.comments.AddRequestCommentDTO;
 import com.tiktok.model.dto.comments.AddResponseCommentDTO;
-import com.tiktok.model.dto.comments.CommentResponseMessageDTO;
+import com.tiktok.model.dto.comments.CommentWithTextDTO;
+import com.tiktok.model.dto.comments.CommentWithoutUserDTO;
 import com.tiktok.model.dto.comments.CommentWithoutVideoDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,42 +16,51 @@ public class CommentController extends GlobalController {
 
     @PostMapping("/videos/{videoId}")
     public ResponseEntity<AddResponseCommentDTO> addComment(@PathVariable int videoId,
-                                                            @RequestBody AddRequestCommentDTO dto,
+                                                            @RequestBody CommentWithTextDTO dto,
                                                             HttpServletRequest request) {
-        int userId = getUserIdFromSession(request);
-        return new ResponseEntity<>(commentService.addComment(videoId, userId, dto), HttpStatus.CREATED);
+        return new ResponseEntity<>(commentService.addComment(videoId, getUserIdFromSession(request), dto), HttpStatus.CREATED);
     }
 
     @PostMapping("/comments/{commentId}")
     public ResponseEntity<AddResponseCommentDTO> replyToComment(@PathVariable int commentId,
-                                                                @RequestBody AddRequestCommentDTO dto,
+                                                                @RequestBody CommentWithTextDTO dto,
                                                                 HttpServletRequest request) {
-        int userId = getUserIdFromSession(request);
-        return new ResponseEntity<>(commentService.replyToComment(userId, commentId, dto), HttpStatus.CREATED);
+        return new ResponseEntity<>(commentService.replyToComment(getUserIdFromSession(request), commentId, dto), HttpStatus.CREATED);
     }
 
     @PutMapping("/comments/{commentId}/likes")
-    public ResponseEntity<CommentResponseMessageDTO> likeComment(@PathVariable int commentId,
-                                                                 HttpServletRequest request) {
-        int userID = getUserIdFromSession(request);
-        return new ResponseEntity<>(commentService.likeComment(commentId, userID), HttpStatus.OK);
+    public ResponseEntity<CommentWithTextDTO> likeComment(@PathVariable int commentId,
+                                                          HttpServletRequest request) {
+        return new ResponseEntity<>(commentService.likeComment(commentId, getUserIdFromSession(request)), HttpStatus.OK);
     }
 
     @DeleteMapping("/comments/{commentId}")
-    public ResponseEntity<CommentResponseMessageDTO> deleteComment(@PathVariable int commentId,
-                                                                   HttpServletRequest request) {
-        int userId = getUserIdFromSession(request);
-        return new ResponseEntity<>(commentService.deleteComment(commentId, userId), HttpStatus.OK);
+    public ResponseEntity<CommentWithTextDTO> deleteComment(@PathVariable int commentId,
+                                                            HttpServletRequest request) {
+        return new ResponseEntity<>(commentService.deleteComment(commentId, getUserIdFromSession(request)), HttpStatus.OK);
     }
 
-    @GetMapping("/videos/{videoId}/comments")
-    public ResponseEntity<List<CommentWithoutVideoDTO>> showAllComments(@PathVariable int videoId) {
-        return new ResponseEntity<>(commentService.showAllComments(videoId), HttpStatus.OK);
+    @PostMapping("/videos/{videoId}/comments")
+    public ResponseEntity<List<CommentWithoutVideoDTO>> showAllComments(@PathVariable int videoId,
+                                                                        @RequestParam(defaultValue = "0") int pageNumber,
+                                                                        @RequestParam(defaultValue = "3") int commentsPerPage) {
+        return new ResponseEntity<>(commentService.showAllComments(videoId, pageNumber, commentsPerPage), HttpStatus.OK);
     }
 
-    @GetMapping("/videos/{videoId}/commentsOrderByLastAdd")
-    public ResponseEntity<List<CommentWithoutVideoDTO>> showAllCommentsOrderByLastAdd(@PathVariable int videoId) {
-        return new ResponseEntity<>(commentService.showAllCommentsOrderByLastAdd(videoId), HttpStatus.OK);
+    @PostMapping("/comments/{commentId}/replies")
+    public ResponseEntity<List<CommentWithoutUserDTO>> repliesToComment(@PathVariable int commentId,
+                                                                        @RequestParam(defaultValue = "0") int pageNumber,
+                                                                        @RequestParam(defaultValue = "3") int commentsPerPage) {
+        return new ResponseEntity<>(commentService.repliesToComment(commentId, pageNumber, commentsPerPage), HttpStatus.OK);
     }
+
+
+    @PostMapping("/videos/{videoId}/commentsOrderByLastAdd")
+    public ResponseEntity<List<CommentWithoutVideoDTO>> showAllCommentsOrderByLastAdd(@PathVariable int videoId,
+                                                                                      @RequestParam(defaultValue = "0") int pageNumber,
+                                                                                      @RequestParam(defaultValue = "3") int commentsPerPage) {
+        return new ResponseEntity<>(commentService.showAllCommentsOrderByLastAdd(videoId, pageNumber, commentsPerPage), HttpStatus.OK);
+    }
+
 
 }

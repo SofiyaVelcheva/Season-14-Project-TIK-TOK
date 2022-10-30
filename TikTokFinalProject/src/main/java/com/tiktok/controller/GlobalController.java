@@ -9,7 +9,9 @@ import com.tiktok.service.*;
 import com.tiktok.service.CommentService;
 import com.tiktok.service.UserService;
 import com.tiktok.service.MessageService;
+import com.tiktok.service.UserService;
 import com.tiktok.service.VideoService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
@@ -66,6 +68,19 @@ public abstract class GlobalController {
         return getErrorDTO(e, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return errors;
+    }
+
     private ErrorDTO getErrorDTO(Exception e, HttpStatus status) {
         e.printStackTrace();
         ErrorDTO dto = new ErrorDTO();
@@ -81,8 +96,12 @@ public abstract class GlobalController {
             session.invalidate();
             throw new UnauthorizedException("You have to log in!");
         }
+        int userId = (int) session.getAttribute(USER_ID);
+        if (!userService.verifyAccount(userId)) {
+            throw new UnauthorizedException("You should verify your email!");
+        }
         session.setMaxInactiveInterval(30 * 60 * 1000); // 30 minutes
-        return (int) session.getAttribute(USER_ID);
+        return userId;
     }
 
     public boolean isLogged(HttpServletRequest req) {
@@ -97,18 +116,6 @@ public abstract class GlobalController {
         session.setAttribute(LOGGED, Boolean.TRUE);
         session.setAttribute(USER_ID, id);
         session.setAttribute(REMOTE_IP, req.getRemoteAddr());
-    }
-
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-        return errors;
     }
 
     public ResponseDTO getResponseDTO(String text) {

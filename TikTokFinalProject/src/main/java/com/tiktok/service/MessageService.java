@@ -55,17 +55,18 @@ public class MessageService extends GlobalService {
         }
     }
 
-    public List<MessageDTO> messagesWithUser(int userId, int currentUserId, int page, int perPage) {
+    public List<MessageDTO> messagesWithUser(int userId, int userIdFromSession, int page, int perPage) {
         Pageable pageable = PageRequest.of(page, perPage);
-        List<Message> messages = messageRepository.correspondence(userId, currentUserId, pageable);
-        // checkCollection(messages);
-        // TODO: check if curerntUerId != userId
+        List<Message> messages = messageRepository.correspondence(userId, userIdFromSession, pageable);
+        if (userId == userIdFromSession) {
+            throw new BadRequestException("You cannot select your own account.");
+        }
         return messages.stream()
-            .map(m -> {
-                MessageDTO messageDTO = modelMapper.map(m, MessageDTO.class);
-                messageDTO.setSender(modelMapper.map(m.getSender(), PublisherUserDTO.class));
-                return messageDTO;
-            }).toList();
+                .map(m -> {
+                    MessageDTO messageDTO = modelMapper.map(m, MessageDTO.class);
+                    messageDTO.setSender(modelMapper.map(m.getSender(), PublisherUserDTO.class));
+                    return messageDTO;
+                }).toList();
     }
 
     private Message createMessage(String text, User sender, User receiver) {
