@@ -1,6 +1,5 @@
-package com.tiktok.model.dto.videoDTO.response;
+package com.tiktok.model.dto.video.response;
 
-import com.tiktok.model.entities.Sound;
 import lombok.Data;
 
 @Data

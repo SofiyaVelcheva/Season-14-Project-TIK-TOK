@@ -1,6 +1,6 @@
-package com.tiktok.model.dto.messageDTO;
+package com.tiktok.model.dto.message;
 
-import com.tiktok.model.dto.userDTO.PublisherUserDTO;
+import com.tiktok.model.dto.user.PublisherUserDTO;
 import lombok.Data;
 
 import java.time.LocalDateTime;

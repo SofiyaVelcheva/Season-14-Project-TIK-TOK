@@ -1,9 +1,9 @@
 package com.tiktok.controller;
 
-import com.tiktok.model.dto.messageDTO.MessageDTO;
-import com.tiktok.model.dto.messageDTO.SendMessageRequestDTO;
-import com.tiktok.model.dto.messageDTO.SendMessageResponseDTO;
-import com.tiktok.model.dto.userDTO.ResponseDTO;
+import com.tiktok.model.dto.message.MessageDTO;
+import com.tiktok.model.dto.message.SendMessageRequestDTO;
+import com.tiktok.model.dto.message.SendMessageResponseDTO;
+import com.tiktok.model.dto.user.ResponseDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -42,13 +42,12 @@ public class MessageController extends GlobalController {
         return new ResponseEntity<>(getResponseDTO("The message" + dto.getText() + "was successfully sent to all your subscribers."), HttpStatus.OK);
     }
 
-    @GetMapping("/users/{receiver_id}/messages")
-    public ResponseEntity<List<MessageDTO>> messagesWithUser(@PathVariable(value = "receiver_id") int rid,
+    @GetMapping("/users/{user_id}/messages")
+    public ResponseEntity<List<MessageDTO>> messagesWithUser(@PathVariable(value = "user_id") int userId,
                                                             @RequestParam(value = "page", defaultValue = "0") int page,
                                                             @RequestParam(value = "perPage", defaultValue = "10") int perPage,
                                                             HttpServletRequest req) {
-        return new ResponseEntity<>(messageService.messagesWithUser(rid, getUserIdFromSession(req), page, perPage), HttpStatus.OK);
+        return new ResponseEntity<>(messageService.messagesWithUser(userId, getUserIdFromSession(req), page, perPage), HttpStatus.OK);
     }
-
 
 }

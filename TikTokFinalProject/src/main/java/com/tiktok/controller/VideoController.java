@@ -1,7 +1,7 @@
 package com.tiktok.controller;
 
-import com.tiktok.model.dto.videoDTO.request.VideoRequestEditDTO;
-import com.tiktok.model.dto.videoDTO.response.*;
+import com.tiktok.model.dto.video.request.VideoRequestEditDTO;
+import com.tiktok.model.dto.video.response.*;
 import com.tiktok.model.exceptions.UnauthorizedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +25,7 @@ public class VideoController extends GlobalController {
         if (userFromSess != userId){
             throw new UnauthorizedException("You have to log in from your account!");
         }
-        return new ResponseEntity<>(videoService.uploadVideo(userId, file, isLve, isPrivate, description), HttpStatus.CREATED);
+        return new ResponseEntity<>(videoService.uploadVideo(userFromSess, file, isLve, isPrivate, description), HttpStatus.CREATED);
     }
 
     @PutMapping("/videos/{videoId}")
@@ -68,7 +68,8 @@ public class VideoController extends GlobalController {
     @GetMapping("/videos/hashtag")
     public ResponseEntity<List<VideoResponseUploadDTO>> getAllVideosHashtag(@RequestParam(value = "text") String text,
                                                                             @RequestParam(value = "page", defaultValue = "0") int page,
-                                                                            @RequestParam(value = "perPage", defaultValue = "10") int perPage) {
+                                                                            @RequestParam(value = "perPage", defaultValue = "10") int perPage,
+                                                                             HttpServletRequest req) {
         return new ResponseEntity<>(videoService.getAllVideosHashtag(text, page, perPage), HttpStatus.OK);
     }
 }

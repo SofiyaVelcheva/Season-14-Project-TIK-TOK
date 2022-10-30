@@ -33,7 +33,7 @@ public class HashtagService extends GlobalService {
 
     private void addHashtag(Video video, String hashtag) {
         if (hashtag.length() > HASHTAG_LENGHT) {
-            throw new BadRequestException("Hashtag length should be maximum 50 symbols");
+            throw new BadRequestException("Hashtag length should be maximum 50 symbols.");
         }
         Optional<Hashtag> optionalHashtag = hashtagRepository.findHashtagByText(hashtag);
         Hashtag hash;
@@ -48,5 +48,7 @@ public class HashtagService extends GlobalService {
             video.setHashtags(new ArrayList<>());
         }
         video.getHashtags().add(hash);
+
+
     }
 }

@@ -1,7 +1,7 @@
 package com.tiktok.controller;
 
-import com.tiktok.model.dto.errorDTO.ErrorDTO;
-import com.tiktok.model.dto.userDTO.ResponseDTO;
+import com.tiktok.model.dto.error.ErrorDTO;
+import com.tiktok.model.dto.user.ResponseDTO;
 import com.tiktok.model.exceptions.BadRequestException;
 import com.tiktok.model.exceptions.NotFoundException;
 import com.tiktok.model.exceptions.UnauthorizedException;
@@ -9,9 +9,7 @@ import com.tiktok.service.*;
 import com.tiktok.service.CommentService;
 import com.tiktok.service.UserService;
 import com.tiktok.service.MessageService;
-import com.tiktok.service.UserService;
 import com.tiktok.service.VideoService;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
@@ -41,7 +39,8 @@ public abstract class GlobalController {
     public VideoService videoService;
     @Autowired
     public CommentService commentService;
-
+    @Autowired
+    FileService fileService;
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -86,12 +85,11 @@ public abstract class GlobalController {
         return (int) session.getAttribute(USER_ID);
     }
 
-    public boolean isLogged(HttpServletRequest req){
+    public boolean isLogged(HttpServletRequest req) {
         HttpSession session = req.getSession();
         return Boolean.TRUE.equals(session.getAttribute(LOGGED))
                 && session.getAttribute(USER_ID) != null
                 && session.getAttribute(REMOTE_IP).equals(req.getRemoteAddr());
-
     }
 
     public void setSession(HttpServletRequest req, int id) {

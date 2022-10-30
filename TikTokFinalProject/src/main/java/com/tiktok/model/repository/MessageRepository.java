@@ -14,6 +14,6 @@ public interface MessageRepository extends JpaRepository<Message, Integer> {
 
     @Query(value = "SELECT * FROM messages WHERE sender_id IN(:receiver,:sender) " +
             "AND receiver_id IN(:receiver,:sender) " +
-            "AND text  NOT LIKE '%delete%'ORDER BY send_at desc ", nativeQuery = true)
+            "ORDER BY send_at desc ", nativeQuery = true)
     List<Message> correspondence(@Param("receiver") int rid, @Param("sender") int sid, Pageable pageable);
 }

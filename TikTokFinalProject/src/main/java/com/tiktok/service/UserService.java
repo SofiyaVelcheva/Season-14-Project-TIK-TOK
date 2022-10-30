@@ -1,24 +1,14 @@
 package com.tiktok.service;
 
-import com.tiktok.model.dto.userDTO.*;
-import com.tiktok.model.dto.videoDTO.response.VideoResponseUploadDTO;
+import com.tiktok.model.dto.user.*;
 import com.tiktok.model.entities.User;
 import com.tiktok.model.exceptions.BadRequestException;
 import com.tiktok.model.exceptions.NotFoundException;
 import com.tiktok.model.exceptions.UnauthorizedException;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
@@ -30,8 +20,6 @@ import java.util.stream.Collectors;
 public class UserService extends GlobalService {
     private static final int MIN_YEARS_USER = 13;
     private static final int MAX_YEARS_USER = 100;
-    private static final int WIDTH_PIXELS = 20;
-    private static final int HEIGHT_PIXELS = 20;
     private static Pageable pageable;
 
     public UserResponseDTO login(LoginRequestUserDTO dto) {
@@ -41,7 +29,6 @@ public class UserService extends GlobalService {
         userRepository.save(u);
         return getUserResponseDTO(u);
     }
-
 
     public UserResponseDTO register(RegisterRequestUserDTO dto) {
         validateUsername(dto.getUsername());
@@ -58,25 +45,25 @@ public class UserService extends GlobalService {
 
     private void validateUsername(String username) {
         if (userRepository.findByUsername(username).isPresent()) {
-            throw new BadRequestException("User with this username already exist.");
+            throw new BadRequestException("User with this username already exists.");
         }
     }
 
     private void validatePassword(String pass, String confirmPass) {
         if (!pass.equals(confirmPass.trim())) {
-            throw new BadRequestException("Password and confirm pass are not the same.");
+            throw new BadRequestException("Passwords don't match.");
         }
     }
 
     private void validatePhone(String phoneNumber) {
         if (userRepository.findByPhoneNumber(phoneNumber).isPresent()) {
-            throw new BadRequestException("User with this phone number already exist.");
+            throw new BadRequestException("User with this phone number already exists.");
         }
     }
 
     private void validateEmail(String email) {
         if (userRepository.findByEmail(email.trim()).isPresent()) {
-            throw new BadRequestException("User with this email already exist.");
+            throw new BadRequestException("User with this email already exists.");
         }
 
     }
@@ -84,17 +71,17 @@ public class UserService extends GlobalService {
     private void validateBirthday(LocalDate dateOfBirth) {
         Period p = Period.between(dateOfBirth, LocalDate.now());
         if (p.getYears() < MIN_YEARS_USER || p.getYears() > MAX_YEARS_USER) {
-            throw new UnauthorizedException("You should be more 13 years old.");
+            throw new UnauthorizedException("You should be at least 13 years old.");
         }
     }
 
     public void deleteUser(int userId, int userIdFromSession) {
         if (userId != userIdFromSession) {
-            throw new BadRequestException("You are not owner of this account.");
+            throw new BadRequestException("You are not the owner of this account.");
         }
         User u = getUserById(userId);
         if (u.getUsername().contains("Delete")) {
-            throw new NotFoundException("User not found");
+            throw new NotFoundException("User not found.");
         }
         u.setUsername("Deleted on " + LocalDateTime.now());
         u.setPassword("Deleted on " + LocalDateTime.now());
@@ -141,57 +128,16 @@ public class UserService extends GlobalService {
         return getUserResponseDTO(u);
     }
 
-    public UserResponseDTO uploadProfilePhoto(int userIdFromSession, MultipartFile file) {
-        try {
-            User user = getUserById(userIdFromSession);
-            checkContentType(file);
-            checkSizePhoto(file.getInputStream());
-            String ext = FilenameUtils.getExtension(file.getOriginalFilename());
-            String name = userIdFromSession + System.nanoTime() + "." + ext;
-            String filePath = "photos" + File.separator + name;
-            File f = new File(filePath);
-            if (!f.exists()) {
-                Files.copy(file.getInputStream(), f.toPath());
-            } else {
-                throw new BadRequestException("The file already exists.");
-            }
-            if (user.getPhotoURL() != null) {
-                File old = new File("photos" + File.separator + user.getPhotoURL());
-                old.delete();
-            }
-            user.setPhotoURL(name);
-            userRepository.save(user);
-            return getUserResponseDTO(user);
-        } catch (IOException e) {
-            throw new BadRequestException(e.getMessage(), e);
-        }
-    }
 
-    private void checkContentType(MultipartFile file) {
-        if (!file.getContentType().contains("image/jpeg")
-                && !file.getContentType().contains("image/jpg")
-                && !file.getContentType().contains("image/png")) {
-            throw new BadRequestException("Photo must be .jpg, .jpeg or .png format.");
-        }
-    }
-
-    private void checkSizePhoto(InputStream inputStreamFile) throws IOException {
-        BufferedImage buffImage = ImageIO.read(inputStreamFile);
-        int width = buffImage.getWidth();
-        int height = buffImage.getHeight();
-        if (width < WIDTH_PIXELS || height < HEIGHT_PIXELS) {
-            throw new BadRequestException("Photos must be at least 20x20 pixels to upload");
-        }
-    }
 
     public void subscribe(int publisherId, int subscriberId) {
         if (publisherId == subscriberId) {
-            throw new BadRequestException("You can not subscribed yourself.");
+            throw new BadRequestException("You can not subscribe yourself.");
         }
         User publisher = getUserById(publisherId);
         User subscriber = getUserById(subscriberId);
         if (publisher.getSubscribers().contains(subscriber)) {
-            throw new BadRequestException("You are already subscribed that person.");
+            throw new BadRequestException("You are already subscribed to that person.");
         }
         publisher.getSubscribers().add(subscriber);
         userRepository.save(publisher);
@@ -199,12 +145,12 @@ public class UserService extends GlobalService {
 
     public void unsubscribe(int publisherId, int subscriberId) {
         if (publisherId == subscriberId) {
-            throw new BadRequestException("You can not unsubscribed yourself.");
+            throw new BadRequestException("You can not unsubscribe yourself.");
         }
         User publisher = getUserById(publisherId);
         User subscriber = getUserById(subscriberId);
         if (!publisher.getSubscribers().contains(subscriber)) {
-            throw new BadRequestException("You are not subscribed that user.");
+            throw new BadRequestException("You are not subscribed to that user.");
         }
         publisher.getSubscribers().remove(subscriber);
         userRepository.save(publisher);
@@ -215,15 +161,13 @@ public class UserService extends GlobalService {
         return getUserResponseDTO(u);
     }
 
-
     public List<UserResponseDTO> getAllUsersByUsername(String username, int page, int perPage) {
         if (username.trim().isEmpty()) {
-            throw new BadRequestException("Empty field with username.");
+            throw new BadRequestException("Username cannot be empty.");
         }
         username = "%" + username + "%";
         pageable = PageRequest.of(page, perPage);
         List<User> users = userRepository.findAllByUsername(username, pageable);
-        checkCollection(users);
         List<UserResponseDTO> responseUsers = new ArrayList<>();
         for (User u : users) {
             UserResponseDTO user = getUserResponseDTO(u);
@@ -232,27 +176,13 @@ public class UserService extends GlobalService {
         return responseUsers;
     }
 
-
     public List<PublisherUserDTO> getAllMyPublishers(int userId, int page, int perPage) {
         pageable = PageRequest.of(page, perPage);
         List<User> users = userRepository.getAllSub(userId, pageable);
-        checkCollection(users);
         List<PublisherUserDTO> publisherDTO = users.stream().map(u -> modelMapper.map(u, PublisherUserDTO.class)).collect(Collectors.toList());
         return publisherDTO;
     }
 
-    private UserResponseDTO getUserResponseDTO(User u) {
-        UserResponseDTO responseDTO = modelMapper.map(u, UserResponseDTO.class);
-        if (u.getVideos() != null) {
-            responseDTO.setNumberOfVideos(u.getVideos().size());
-        }
-        if (u.getSubscribers() != null) {
-            responseDTO.setNumberOfSubscribers(u.getSubscribers().size());
-        }
-        if (u.getSubscribeTo() != null) {
-            responseDTO.setNumberOfSubscribeTo(u.getSubscribeTo().size());
-        }
-        return responseDTO;
-    }
+
 }
 

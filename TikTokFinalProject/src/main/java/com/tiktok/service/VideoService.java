@@ -1,7 +1,7 @@
 package com.tiktok.service;
 
-import com.tiktok.model.dto.videoDTO.request.VideoRequestEditDTO;
-import com.tiktok.model.dto.videoDTO.response.*;
+import com.tiktok.model.dto.video.request.VideoRequestEditDTO;
+import com.tiktok.model.dto.video.response.*;
 import com.tiktok.model.entities.User;
 import com.tiktok.model.entities.Video;
 import com.tiktok.model.exceptions.BadRequestException;
@@ -126,7 +126,7 @@ public class VideoService extends GlobalService {
         text = "%" + text + "%";
         List<Video> allVideos = videoRepository.getAllHashtagByName(text, pageable);
         if (allVideos.isEmpty()) {
-            throw new NotFoundException("Not found videos with this hashtag.");
+            throw new NotFoundException("Not videos found with this hashtag.");
         }
         return getVideoUploadResponseDTOS(allVideos);
     }
@@ -134,7 +134,6 @@ public class VideoService extends GlobalService {
     public List<VideoResponseUploadDTO> getVideosPublishers(int userId, int page, int perPage) {
         Pageable pageable = PageRequest.of(page, perPage);
         List<Video> videos = videoRepository.getAllVideosPublishers(userId, pageable);
-        checkCollection(videos);
         return getVideoUploadResponseDTOS(videos);
     }
 }

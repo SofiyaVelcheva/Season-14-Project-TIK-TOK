@@ -1,11 +1,8 @@
-package com.tiktok.model.dto.soundsDTO;
+package com.tiktok.model.dto.sounds;
 
 import com.tiktok.model.entities.User;
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import java.time.LocalDateTime;
 
 @Data

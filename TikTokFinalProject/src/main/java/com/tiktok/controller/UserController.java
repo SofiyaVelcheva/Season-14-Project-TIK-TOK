@@ -1,16 +1,16 @@
 package com.tiktok.controller;
 
-import com.tiktok.model.dto.userDTO.*;
-import com.tiktok.model.dto.userDTO.LoginRequestUserDTO;
-import com.tiktok.model.dto.userDTO.RegisterRequestUserDTO;
+import com.tiktok.model.dto.user.*;
+import com.tiktok.model.dto.user.LoginRequestUserDTO;
+import com.tiktok.model.dto.user.RegisterRequestUserDTO;
 import com.tiktok.model.exceptions.BadRequestException;
+import com.tiktok.model.exceptions.UnauthorizedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -19,7 +19,7 @@ public class UserController extends GlobalController {
     @PostMapping("/auth")
     public ResponseEntity<UserResponseDTO> login(@Valid @RequestBody LoginRequestUserDTO user, HttpServletRequest req) {
         if (isLogged(req)) {
-            throw new BadRequestException("You are already logged.");
+            throw new BadRequestException("You are already logged in.");
         }
         UserResponseDTO result = userService.login(user);
         setSession(req, result.getId());
@@ -27,7 +27,10 @@ public class UserController extends GlobalController {
     }
 
     @PostMapping("/users")
-    public ResponseEntity<UserResponseDTO> register(@Valid @RequestBody RegisterRequestUserDTO u) {
+    public ResponseEntity<UserResponseDTO> register(@Valid @RequestBody RegisterRequestUserDTO u, HttpServletRequest req) {
+        if (isLogged(req)) {
+            throw new BadRequestException("You are already registered and log in.");
+        }
         UserResponseDTO user = userService.register(u);
         return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
@@ -41,28 +44,31 @@ public class UserController extends GlobalController {
     @PutMapping("/users/pass")
     public ResponseEntity<UserResponseDTO> changePass(HttpServletRequest req, @Valid @RequestBody ChangePassRequestUserDTO dto) {
         UserResponseDTO userDTO = userService.changePass(getUserIdFromSession(req), dto);
+        req.getSession().invalidate();
         return new ResponseEntity<>(userDTO, HttpStatus.OK);
     }
 
     @PutMapping("/users/photo")
     public ResponseEntity<UserResponseDTO> uploadProfilePhoto(HttpServletRequest req, @Valid @RequestParam MultipartFile file) {
-        UserResponseDTO user = userService.
-                uploadProfilePhoto(getUserIdFromSession(req), file);
+        UserResponseDTO user = fileService.uploadProfilePhoto(getUserIdFromSession(req), file);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<ResponseDTO> logout(HttpSession session) {
-        session.invalidate();
+    public ResponseEntity<ResponseDTO> logout(HttpServletRequest req) {
+        if (!isLogged(req)) {
+            req.getSession().invalidate();
+            throw new UnauthorizedException("You have to log in!");
+        }
+        req.getSession().invalidate();
         return new ResponseEntity<>(getResponseDTO("Log out!"), HttpStatus.OK);
     }
-
 
     @DeleteMapping("/users/{id}")
     public ResponseEntity<ResponseDTO> deleteUser(@PathVariable int id, HttpServletRequest req) {
         userService.deleteUser(id, getUserIdFromSession(req));
         req.getSession().invalidate();
-        return new ResponseEntity<>(getResponseDTO("Your delete request was successful"), HttpStatus.OK);
+        return new ResponseEntity<>(getResponseDTO("Your delete request was successful."), HttpStatus.OK);
     }
 
     @PostMapping("/users/{id}/sub")

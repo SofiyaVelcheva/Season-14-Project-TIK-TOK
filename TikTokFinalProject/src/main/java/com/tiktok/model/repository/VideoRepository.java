@@ -17,7 +17,6 @@ public interface VideoRepository extends JpaRepository<Video, Integer> {
 
     Video getVideoById(int id); //todo there is already a method in global service
 
-
     @Query(value = "SELECT * FROM videos WHERE owner_id IN " +
             "(SELECT s.publisher_id FROM subscribers As s WHERE s.subscriber_id = :userId) " +
             "AND is_private IS FALSE ORDER BY upload_at DESC", nativeQuery = true)

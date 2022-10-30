@@ -1,4 +1,4 @@
-package com.tiktok.model.dto.userDTO;
+package com.tiktok.model.dto.user;
 
 import lombok.Data;
 

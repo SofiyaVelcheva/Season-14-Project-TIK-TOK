@@ -1,4 +1,4 @@
-package com.tiktok.model.dto.userDTO;
+package com.tiktok.model.dto.user;
 
 import lombok.Data;
 
@@ -12,7 +12,7 @@ public class EditUserRequestDTO {
     private String firstName;
     @Pattern(regexp = "^[a-zA-Z]{1,50}$", message = "length should be maximum 50 symbols and should contain only letters.")
     private String lastName;
-    @Size(min = 1, max = 50, message = "length should be maximum 50 symbols")
+    @Size(min = 1, max = 50, message = "length should be maximum 50 symbols.")
     @Pattern(regexp = "^\\S+@\\S+\\.\\S+$", message = "invalid")
     private String email;
     @Pattern(regexp = "^([+]3598)[7-9][0-9]{7}$", message = "invalid")
