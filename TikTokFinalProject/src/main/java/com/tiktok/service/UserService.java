@@ -219,7 +219,7 @@ public class UserService extends GlobalService {
         msg.setText("You have verified your account");
         mailSender.send(msg);
         userRepository.save(user);
-        return new TextResponseDTO("Dear " + user.getLastName() + user.getFirstName() + " " + user.getLastName() + " Your account has been verified!");
+        return new TextResponseDTO("Dear " + user.getFirstName() + " " + user.getLastName() + " Your account has been verified!");
     }
 
     private void sendVerificationEmail(User user) throws MessagingException, UnsupportedEncodingException {

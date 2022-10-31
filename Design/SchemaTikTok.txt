@@ -1,0 +1,256 @@
+-- MySQL Workbench Forward Engineering
+
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+-- -----------------------------------------------------
+-- Schema mydb
+-- -----------------------------------------------------
+-- -----------------------------------------------------
+-- Schema tik-tok
+-- -----------------------------------------------------
+
+-- -----------------------------------------------------
+-- Schema tik-tok
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `tik-tok` DEFAULT CHARACTER SET utf8mb3 ;
+USE `tik-tok` ;
+
+-- -----------------------------------------------------
+-- Table `tik-tok`.`users`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tik-tok`.`users` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `username` VARCHAR(45) NOT NULL,
+  `password` VARCHAR(100) NOT NULL,
+  `first_name` VARCHAR(50) NOT NULL,
+  `last_name` VARCHAR(50) NOT NULL,
+  `email` VARCHAR(50) NOT NULL,
+  `phone_number` VARCHAR(20) NOT NULL,
+  `date_of_birth` DATE NOT NULL,
+  `verification_code` VARCHAR(60) NULL DEFAULT NULL,
+  `profile_photo_URL` VARCHAR(100) NULL DEFAULT NULL,
+  `last_login` DATETIME NULL DEFAULT NULL,
+  `verified_email` TINYINT NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `username_UNIQUE` (`username` ASC) VISIBLE,
+  UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE,
+  UNIQUE INDEX `phone_number_UNIQUE` (`phone_number` ASC) VISIBLE,
+  UNIQUE INDEX `UC_users` (`verification_code` ASC) VISIBLE)
+ENGINE = InnoDB
+AUTO_INCREMENT = 16
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `tik-tok`.`sounds`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tik-tok`.`sounds` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `owner_id` INT NOT NULL,
+  `title` VARCHAR(50) NOT NULL,
+  `sound_URL` VARCHAR(200) NOT NULL,
+  `upload_at` DATETIME NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `sound_URL_UNIQUE` (`sound_URL` ASC) VISIBLE,
+  INDEX `sounds_users_fk_idx` (`owner_id` ASC) VISIBLE,
+  CONSTRAINT `sounds_users_fk`
+    FOREIGN KEY (`owner_id`)
+    REFERENCES `tik-tok`.`users` (`id`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 12
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `tik-tok`.`videos`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tik-tok`.`videos` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `owner_id` INT NOT NULL,
+  `video_url` VARCHAR(200) NOT NULL,
+  `upload_at` DATETIME NOT NULL,
+  `is_live` TINYINT NOT NULL,
+  `is_private` TINYINT NOT NULL,
+  `sound_id` INT NULL DEFAULT NULL,
+  `description` VARCHAR(200) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `videos_users_fk_idx` (`owner_id` ASC) VISIBLE,
+  INDEX `videos_sounds_fk_idx` (`sound_id` ASC) VISIBLE,
+  CONSTRAINT `videos_sounds_fk`
+    FOREIGN KEY (`sound_id`)
+    REFERENCES `tik-tok`.`sounds` (`id`),
+  CONSTRAINT `videos_users_fk`
+    FOREIGN KEY (`owner_id`)
+    REFERENCES `tik-tok`.`users` (`id`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 29
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `tik-tok`.`comments`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tik-tok`.`comments` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `owner_id` INT NOT NULL,
+  `video_id` INT NOT NULL,
+  `text` VARCHAR(200) NOT NULL,
+  `upload_at` DATETIME NOT NULL,
+  `parent_id` INT NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `comments_with_comments_fk_idx` (`parent_id` ASC) VISIBLE,
+  INDEX `comments_videos_fk_idx` (`video_id` ASC) VISIBLE,
+  INDEX `comments_users_fk_idx` (`owner_id` ASC) VISIBLE,
+  CONSTRAINT `comments_users_fk`
+    FOREIGN KEY (`owner_id`)
+    REFERENCES `tik-tok`.`users` (`id`)
+    ON DELETE CASCADE,
+  CONSTRAINT `comments_videos_fk`
+    FOREIGN KEY (`video_id`)
+    REFERENCES `tik-tok`.`videos` (`id`)
+    ON DELETE CASCADE,
+  CONSTRAINT `comments_with_comments_fk`
+    FOREIGN KEY (`parent_id`)
+    REFERENCES `tik-tok`.`comments` (`id`)
+    ON DELETE CASCADE)
+ENGINE = InnoDB
+AUTO_INCREMENT = 77
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `tik-tok`.`comment_likes`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tik-tok`.`comment_likes` (
+  `comment_id` INT NOT NULL,
+  `owner_id` INT NOT NULL,
+  PRIMARY KEY (`owner_id`, `comment_id`),
+  INDEX `comment_likes_comments_fl_idx` (`comment_id` ASC) VISIBLE,
+  INDEX `comment_likes_users_idx` (`owner_id` ASC) VISIBLE,
+  CONSTRAINT `comment_likes_comments_fk`
+    FOREIGN KEY (`comment_id`)
+    REFERENCES `tik-tok`.`comments` (`id`)
+    ON DELETE CASCADE,
+  CONSTRAINT `comment_likes_users_fk`
+    FOREIGN KEY (`owner_id`)
+    REFERENCES `tik-tok`.`users` (`id`)
+    ON DELETE CASCADE)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `tik-tok`.`hashtags`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tik-tok`.`hashtags` (
+  `id` INT NOT NULL,
+  `text` VARCHAR(50) NOT NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `tik-tok`.`messages`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tik-tok`.`messages` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `sender_id` INT NOT NULL,
+  `receiver_id` INT NOT NULL,
+  `text` VARCHAR(500) NOT NULL,
+  `send_at` DATETIME NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `messages_users_receiverr_fk_idx` (`receiver_id` ASC) VISIBLE,
+  INDEX `messages_users_sender_fk_idx` (`sender_id` ASC) VISIBLE,
+  CONSTRAINT `messages_users_receiverr_fk`
+    FOREIGN KEY (`receiver_id`)
+    REFERENCES `tik-tok`.`users` (`id`),
+  CONSTRAINT `messages_users_sender_fk`
+    FOREIGN KEY (`sender_id`)
+    REFERENCES `tik-tok`.`users` (`id`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 2
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `tik-tok`.`subscribers`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tik-tok`.`subscribers` (
+  `publisher_id` INT NOT NULL,
+  `subscriber_id` INT NOT NULL,
+  PRIMARY KEY (`publisher_id`, `subscriber_id`),
+  INDEX `subscribers_users_fk_idx` (`publisher_id` ASC) VISIBLE,
+  INDEX `subscribers_users_subscriber_fk_idx` (`subscriber_id` ASC) VISIBLE,
+  CONSTRAINT `subscribers_users_publisher_fk`
+    FOREIGN KEY (`publisher_id`)
+    REFERENCES `tik-tok`.`users` (`id`),
+  CONSTRAINT `subscribers_users_subscriber_fk`
+    FOREIGN KEY (`subscriber_id`)
+    REFERENCES `tik-tok`.`users` (`id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `tik-tok`.`user_tags`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tik-tok`.`user_tags` (
+  `user_id` INT NOT NULL,
+  `video_id` INT NOT NULL,
+  PRIMARY KEY (`user_id`, `video_id`),
+  INDEX `user_tags_videos_fk_idx` (`video_id` ASC) VISIBLE,
+  CONSTRAINT `user_tags_users_fk`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `tik-tok`.`users` (`id`),
+  CONSTRAINT `user_tags_videos_fk`
+    FOREIGN KEY (`video_id`)
+    REFERENCES `tik-tok`.`videos` (`id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `tik-tok`.`video_likes`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tik-tok`.`video_likes` (
+  `video_id` INT NOT NULL,
+  `owner_id` INT NOT NULL,
+  PRIMARY KEY (`video_id`, `owner_id`),
+  INDEX `video_likes_videos_fk_idx` (`video_id` ASC) VISIBLE,
+  INDEX `vidos_likes_users_fk_idx` (`owner_id` ASC) VISIBLE,
+  CONSTRAINT `video_likes_videos_fk`
+    FOREIGN KEY (`video_id`)
+    REFERENCES `tik-tok`.`videos` (`id`)
+    ON DELETE CASCADE,
+  CONSTRAINT `vidos_likes_users_fk`
+    FOREIGN KEY (`owner_id`)
+    REFERENCES `tik-tok`.`users` (`id`)
+    ON DELETE CASCADE)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `tik-tok`.`videos_with_hashtags`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tik-tok`.`videos_with_hashtags` (
+  `hashtag_id` INT NOT NULL,
+  `video_id` INT NOT NULL,
+  PRIMARY KEY (`hashtag_id`, `video_id`),
+  INDEX `videos_with_hashtags_videos_fk_idx` (`video_id` ASC) VISIBLE,
+  CONSTRAINT `videos_with_hashtags_hashtags_fk`
+    FOREIGN KEY (`hashtag_id`)
+    REFERENCES `tik-tok`.`hashtags` (`id`),
+  CONSTRAINT `videos_with_hashtags_videos_fk`
+    FOREIGN KEY (`video_id`)
+    REFERENCES `tik-tok`.`videos` (`id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
