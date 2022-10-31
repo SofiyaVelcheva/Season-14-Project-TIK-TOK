@@ -1,7 +1,7 @@
-package com.tiktok.model.dto.videoDTO.response;
+package com.tiktok.model.dto.video.response;
 
 
-import com.tiktok.model.dto.userDTO.UserResponseDTO;
+import com.tiktok.model.dto.user.UserResponseDTO;
 import lombok.Data;
 
 @Data

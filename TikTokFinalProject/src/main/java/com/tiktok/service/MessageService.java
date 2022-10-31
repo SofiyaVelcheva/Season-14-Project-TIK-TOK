@@ -1,8 +1,8 @@
 package com.tiktok.service;
 
-import com.tiktok.model.dto.messageDTO.MessageDTO;
-import com.tiktok.model.dto.messageDTO.SendMessageResponseDTO;
-import com.tiktok.model.dto.userDTO.PublisherUserDTO;
+import com.tiktok.model.dto.message.MessageDTO;
+import com.tiktok.model.dto.message.SendMessageResponseDTO;
+import com.tiktok.model.dto.user.PublisherUserDTO;
 import com.tiktok.model.entities.Message;
 import com.tiktok.model.entities.User;
 import com.tiktok.model.exceptions.BadRequestException;
@@ -10,14 +10,15 @@ import com.tiktok.model.exceptions.UnauthorizedException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
-
 @Service
 public class MessageService extends GlobalService {
+
     public SendMessageResponseDTO sendMessage(int rid, String text, int userId) {
-        if (rid == userId){
+        if (rid == userId) {
             throw new BadRequestException("Message cannot be sent because sender and receiver are the same user.");
         }
         User sender = getUserById(userId);
@@ -30,8 +31,6 @@ public class MessageService extends GlobalService {
         responseDTO.setReceiver(modelMapper.map(receiver, PublisherUserDTO.class));
         return responseDTO;
     }
-
-
 
     public SendMessageResponseDTO editMessage(int mid, String newText, int userId) {
         Message message = getMessageById(mid);
@@ -52,25 +51,23 @@ public class MessageService extends GlobalService {
     public void sendMessageSub(String text, int userId) {
         User sender = getUserById(userId);
         List<User> allSubscribers = sender.getSubscribers();
-        checkCollection(allSubscribers);
         for (User subscriber : allSubscribers) {
             createMessage(text, sender, subscriber);
         }
     }
 
-    public List<MessageDTO> messagesWithUser(int rid, int userId, int page, int perPage) {
-        if (!getUserById(userId).getSubscribers().contains(getUserById(rid)) ||
-                !getUserById(userId).getSubscribeTo().contains(getUserById(rid))) {
-            throw new BadRequestException("Unknown user.");
-        }
+    public List<MessageDTO> messagesWithUser(int userId, int userIdFromSession, int page, int perPage) {
         Pageable pageable = PageRequest.of(page, perPage);
-        List<Message> messages = messageRepository.correspondence(rid, userId, pageable);
-        checkCollection(messages);
-        return messages.stream().map(m -> {
-            MessageDTO messageDTO = modelMapper.map(m, MessageDTO.class);
-            messageDTO.setSender(modelMapper.map(m.getSender(), PublisherUserDTO.class));
-            return messageDTO;
-        }).toList();
+        List<Message> messages = messageRepository.correspondence(userId, userIdFromSession, pageable);
+        if (userId == userIdFromSession) {
+            throw new BadRequestException("You cannot select your own account.");
+        }
+        return messages.stream()
+                .map(m -> {
+                    MessageDTO messageDTO = modelMapper.map(m, MessageDTO.class);
+                    messageDTO.setSender(modelMapper.map(m.getSender(), PublisherUserDTO.class));
+                    return messageDTO;
+                }).toList();
     }
 
     private Message createMessage(String text, User sender, User receiver) {

@@ -1,6 +1,6 @@
-package com.tiktok.model.dto.hashtagDTO;
+package com.tiktok.model.dto.hashtag;
 
-import com.tiktok.model.dto.videoDTO.response.VideoResponseUploadDTO;
+import com.tiktok.model.dto.video.response.VideoResponseUploadDTO;
 import lombok.Data;
 
 import java.util.List;

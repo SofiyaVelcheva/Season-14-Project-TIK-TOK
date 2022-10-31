@@ -1,7 +1,7 @@
-package com.tiktok.model.dto.videoDTO.response;
+package com.tiktok.model.dto.video.response;
 
 import com.tiktok.model.dto.comments.CommentWithoutVideoDTO;
-import com.tiktok.model.dto.userDTO.PublisherUserDTO;
+import com.tiktok.model.dto.user.PublisherUserDTO;
 import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.List;

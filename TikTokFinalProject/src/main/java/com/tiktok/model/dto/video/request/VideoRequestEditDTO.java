@@ -1,4 +1,4 @@
-package com.tiktok.model.dto.videoDTO.request;
+package com.tiktok.model.dto.video.request;
 
 import lombok.Data;
 

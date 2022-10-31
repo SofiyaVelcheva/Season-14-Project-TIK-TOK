@@ -1,5 +1,6 @@
 package com.tiktok.model.dto.comments;
 
+import com.tiktok.model.dto.user.PublisherUserDTO;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -10,5 +11,5 @@ public class AddResponseCommentDTO {
     private int id;
     private String text;
     private LocalDateTime uploadAt;
-    private CommentWithoutUserDTO parentId;
+    private PublisherUserDTO parentId;
 }

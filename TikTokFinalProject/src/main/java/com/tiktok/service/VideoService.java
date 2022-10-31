@@ -1,19 +1,20 @@
 package com.tiktok.service;
 
+
 import com.tiktok.model.dto.TextResponseDTO;
-import com.tiktok.model.dto.videoDTO.request.VideoRequestEditDTO;
-import com.tiktok.model.dto.videoDTO.response.EditResponseVideoDTO;
-import com.tiktok.model.dto.videoDTO.response.VideoResponseDTO;
-import com.tiktok.model.dto.videoDTO.response.VideoResponseWithoutOwnerDTO;
-import com.tiktok.model.dto.videoDTO.response.*;
+import com.tiktok.model.dto.video.request.VideoRequestEditDTO;
+import com.tiktok.model.dto.video.response.EditResponseVideoDTO;
+import com.tiktok.model.dto.video.response.VideoResponseDTO;
+import com.tiktok.model.dto.video.response.VideoResponseUploadDTO;
+import com.tiktok.model.dto.video.response.VideoResponseWithoutOwnerDTO;
 import com.tiktok.model.entities.User;
 import com.tiktok.model.entities.Video;
 import com.tiktok.model.exceptions.BadRequestException;
 import com.tiktok.model.exceptions.NotFoundException;
 import com.tiktok.model.exceptions.UnauthorizedException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
 import org.springframework.data.domain.PageRequest;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -54,9 +55,7 @@ public class VideoService extends GlobalService {
         hashtagService.addHashtags(video);
         videoRepository.save(video);
         if (!video.isPrivate()) {
-            //todo create a sound
-            //soundService.newSound(video, path); //todo fix .ApiException: java.net.SocketTimeoutException: timeout
-            //todo set the sound id in video
+            //soundService.newSound(video, path);
         }
         return modelMapper.map(video, VideoResponseDTO.class);
     }
@@ -73,8 +72,7 @@ public class VideoService extends GlobalService {
         video.setDescription(dto.getDescription());
         hashtagService.addHashtags(video);
         if (!video.isPrivate()) {
-            //todo create a sound
-            //todo set the sound id in video
+            //soundService.newSound(video, path);
         }
         videoRepository.save(video);
         return modelMapper.map(video, EditResponseVideoDTO.class);
@@ -144,7 +142,7 @@ public class VideoService extends GlobalService {
         text = "%" + text + "%";
         List<Video> allVideos = videoRepository.getAllHashtagByName(text, pageable);
         if (allVideos.isEmpty()) {
-            throw new NotFoundException("Not found videos with this hashtag.");
+            throw new NotFoundException("Not videos found with this hashtag.");
         }
         return getVideoUploadResponseDTOS(allVideos);
     }
@@ -152,7 +150,6 @@ public class VideoService extends GlobalService {
     public List<VideoResponseUploadDTO> getVideosPublishers(int userId, int page, int perPage) {
         pageable = PageRequest.of(page, perPage);
         List<Video> videos = videoRepository.getAllVideosPublishers(userId, pageable);
-        checkCollection(videos);
         return getVideoUploadResponseDTOS(videos);
     }
 

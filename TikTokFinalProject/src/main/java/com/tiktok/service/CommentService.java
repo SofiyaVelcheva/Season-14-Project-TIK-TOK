@@ -1,6 +1,7 @@
 package com.tiktok.service;
 
 import com.tiktok.model.dto.comments.*;
+import com.tiktok.model.dto.user.PublisherUserDTO;
 import com.tiktok.model.entities.Comment;
 import com.tiktok.model.entities.User;
 import com.tiktok.model.entities.Video;
@@ -45,7 +46,7 @@ public class CommentService extends GlobalService {
         commentRepository.save(child);
         parent.getChildComments().add(child);
         AddResponseCommentDTO response = modelMapper.map(child, AddResponseCommentDTO.class);
-        response.setParentId(modelMapper.map(child.getParentId(), CommentWithoutUserDTO.class));
+        response.setParentId(modelMapper.map(child.getParentId().getOwner(), PublisherUserDTO.class));
         return response;
     }
 
@@ -80,27 +81,28 @@ public class CommentService extends GlobalService {
         return mapDto(comments);
     }
 
-
     public List<CommentWithoutVideoDTO> showAllCommentsOrderByLastAdd(int videoId, int pageNumber, int commentsPerPage) {
         Pageable page = PageRequest.of(pageNumber,commentsPerPage);
         List<Comment> comments = commentRepository.findParentCommentsOrderByDate(videoId, page);
         return mapDto(comments);
     }
-    private List<CommentWithoutVideoDTO> mapDto (List<Comment> comments){
-        List<CommentWithoutVideoDTO> dtoComments = new ArrayList<>();
-        for (Comment comment : comments){
-            CommentWithoutVideoDTO dto = modelMapper.map(comment, CommentWithoutVideoDTO.class);
+
+    public List<CommentWithoutUserDTO> repliesToComment(int commentId, int pageNumber, int commentsPerPage) {
+        pageable = PageRequest.of(pageNumber,commentsPerPage);
+        List<Comment> replies = commentRepository.findAllRepliesToComment(commentId, pageable);
+        List<CommentWithoutUserDTO> dtoComments = new ArrayList<>();
+        for (Comment comment : replies){
+            CommentWithoutUserDTO dto = modelMapper.map(comment, CommentWithoutUserDTO.class);
+            dto.setOwner(modelMapper.map(comment.getOwner(),PublisherUserDTO.class));
             dtoComments.add(dto);
         }
         return dtoComments;
     }
 
-    public List<CommentWithoutUserDTO> repliesToComment(int commentId, int pageNumber, int commentsPerPage) {
-        Pageable page = PageRequest.of(pageNumber,commentsPerPage);
-        List<Comment> replies = commentRepository.findAllRepliesToComment(commentId, page);
-        List<CommentWithoutUserDTO> dtoComments = new ArrayList<>();
-        for (Comment comment : replies){
-            CommentWithoutUserDTO dto = modelMapper.map(comment, CommentWithoutUserDTO.class);
+    private List<CommentWithoutVideoDTO> mapDto (List<Comment> comments){
+        List<CommentWithoutVideoDTO> dtoComments = new ArrayList<>();
+        for (Comment comment : comments){
+            CommentWithoutVideoDTO dto = modelMapper.map(comment, CommentWithoutVideoDTO.class);
             dtoComments.add(dto);
         }
         return dtoComments;

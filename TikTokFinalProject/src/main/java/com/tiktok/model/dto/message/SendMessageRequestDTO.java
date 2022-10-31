@@ -1,4 +1,4 @@
-package com.tiktok.model.dto.messageDTO;
+package com.tiktok.model.dto.message;
 
 import lombok.Data;
 

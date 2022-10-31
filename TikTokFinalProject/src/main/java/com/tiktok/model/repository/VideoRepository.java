@@ -33,7 +33,7 @@ public interface VideoRepository extends JpaRepository<Video, Integer> {
     List<Video> getAllHashtagByName(@Param("hashtag") String hashtag, Pageable pageable);
 
     @Query(value = "SELECT * FROM videos AS v " +
-            "JOIN users AS u ON (v.owner_id = u.id) WHERE u.username LIKE 'Deleted%'", nativeQuery = true)
+            "JOIN users AS u ON (v.owner_id = u.id) WHERE u.username LIKE '%Deleted%'", nativeQuery = true)
     List<Video> deleteAllVideosWithoutUser();
 
     @Query(value = "SELECT * FROM videos ORDER BY upload_at DESC", nativeQuery = true)

@@ -1,8 +1,7 @@
 package com.tiktok.controller;
 
-import com.tiktok.model.dto.TextResponseDTO;
-import com.tiktok.model.dto.errorDTO.ErrorDTO;
-import com.tiktok.model.dto.userDTO.ResponseDTO;
+import com.tiktok.model.dto.error.ErrorDTO;
+import com.tiktok.model.dto.user.ResponseDTO;
 import com.tiktok.model.exceptions.BadRequestException;
 import com.tiktok.model.exceptions.NotFoundException;
 import com.tiktok.model.exceptions.UnauthorizedException;
@@ -10,9 +9,7 @@ import com.tiktok.service.*;
 import com.tiktok.service.CommentService;
 import com.tiktok.service.UserService;
 import com.tiktok.service.MessageService;
-import com.tiktok.service.UserService;
 import com.tiktok.service.VideoService;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
@@ -42,6 +39,8 @@ public abstract class GlobalController {
     public VideoService videoService;
     @Autowired
     public CommentService commentService;
+    @Autowired
+    public FileService fileService;
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -67,7 +66,6 @@ public abstract class GlobalController {
         return getErrorDTO(e, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
@@ -89,9 +87,9 @@ public abstract class GlobalController {
         return dto;
     }
 
-    public int getUserIdFromSession(HttpServletRequest req) {
-        HttpSession session = req.getSession();
-        if (!isLogged(req)) {
+    public int getUserIdFromSession(HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        if (!isLogged(request)) {
             session.invalidate();
             throw new UnauthorizedException("You have to log in!");
         }
@@ -103,19 +101,18 @@ public abstract class GlobalController {
         return userId;
     }
 
-    public boolean isLogged(HttpServletRequest req) {
-        HttpSession session = req.getSession();
+    public boolean isLogged(HttpServletRequest request) {
+        HttpSession session = request.getSession();
         return Boolean.TRUE.equals(session.getAttribute(LOGGED))
                 && session.getAttribute(USER_ID) != null
-                && session.getAttribute(REMOTE_IP).equals(req.getRemoteAddr());
-
+                && session.getAttribute(REMOTE_IP).equals(request.getRemoteAddr());
     }
 
-    public void setSession(HttpServletRequest req, int id) {
-        HttpSession session = req.getSession();
+    public void setSession(HttpServletRequest request, int id) {
+        HttpSession session = request.getSession();
         session.setAttribute(LOGGED, Boolean.TRUE);
         session.setAttribute(USER_ID, id);
-        session.setAttribute(REMOTE_IP, req.getRemoteAddr());
+        session.setAttribute(REMOTE_IP, request.getRemoteAddr());
     }
 
     public ResponseDTO getResponseDTO(String text) {

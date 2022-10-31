@@ -1,4 +1,4 @@
-package com.tiktok.model.dto.userDTO;
+package com.tiktok.model.dto.user;
 
 import lombok.Data;
 
@@ -18,6 +18,5 @@ public class UserResponseDTO {
     private int numberOfVideos;
     private int numberOfSubscribers;
     private int numberOfSubscribeTo;
-    // todo numberOfLikes
 
 }
