@@ -12,6 +12,7 @@ import com.tiktok.model.exceptions.BadRequestException;
 import com.tiktok.model.exceptions.NotFoundException;
 import com.tiktok.model.exceptions.UnauthorizedException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -111,8 +112,9 @@ public class VideoService extends GlobalService {
         List<Video> videos = videoRepository.showMyVideos(userId, pageable);
         return mapDto(videos);
     }
+
     public List<VideoResponseWithoutOwnerDTO> showLiveVideos(int pageNumber, int videosPerPage) {
-        pageable = PageRequest.of(pageNumber,videosPerPage);
+        pageable = PageRequest.of(pageNumber, videosPerPage);
         List<Video> videos = videoRepository.getAllLiveVideos(pageable);
         return mapDto(videos);
     }
@@ -127,14 +129,15 @@ public class VideoService extends GlobalService {
         throw new UnauthorizedException(errorMessage);
     }
 
-    private List<VideoResponseWithoutOwnerDTO> mapDto (List<Video> videos){
+    private List<VideoResponseWithoutOwnerDTO> mapDto(List<Video> videos) {
         List<VideoResponseWithoutOwnerDTO> dtoVideos = new ArrayList<>();
-        for (Video video : videos){
+        for (Video video : videos) {
             VideoResponseWithoutOwnerDTO dto = modelMapper.map(video, VideoResponseWithoutOwnerDTO.class);
             dtoVideos.add(dto);
         }
         return dtoVideos;
     }
+
     public List<VideoResponseUploadDTO> getAllVideosHashtag(String text, int page, int perPage) {
         pageable = PageRequest.of(page, perPage);
         text = text.startsWith("#") ? text : "#" + text;
@@ -151,5 +154,11 @@ public class VideoService extends GlobalService {
         List<Video> videos = videoRepository.getAllVideosPublishers(userId, pageable);
         checkCollection(videos);
         return getVideoUploadResponseDTOS(videos);
+    }
+
+    public List<VideoResponseWithoutOwnerDTO> showVideosHomePage(int pageNumber, int videosPerPage) {
+        pageable = PageRequest.of(pageNumber, videosPerPage);
+        List<Video> videos = videoRepository.showAllVideosByUploadAt(pageable);
+        return mapDto(videos);
     }
 }

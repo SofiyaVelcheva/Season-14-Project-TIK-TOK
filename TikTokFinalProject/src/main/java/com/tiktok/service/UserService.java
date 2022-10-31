@@ -179,7 +179,7 @@ public class UserService extends GlobalService {
             userRepository.save(user);
             return getUserResponseDTO(user);
         } catch (IOException e) {
-            throw new BadRequestException(e.getMessage(), e);
+            throw new BadRequestException(e.getMessage());
         }
     }
 
@@ -298,18 +298,28 @@ public class UserService extends GlobalService {
 
 
     public void sendEmail(User user, String subject, String content1) throws MessagingException, UnsupportedEncodingException {
-        String toAddress = user.getEmail();
-        String fromAddress = "tiktokteams14itt@gmail.com";
-        String senderName = "Tik Tok Team";
-        String content = content1;
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message);
-        helper.setFrom(fromAddress, senderName);
-        helper.setTo(toAddress);
-        helper.setSubject(subject);
-        content = content.replace("[[name]]", user.getFirstName() + " " + user.getLastName());
-        helper.setText(content, true);
-        mailSender.send(message);
+        new Thread() {
+            @Override
+            public void run() {
+                String toAddress = user.getEmail();
+                String fromAddress = "tiktokteams14itt@gmail.com";
+                String senderName = "Tik Tok Team";
+                String content = content1;
+                MimeMessage message = mailSender.createMimeMessage();
+                MimeMessageHelper helper = new MimeMessageHelper(message);
+                try {
+                    helper.setFrom(fromAddress, senderName);
+                    helper.setTo(toAddress);
+                    helper.setSubject(subject);
+                    content = content.replace("[[name]]", user.getFirstName() + " " + user.getLastName());
+                    helper.setText(content, true);
+                } catch (MessagingException | UnsupportedEncodingException e) {
+                    throw new RuntimeException(e);
+                }
+                mailSender.send(message);
+            }
+        }.start();
+
     }
 
     public boolean verifyAccount(int userId) {

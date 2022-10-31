@@ -110,4 +110,6 @@ public class UserController extends GlobalController {
                                                        @RequestParam(value = "verificationCode") String verificationCode) {
         return new ResponseEntity<>(userService.verifyEmail(verificationCode, userId), HttpStatus.ACCEPTED);
     }
+
+
 }

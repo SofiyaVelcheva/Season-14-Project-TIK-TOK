@@ -31,7 +31,7 @@ public class FileService extends GlobalService {
             return path;
         } catch (
                 IOException e) {
-            throw new BadRequestException(e.getMessage(), e);
+            throw new BadRequestException(e.getMessage());
         }
 
     }

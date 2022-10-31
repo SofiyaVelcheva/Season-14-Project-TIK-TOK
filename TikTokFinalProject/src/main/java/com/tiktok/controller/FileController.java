@@ -37,7 +37,7 @@ public class FileController extends GlobalController {
             response.setContentType(Files.probeContentType(file.toPath()));
             Files.copy(file.toPath(), response.getOutputStream());
         } catch (IOException e) {
-            throw new BadRequestException(e.getMessage(), e);
+            throw new BadRequestException(e.getMessage());
         }
         return response;
     }

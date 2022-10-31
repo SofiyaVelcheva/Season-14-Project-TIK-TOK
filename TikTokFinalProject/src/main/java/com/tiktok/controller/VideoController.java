@@ -6,12 +6,14 @@ import com.tiktok.model.dto.videoDTO.response.*;
 import com.tiktok.model.dto.videoDTO.response.EditResponseVideoDTO;
 import com.tiktok.model.dto.videoDTO.response.VideoResponseDTO;
 import com.tiktok.model.dto.videoDTO.response.VideoResponseWithoutOwnerDTO;
+import com.tiktok.model.exceptions.UnauthorizedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @RestController
@@ -71,5 +73,12 @@ public class VideoController extends GlobalController {
                                                                             @RequestParam(value = "page", defaultValue = "0") int page,
                                                                             @RequestParam(value = "perPage", defaultValue = "10") int perPage) {
         return new ResponseEntity<>(videoService.getAllVideosHashtag(text, page, perPage), HttpStatus.OK);
+    }
+
+    @PostMapping("/videos/homePage")
+
+    public ResponseEntity<List<VideoResponseWithoutOwnerDTO>> showVideosHomePage(@RequestParam(defaultValue = "0") int pageNumber,
+                                                                                 @RequestParam(defaultValue = "3") int videosPerPage) {
+        return new ResponseEntity<>(videoService.showVideosHomePage(pageNumber,videosPerPage), HttpStatus.OK);
     }
 }
