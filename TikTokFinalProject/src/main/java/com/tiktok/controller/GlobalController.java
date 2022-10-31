@@ -1,7 +1,7 @@
 package com.tiktok.controller;
 
+import com.tiktok.model.dto.TextResponseDTO;
 import com.tiktok.model.dto.error.ErrorDTO;
-import com.tiktok.model.dto.user.ResponseDTO;
 import com.tiktok.model.exceptions.BadRequestException;
 import com.tiktok.model.exceptions.NotFoundException;
 import com.tiktok.model.exceptions.UnauthorizedException;
@@ -9,9 +9,7 @@ import com.tiktok.service.*;
 import com.tiktok.service.CommentService;
 import com.tiktok.service.UserService;
 import com.tiktok.service.MessageService;
-import com.tiktok.service.UserService;
 import com.tiktok.service.VideoService;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
@@ -118,9 +116,9 @@ public abstract class GlobalController {
         session.setAttribute(REMOTE_IP, req.getRemoteAddr());
     }
 
-    public ResponseDTO getResponseDTO(String text) {
-        ResponseDTO dto = new ResponseDTO();
-        dto.setText(text);
+    public TextResponseDTO getResponseDTO(String text) {
+        TextResponseDTO dto = new TextResponseDTO();
+        dto.setMessage(text);
         return dto;
     }
 

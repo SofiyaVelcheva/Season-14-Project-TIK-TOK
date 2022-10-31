@@ -59,7 +59,7 @@ public class UserController extends GlobalController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<ResponseDTO> logout(HttpServletRequest req) {
+    public ResponseEntity<TextResponseDTO> logout(HttpServletRequest req) {
         if (!isLogged(req)) {
             req.getSession().invalidate();
             throw new UnauthorizedException("You have to log in!");
@@ -70,23 +70,23 @@ public class UserController extends GlobalController {
 
 
     @DeleteMapping("/users/{id}")
-    public ResponseEntity<ResponseDTO> deleteUser(@PathVariable int id,
-                                                  HttpServletRequest req) {
+    public ResponseEntity<TextResponseDTO> deleteUser(@PathVariable int id,
+                                                      HttpServletRequest req) {
         userService.deleteUser(id, getUserIdFromSession(req));
         req.getSession().invalidate();
         return new ResponseEntity<>(getResponseDTO("Your delete request was successful."), HttpStatus.OK);
     }
 
     @PostMapping("/users/{id}/sub")
-    public ResponseEntity<ResponseDTO> subscribe(@PathVariable(name = "id") int publisherId,
-                                                 HttpServletRequest req) {
+    public ResponseEntity<TextResponseDTO> subscribe(@PathVariable(name = "id") int publisherId,
+                                                     HttpServletRequest req) {
         userService.subscribe(publisherId, getUserIdFromSession(req));
         return new ResponseEntity<>(getResponseDTO("Your follow request was successful."), HttpStatus.OK);
     }
 
     @PostMapping("/users/{id}/unsub")
-    public ResponseEntity<ResponseDTO> unsubscribe(@PathVariable(name = "id") int publisherId,
-                                                   HttpServletRequest req) {
+    public ResponseEntity<TextResponseDTO> unsubscribe(@PathVariable(name = "id") int publisherId,
+                                                       HttpServletRequest req) {
         userService.unsubscribe(publisherId, getUserIdFromSession(req));
         return new ResponseEntity<>(getResponseDTO("Your unfollow request was successful."), HttpStatus.OK);
     }
@@ -112,8 +112,8 @@ public class UserController extends GlobalController {
     }
 
     @PostMapping("users/{userId}/verifyEmail")
-    public ResponseEntity<TextResponseDTO> verifyEmail(@PathVariable(name = "userId") int userId,
-                                                       @RequestParam(value = "verificationCode") String verificationCode) {
+    public ResponseEntity<com.tiktok.model.dto.TextResponseDTO> verifyEmail(@PathVariable(name = "userId") int userId,
+                                                                            @RequestParam(value = "verificationCode") String verificationCode) {
         return new ResponseEntity<>(userService.verifyEmail(verificationCode, userId), HttpStatus.ACCEPTED);
     }
 }

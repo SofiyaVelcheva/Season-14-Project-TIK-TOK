@@ -1,9 +1,9 @@
 package com.tiktok.controller;
 
+import com.tiktok.model.dto.TextResponseDTO;
 import com.tiktok.model.dto.message.MessageDTO;
 import com.tiktok.model.dto.message.SendMessageRequestDTO;
 import com.tiktok.model.dto.message.SendMessageResponseDTO;
-import com.tiktok.model.dto.user.ResponseDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,15 +32,15 @@ public class MessageController extends GlobalController {
     }
 
     @DeleteMapping("/messages/{mid}")
-    public ResponseEntity<ResponseDTO> deleteMessage(@PathVariable int mid,
-                                                     HttpServletRequest req) {
+    public ResponseEntity<TextResponseDTO> deleteMessage(@PathVariable int mid,
+                                                         HttpServletRequest req) {
         messageService.delete(mid, getUserIdFromSession(req));
         return new ResponseEntity<>(getResponseDTO("You deleted a message."), HttpStatus.OK);
     }
 
     @PostMapping("/users/sub/messages")
-    public ResponseEntity<ResponseDTO> sendMessageToSub(@Valid @RequestBody SendMessageRequestDTO dto,
-                                                        HttpServletRequest req) {
+    public ResponseEntity<TextResponseDTO> sendMessageToSub(@Valid @RequestBody SendMessageRequestDTO dto,
+                                                            HttpServletRequest req) {
         messageService.sendMessageSub(dto.getText(), getUserIdFromSession(req));
         return new ResponseEntity<>(getResponseDTO("The message" + dto.getText() + "was successfully sent to all your subscribers."), HttpStatus.OK);
     }

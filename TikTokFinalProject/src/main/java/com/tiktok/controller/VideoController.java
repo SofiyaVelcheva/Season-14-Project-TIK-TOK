@@ -22,12 +22,8 @@ public class VideoController extends GlobalController {
                                                         @RequestParam(value = "isLive") Boolean isLve,
                                                         @RequestParam(value = "isPrivate") Boolean isPrivate,
                                                         @RequestParam(value = "description") String description,
-                                                        HttpServletRequest request) {
-        int userFromSess = getUserIdFromSession(request);
-//        if (userFromSess != userId){
-//            throw new UnauthorizedException("You have to log in from your account!");
-//        }
-        return new ResponseEntity<>(videoService.uploadVideo(userFromSess, file, isLve, isPrivate, description), HttpStatus.CREATED);
+                                                        HttpServletRequest req) {
+        return new ResponseEntity<>(videoService.uploadVideo(getUserIdFromSession(req),file, isLve, isPrivate, description), HttpStatus.CREATED);
     }
 
     @PutMapping("/videos/{videoId}")
@@ -73,8 +69,7 @@ public class VideoController extends GlobalController {
     @GetMapping("/videos/hashtag")
     public ResponseEntity<List<VideoResponseUploadDTO>> getAllVideosHashtag(@RequestParam(value = "text") String text,
                                                                             @RequestParam(value = "page", defaultValue = "0") int page,
-                                                                            @RequestParam(value = "perPage", defaultValue = "10") int perPage,
-                                                                            HttpServletRequest req) {
+                                                                            @RequestParam(value = "perPage", defaultValue = "10") int perPage) {
         return new ResponseEntity<>(videoService.getAllVideosHashtag(text, page, perPage), HttpStatus.OK);
     }
 }

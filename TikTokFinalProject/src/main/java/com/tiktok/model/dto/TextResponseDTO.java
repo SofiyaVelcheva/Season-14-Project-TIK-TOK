@@ -10,5 +10,4 @@ public class TextResponseDTO { //can be used only for response
 
     private String message;
 
-
 }
