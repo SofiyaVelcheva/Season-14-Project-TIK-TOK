@@ -26,6 +26,3 @@ Implementation of the **TIK TOK**
 9. Possibility for registration by email with code or link.
 ---
 You can read more about the **IT TALENTS** at the following link: <https://ittalents.bg/aboutUs>
-
-[![Visualization of the codebase](./diagram.svg)](https://octo-repo-visualization.vercel.app/?repo=integerman%2FVisualizingCode)
-[View interactive Diagram](https://octo-repo-visualization.vercel.app/?repo=integerman%2FVisualizingCode)
