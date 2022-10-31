@@ -1,17 +1,14 @@
 package com.tiktok;
 
-
 import com.cloudmersive.client.invoker.ApiClient;
 import com.cloudmersive.client.invoker.Configuration;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.EnableScheduling;
-
 import java.util.Properties;
 
 @SpringBootApplication

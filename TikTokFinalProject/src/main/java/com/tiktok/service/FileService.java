@@ -2,7 +2,6 @@ package com.tiktok.service;
 
 import com.tiktok.model.dto.user.UserResponseDTO;
 import com.tiktok.model.entities.User;
-import com.tiktok.model.entities.Video;
 import com.tiktok.model.exceptions.BadRequestException;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Service;

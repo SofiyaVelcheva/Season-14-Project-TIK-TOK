@@ -14,6 +14,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.UnsupportedEncodingException;
@@ -202,19 +203,23 @@ public class UserService extends GlobalService {
         return users.stream().map(u -> modelMapper.map(u, PublisherUserDTO.class)).collect(Collectors.toList());
     }
 
-    public TextResponseDTO verifyEmail(String verificationCode, int userId) {
-        User user = getUserById(userId);
-        System.out.println(userId);
-        System.out.println(user.getVerificationCode());
-        if (user.getVerificationCode().equals(verificationCode)) {
-            if (user.isVerifiedEmail()) {
-                throw new BadRequestException("You already verified your email!");
-            }
-            user.setVerifiedEmail(true);
-            userRepository.save(user);
-            return new TextResponseDTO("You have been verified successfully");
+    public TextResponseDTO verifyEmail(String verificationCode) {
+        int id = 0;
+        Pattern pattern = Pattern.compile("(?<=@)(.*?)(?=@)");
+        Matcher matcher = pattern.matcher(verificationCode);
+        if (matcher.find()) {
+            id = Integer.parseInt(matcher.group(1));
         }
-        throw new BadRequestException("The code you enter isn't correct!");
+        User user = getUserById(id);
+        user.setVerifiedEmail(true);
+        SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setFrom("tiktokteams14itt@gmail.com");
+        msg.setTo(user.getEmail());
+        msg.setSubject("Verified");
+        msg.setText("You have verified your account");
+        mailSender.send(msg);
+        userRepository.save(user);
+        return new TextResponseDTO("Dear " + user.getLastName() + user.getFirstName() + " " + user.getLastName() + " Your account has been verified!");
     }
 
     private void sendVerificationEmail(User user) throws MessagingException, UnsupportedEncodingException {
@@ -222,12 +227,11 @@ public class UserService extends GlobalService {
         String subject = "Tik-Tok - Verify your registration";
         String content = "Dear [[name]],"
                 + "\nYou have to verify tour account.\\"
-                + "nPlease follow this link: http://localhost:6969/users/verifyEmail/" + token
+                + "\nPlease follow this link: http://localhost:6969/users/verifyEmail/" + token
                 + "\nThank you!,"
                 + "\nTik Tok Team";
         sendEmail(user, subject, content);
     }
-
 
     public void sendEmail(User user, String subject, String content1) throws MessagingException, UnsupportedEncodingException {
         new Thread(() -> {
@@ -248,32 +252,11 @@ public class UserService extends GlobalService {
             }
             mailSender.send(message);
         }).start();
-
     }
 
     public boolean verifyAccount(int userId) {
         User user = getUserById(userId);
         return user.isVerifiedEmail();
-    }
-
-    public String verifyRegistration(String encryptedId) {
-        int userId = 0;
-        Pattern pattern = Pattern.compile("(?<=@)(.*?)(?=@)");
-        Matcher matcher = pattern.matcher(encryptedId);
-        if (matcher.find()) {
-            userId = Integer.parseInt(matcher.group(1));
-        }
-        System.out.println(userId);
-        User user = getUserById(userId);
-        user.setVerifiedEmail(true);
-        SimpleMailMessage msg = new SimpleMailMessage();
-        msg.setFrom("tiktokteams14itt@gmail.com");
-        msg.setTo(user.getEmail());
-        msg.setSubject("Tik-Tok - Verify your registration");
-        msg.setText("You have verified your account");
-        mailSender.send(msg);
-        userRepository.save(user);
-        return user.getFirstName() + " " + user.getLastName() + ". Your account has been verified!";
     }
 }
 

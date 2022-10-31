@@ -2,7 +2,7 @@ package com.tiktok.service;
 
 
 import com.tiktok.model.dto.TextResponseDTO;
-import com.tiktok.model.dto.video.request.VideoRequestEditDTO;
+import com.tiktok.model.dto.video.response.VideoRequestEditDTO;
 import com.tiktok.model.dto.video.response.EditResponseVideoDTO;
 import com.tiktok.model.dto.video.response.VideoResponseDTO;
 import com.tiktok.model.dto.video.response.VideoResponseUploadDTO;

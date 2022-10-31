@@ -24,13 +24,7 @@ public class CronJob {
     @Autowired
     private UserService userService;
 
-    //Seconds
-    //Minutes
-    //Hours
-    //Day-of-Month
-    //Month
-    //Day-of-Week
-    //Year (optional field)
+    //Seconds / Minutes / Hours / Day-of-Month / Month / Day-of-Week / Year (optional field)
 
     @Scheduled(cron = "59 59 23 28 * *") // every month on 28th at 23:59:59
     public void deleteAllVideosWithoutUser() {

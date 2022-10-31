@@ -20,82 +20,81 @@ public class UserController extends GlobalController {
 
     @PostMapping("/auth")
     public ResponseEntity<UserResponseDTO> login(@Valid @RequestBody LoginRequestUserDTO user,
-                                                 HttpServletRequest req) {
-        if (isLogged(req)) {
+                                                 HttpServletRequest request) {
+        if (isLogged(request)) {
             throw new BadRequestException("You are already logged in.");
         }
         UserResponseDTO result = userService.login(user);
-        setSession(req, result.getId());
+        setSession(request, result.getId());
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @PostMapping("/users")
-    public ResponseEntity<UserResponseDTO> register(@Valid @RequestBody RegisterRequestUserDTO u, HttpServletRequest req) {
-        if (isLogged(req)) {
+    public ResponseEntity<UserResponseDTO> register(@Valid @RequestBody RegisterRequestUserDTO dto,
+                                                    HttpServletRequest request) {
+        if (isLogged(request)) {
             throw new BadRequestException("You are already registered and log in.");
         }
-        UserResponseDTO user = userService.register(u);
+        UserResponseDTO user = userService.register(dto);
         return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
 
     @PutMapping("/users")
     public ResponseEntity<UserResponseDTO> edit(@Valid @RequestBody EditUserRequestDTO dto,
-                                                HttpServletRequest req) {
-        UserResponseDTO user = userService.edit(getUserIdFromSession(req), dto);
+                                                HttpServletRequest request) {
+        UserResponseDTO user = userService.edit(getUserIdFromSession(request), dto);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @PutMapping("/users/pass")
-    public ResponseEntity<UserResponseDTO> changePass(HttpServletRequest req,
-                                                      @Valid @RequestBody ChangePassRequestUserDTO dto) {
-        UserResponseDTO userDTO = userService.changePass(getUserIdFromSession(req), dto);
-        req.getSession().invalidate();
+    public ResponseEntity<UserResponseDTO> changePass(@Valid @RequestBody ChangePassRequestUserDTO dto,
+                                                      HttpServletRequest request) {
+        UserResponseDTO userDTO = userService.changePass(getUserIdFromSession(request), dto);
+        request.getSession().invalidate();
         return new ResponseEntity<>(userDTO, HttpStatus.OK);
     }
 
     @PutMapping("/users/photo")
-    public ResponseEntity<UserResponseDTO> uploadProfilePhoto(HttpServletRequest req, @Valid @RequestParam MultipartFile file) {
-        UserResponseDTO user = fileService.uploadProfilePhoto(getUserIdFromSession(req), file);
-        return new ResponseEntity<>(user, HttpStatus.OK);
+    public ResponseEntity<UserResponseDTO> uploadProfilePhoto(@Valid @RequestParam MultipartFile file,
+                                                              HttpServletRequest request) {
+        return new ResponseEntity<>(fileService.uploadProfilePhoto(getUserIdFromSession(request), file), HttpStatus.OK);
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<ResponseDTO> logout(HttpServletRequest req) {
-        if (!isLogged(req)) {
-            req.getSession().invalidate();
+    public ResponseEntity<TextResponseDTO> logout(HttpServletRequest request) {
+        if (!isLogged(request)) {
+            request.getSession().invalidate();
             throw new UnauthorizedException("You have to log in!");
         }
-        req.getSession().invalidate();
+        request.getSession().invalidate();
         return new ResponseEntity<>(getResponseDTO("Log out!"), HttpStatus.OK);
     }
 
-
-    @DeleteMapping("/users/{id}")
-    public ResponseEntity<ResponseDTO> deleteUser(@PathVariable int id,
-                                                  HttpServletRequest req) {
-        userService.deleteUser(id, getUserIdFromSession(req));
-        req.getSession().invalidate();
+    @DeleteMapping("/users/{userId}")
+    public ResponseEntity<TextResponseDTO> deleteUser(@PathVariable int userId,
+                                                      HttpServletRequest request) {
+        userService.deleteUser(userId, getUserIdFromSession(request));
+        request.getSession().invalidate();
         return new ResponseEntity<>(getResponseDTO("Your delete request was successful."), HttpStatus.OK);
     }
 
-    @PostMapping("/users/{id}/sub")
-    public ResponseEntity<ResponseDTO> subscribe(@PathVariable(name = "id") int publisherId,
-                                                 HttpServletRequest req) {
+    @PostMapping("/users/{userId}/sub")
+    public ResponseEntity<TextResponseDTO> subscribe(@PathVariable(name = "userId") int publisherId,
+                                                     HttpServletRequest req) {
         userService.subscribe(publisherId, getUserIdFromSession(req));
         return new ResponseEntity<>(getResponseDTO("Your follow request was successful."), HttpStatus.OK);
     }
 
-    @PostMapping("/users/{id}/unsub")
-    public ResponseEntity<ResponseDTO> unsubscribe(@PathVariable(name = "id") int publisherId,
-                                                   HttpServletRequest req) {
-        userService.unsubscribe(publisherId, getUserIdFromSession(req));
+    @PostMapping("/users/{userId}/unsub")
+    public ResponseEntity<TextResponseDTO> unsubscribe(@PathVariable(name = "userId") int publisherId,
+                                                       HttpServletRequest request) {
+        userService.unsubscribe(publisherId, getUserIdFromSession(request));
         return new ResponseEntity<>(getResponseDTO("Your unfollow request was successful."), HttpStatus.OK);
     }
 
-    @GetMapping("/users/{uid}")
-    public ResponseEntity<UserResponseDTO> getUser(@PathVariable int uid) {
-        UserResponseDTO dto = userService.getUser(uid);
-        return new ResponseEntity<>(dto, HttpStatus.OK);
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<UserResponseDTO> getUser(@PathVariable int userId) {
+        return new ResponseEntity<>(userService.getUser(userId), HttpStatus.OK);
     }
 
     @GetMapping("/users/search")
@@ -113,8 +112,8 @@ public class UserController extends GlobalController {
     }
 
     @GetMapping("users/verifyEmail/{token}")
-    public ResponseEntity<String > verifyRegistration(@PathVariable String token) {
-        return new ResponseEntity<>(userService.verifyRegistration(token), HttpStatus.OK);
+    public ResponseEntity<TextResponseDTO> verifyRegistration(@PathVariable String token) {
+        return new ResponseEntity<>(userService.verifyEmail(token), HttpStatus.OK);
     }
 
 

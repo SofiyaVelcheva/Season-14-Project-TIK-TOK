@@ -1,6 +1,5 @@
 package com.tiktok.controller;
 
-
 import com.tiktok.model.exceptions.BadRequestException;
 import com.tiktok.model.exceptions.NotFoundException;
 import org.springframework.web.bind.annotation.GetMapping;

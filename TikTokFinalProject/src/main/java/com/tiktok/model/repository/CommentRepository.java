@@ -14,7 +14,6 @@ import java.util.List;
 public interface CommentRepository extends JpaRepository<Comment, Integer> {
     List<Comment> findAllByVideo(Video video, Pageable page);
 
-
     @Query(value = "SELECT * FROM comments AS c JOIN users WHERE video_id = :videoId AND " +
             "c.parent_id is null GROUP BY c.id ORDER BY upload_at DESC", nativeQuery = true)
     List<Comment> findParentCommentsOrderByDate(@Param("videoId") Integer videoId, Pageable page);

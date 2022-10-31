@@ -1,7 +1,7 @@
 package com.tiktok.controller;
 
+import com.tiktok.model.dto.TextResponseDTO;
 import com.tiktok.model.dto.error.ErrorDTO;
-import com.tiktok.model.dto.user.ResponseDTO;
 import com.tiktok.model.exceptions.BadRequestException;
 import com.tiktok.model.exceptions.NotFoundException;
 import com.tiktok.model.exceptions.UnauthorizedException;
@@ -115,9 +115,9 @@ public abstract class GlobalController {
         session.setAttribute(REMOTE_IP, request.getRemoteAddr());
     }
 
-    public ResponseDTO getResponseDTO(String text) {
-        ResponseDTO dto = new ResponseDTO();
-        dto.setText(text);
+    public TextResponseDTO getResponseDTO(String text) {
+        TextResponseDTO dto = new TextResponseDTO();
+        dto.setMessage(text);
         return dto;
     }
 

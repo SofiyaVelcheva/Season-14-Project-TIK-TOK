@@ -17,6 +17,7 @@ import java.util.List;
 
 @Service
 public class CommentService extends GlobalService {
+
     public AddResponseCommentDTO addComment(int videoId, int userId, CommentWithTextDTO dto) {
         Video video = getVideoById(videoId);
         if (video.isPrivate()) { //even the owner can't add a comment to private videos

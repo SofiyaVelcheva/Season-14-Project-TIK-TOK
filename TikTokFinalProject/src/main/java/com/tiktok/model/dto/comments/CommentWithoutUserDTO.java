@@ -1,7 +1,6 @@
 package com.tiktok.model.dto.comments;
 
 import com.tiktok.model.dto.user.PublisherUserDTO;
-import com.tiktok.model.dto.user.UserResponseDTO;
 import lombok.Data;
 
 import java.time.LocalDateTime;

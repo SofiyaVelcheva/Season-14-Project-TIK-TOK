@@ -48,7 +48,5 @@ public class HashtagService extends GlobalService {
             video.setHashtags(new ArrayList<>());
         }
         video.getHashtags().add(hash);
-
-
     }
 }

@@ -1,7 +1,7 @@
 package com.tiktok.controller;
 
 import com.tiktok.model.dto.TextResponseDTO;
-import com.tiktok.model.dto.video.request.VideoRequestEditDTO;
+import com.tiktok.model.dto.video.response.VideoRequestEditDTO;
 import com.tiktok.model.dto.video.response.EditResponseVideoDTO;
 import com.tiktok.model.dto.video.response.VideoResponseDTO;
 import com.tiktok.model.dto.video.response.VideoResponseUploadDTO;
@@ -24,6 +24,7 @@ public class VideoController extends GlobalController {
                                                         @RequestParam(value = "description") String description,
                                                         HttpServletRequest request) {
         return new ResponseEntity<>(videoService.uploadVideo(getUserIdFromSession(request), file, isLve, isPrivate, description), HttpStatus.CREATED);
+
     }
 
     @PutMapping("/videos/{videoId}")
@@ -62,22 +63,20 @@ public class VideoController extends GlobalController {
     @GetMapping("/videos/sub")
     public ResponseEntity<List<VideoResponseUploadDTO>> getVideosPublishers(@RequestParam(value = "page", defaultValue = "0") int page,
                                                                             @RequestParam(value = "perPage", defaultValue = "10") int perPage,
-                                                                            HttpServletRequest req) {
-        return new ResponseEntity<>(videoService.getVideosPublishers(getUserIdFromSession(req), page, perPage), HttpStatus.OK);
+                                                                            HttpServletRequest request) {
+        return new ResponseEntity<>(videoService.getVideosPublishers(getUserIdFromSession(request), page, perPage), HttpStatus.OK);
     }
 
     @GetMapping("/videos/hashtag")
     public ResponseEntity<List<VideoResponseUploadDTO>> getAllVideosHashtag(@RequestParam(value = "text") String text,
                                                                             @RequestParam(value = "page", defaultValue = "0") int page,
-                                                                            @RequestParam(value = "perPage", defaultValue = "10") int perPage,
-                                                                            HttpServletRequest req) {
+                                                                            @RequestParam(value = "perPage", defaultValue = "10") int perPage) {
         return new ResponseEntity<>(videoService.getAllVideosHashtag(text, page, perPage), HttpStatus.OK);
     }
 
     @PostMapping("/videos/homePage")
-
     public ResponseEntity<List<VideoResponseWithoutOwnerDTO>> showVideosHomePage(@RequestParam(defaultValue = "0") int pageNumber,
                                                                                  @RequestParam(defaultValue = "3") int videosPerPage) {
-        return new ResponseEntity<>(videoService.showVideosHomePage(pageNumber,videosPerPage), HttpStatus.OK);
+        return new ResponseEntity<>(videoService.showVideosHomePage(pageNumber, videosPerPage), HttpStatus.OK);
     }
 }
