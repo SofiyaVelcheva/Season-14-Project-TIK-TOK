@@ -224,6 +224,7 @@ public class UserService extends GlobalService {
 
     private void sendVerificationEmail(User user) throws MessagingException, UnsupportedEncodingException {
         String token = System.currentTimeMillis() + "$$$" + new Random().nextInt(99999) + "*=3214@" + user.getId() + "@" + System.currentTimeMillis();
+        System.out.println(token);
         String subject = "Tik-Tok - Verify your registration";
         String content = "Dear [[name]],"
                 + "\nYou have to verify tour account.\\"

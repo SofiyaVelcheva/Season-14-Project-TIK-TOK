@@ -55,12 +55,7 @@ public class FileService extends GlobalService {
             String name = userIdFromSession +"_"+ System.nanoTime() + "." + ext;
             String filePath = "photos" + File.separator + name;
             File f = new File(filePath);
-            if (!f.exists()) {
-                Files.copy(file.getInputStream(), f.toPath());
-            } else {
-                throw new BadRequestException("The file already exists.");
-            }
-            if (user.getPhotoURL() != null) {
+             if (user.getPhotoURL() != null) {
                 File old = new File("photos" + File.separator + user.getPhotoURL());
                 old.delete();
             }

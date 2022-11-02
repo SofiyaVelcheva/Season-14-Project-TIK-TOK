@@ -14,17 +14,15 @@ import java.util.regex.Pattern;
 @Service
 public class HashtagService extends GlobalService {
     private static final String VALID_HASHTAG_REGEX = "#[A-Za-z0-9_]+";
-    private static final int HASHTAG_LENGHT = 50;
+    private static final int HASHTAG_LENGTH = 50;
 
     public void addHashtags(Video video) {
         if (video.getDescription() != null) {
             String[] allWords = video.getDescription().split("\\s+");
-            List<String> hashtags = new ArrayList<>();
-            for (String hashtag : allWords) {
+                     for (String hashtag : allWords) {
                 Pattern p = Pattern.compile(VALID_HASHTAG_REGEX);
                 Matcher m = p.matcher(hashtag);
                 if (m.find()) {
-                    hashtags.add(hashtag);
                     addHashtag(video, hashtag);
                 }
             }
@@ -32,7 +30,7 @@ public class HashtagService extends GlobalService {
     }
 
     private void addHashtag(Video video, String hashtag) {
-        if (hashtag.length() > HASHTAG_LENGHT) {
+        if (hashtag.length() > HASHTAG_LENGTH) {
             throw new BadRequestException("Hashtag length should be maximum 50 symbols.");
         }
         Optional<Hashtag> optionalHashtag = hashtagRepository.findHashtagByText(hashtag);

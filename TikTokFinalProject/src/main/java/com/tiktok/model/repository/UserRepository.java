@@ -27,6 +27,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
             "GROUP BY u.id " +
             "ORDER BY COUNT(s.publisher_id) DESC", nativeQuery = true)
     List<User> findAllByUsername(@Param("username") String username, Pageable pageable);
+    // filter users by most subscribers
 
     @Query(value = "SELECT * FROM users as u LEFT JOIN subscribers as s ON u.id = s.publisher_id " +
             "WHERE subscriber_id = :uid AND username NOT LIKE '%delete%'", nativeQuery = true)
